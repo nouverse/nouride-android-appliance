@@ -24,8 +24,8 @@ import java.text.DateFormat
 import java.util.Date
 
 /**
- * The server's state, its addresses, Start and Stop, and the end of its log. Launched with the
- * boolean extra `start`, it starts the server as the Start button does (for `adb shell am start`).
+ * The server's state, its addresses, Start and Stop, and the end of its log. The boolean extras
+ * `start`, `stop` and `dashboard` do what the buttons do, for `adb shell am start --ez <name> true`.
  */
 class StatusActivity : Activity() {
   private lateinit var layout: Layout
@@ -47,12 +47,18 @@ class StatusActivity : Activity() {
     super.onCreate(savedInstanceState)
     layout = Layout(this)
     setContentView(views())
-    if (savedInstanceState == null && intent.getBooleanExtra(EXTRA_START, false)) startServer()
+    if (savedInstanceState == null) handleExtras(intent)
   }
 
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
+    handleExtras(intent)
+  }
+
+  private fun handleExtras(intent: Intent) {
     if (intent.getBooleanExtra(EXTRA_START, false)) startServer()
+    if (intent.getBooleanExtra(EXTRA_STOP, false)) ServerService.stop(this)
+    if (intent.getBooleanExtra(EXTRA_DASHBOARD, false)) startActivity(Intent(this, DashboardActivity::class.java))
   }
 
   override fun onResume() {
@@ -135,6 +141,8 @@ class StatusActivity : Activity() {
 
   companion object {
     const val EXTRA_START = "start"
+    const val EXTRA_STOP = "stop"
+    const val EXTRA_DASHBOARD = "dashboard"
 
     private fun lanAddress(): String? =
       NetworkInterface.getNetworkInterfaces()?.toList().orEmpty()
