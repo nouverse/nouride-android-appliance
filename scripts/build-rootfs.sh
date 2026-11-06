@@ -2,7 +2,8 @@
 # Downloads the Debian arm64 rootfs pinned in scripts/assets.lock from Docker Hub and puts it
 # where Gradle packages it:
 #
-#   app/src/main/assets/rootfs.tar.gz   the image's single layer, byte for byte
+#   app/src/main/assets/rootfs.tgz   the image's single layer, byte for byte (not named .tar.gz:
+#                                    the Android Gradle plugin gunzips assets named *.gz)
 #
 # The manifest is fetched by digest and must list the pinned layer; the layer must hash to its
 # digest. The app does what proot-distro does after extracting (resolv.conf, hosts, Android ids).
@@ -14,7 +15,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 REGISTRY=https://registry-1.docker.io/v2/library/debian
 WORK="$ROOT/build/rootfs"
-OUT="$ROOT/app/src/main/assets/rootfs.tar.gz"
+OUT="$ROOT/app/src/main/assets/rootfs.tgz"
 mkdir -p "$WORK" "$(dirname "$OUT")"
 
 token=$(curl -fsS --retry 3 -m 60 \
