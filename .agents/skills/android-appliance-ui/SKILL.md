@@ -34,17 +34,39 @@ One sentence of state, in plain words, and one main button. Each state has its o
 | Restarting on its own | "Nouride stopped for a moment and is starting again." | (none) |
 | Failed | What went wrong in one sentence, and what to do: "Nouride could not start. Check that the phone is on Wi-Fi, then try again." | Try again |
 
+The first start shows a real bar under the sentence (`server/SetupProgress.kt`): what is happening now in plain words
+("Downloading and installing Nouride"), "Step 4 of 5" and the percent. It never goes back and reaches 100 only when
+Nouride answers. A later start is seconds long and only says it is busy.
+
 Under the main state, only what a person acts on:
 
-- **Open Nouride**: the dashboard inside the app. Not a URL to copy.
-- **Use from another device**: a button that shows the address as large text and a QR code, with "Open this on a
-  computer or tablet on the same Wi-Fi". Never shown as `http://10.x.x.x:18254/...` in the middle of the screen.
+- **Open Nouride**: the dashboard inside the app, already signed in. Not a URL to copy, and never a login page on
+  the phone: the app makes the dashboard account on the first start and signs in with it (`server/FirstAdmin.kt`).
+  The password is never shown; a person who wants the dashboard elsewhere sets their own in the dashboard.
+- **Use from another device**: a button that opens the address as large text, with Share and Copy and "type this
+  in a browser on a computer or tablet on the same Wi-Fi". Never shown as `http://10.x.x.x:18254/...` in the middle
+  of the screen.
 - **Keep running with the screen off**: shown only while the phone may stop the app, with one sentence of why ("Your
   phone may stop Nouride to save battery. Allow it to keep running.") and a button that opens the right setting.
   For brands with their own battery screens (Xiaomi, Oppo, Vivo, Samsung), a short step list for that brand, with
   the exact names that brand's settings use.
 - **Stop**: a text button, not a main button. Stopping asks once: "Stop Nouride? Your agents will not answer until
   you start it again."
+
+## How it looks
+
+Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
+
+- **The cat changes with the state** (`ui/StatusLook.kt`, the poses in `res/drawable-nodpi/mascot_*.png`, cut from
+  the brand's mascot sheet): hello when off, riding its scooter while setting up or starting (it floats gently),
+  thumbs up when running, leaning on the scooter when something failed, waving while turning off.
+- **Soft colours** from `res/values/colors.xml`: a pale blue background, white cards, the brand blue `#0084FC` for the
+  one main button, and a soft fill behind the cat for the mood (blue busy, green ready, amber needs you). No pure
+  black, no saturated red.
+- **Round**: cards 28dp, buttons pill-shaped, the main button 56dp tall and full width.
+- **The icon** is the cat's head on the soft blue (`mipmap/ic_launcher`); the notification's small icon is a white
+  paw (`drawable/ic_notification`), as Android draws small icons as a silhouette.
+- No third-party UI library: the pieces are in `ui/Ui.kt`.
 
 ## Words
 

@@ -20,6 +20,9 @@ class Layout(context: Context) {
   val healthLog = File(logs, "health.log")
   private val nativeLibs = File(context.applicationInfo.nativeLibraryDir)
 
+  /** The install's own `.env`, which the daemon reads at every start. */
+  val installEnv = File(rootfs, "srv/nouride/.env")
+
   val installed: Boolean get() = File(rootfs, "srv/nouride/nouride").isFile
 
   fun prootPaths() = ProotPaths(

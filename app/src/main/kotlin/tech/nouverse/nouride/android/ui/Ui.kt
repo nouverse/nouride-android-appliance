@@ -1,0 +1,146 @@
+package tech.nouverse.nouride.android.ui
+
+import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Typeface
+import android.graphics.drawable.ClipDrawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
+import android.view.Gravity
+import android.view.View
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
+import tech.nouverse.nouride.android.R
+import tech.nouverse.nouride.android.server.Step
+
+/** The pieces every screen is built from: soft cards, round buttons, calm text. No third-party UI library. */
+internal class Ui(private val context: Context) {
+  fun dp(value: Int): Int = (value * context.resources.displayMetrics.density).toInt()
+
+  fun color(id: Int): Int = context.getColor(id)
+
+  fun rounded(fill: Int, radiusDp: Int, stroke: Int? = null): GradientDrawable = GradientDrawable().apply {
+    setColor(fill)
+    cornerRadius = dp(radiusDp).toFloat()
+    if (stroke != null) setStroke(dp(1), stroke)
+  }
+
+  fun card(fill: Int = color(R.color.surface), padding: Int = 20): LinearLayout = LinearLayout(context).apply {
+    orientation = LinearLayout.VERTICAL
+    background = rounded(fill, 28, color(R.color.line))
+    setPadding(dp(padding), dp(padding), dp(padding), dp(padding))
+  }
+
+  fun text(sizeSp: Float, colorId: Int, bold: Boolean = false, center: Boolean = false): TextView = TextView(context).apply {
+    textSize = sizeSp
+    setTextColor(color(colorId))
+    if (bold) setTypeface(typeface, Typeface.BOLD)
+    if (center) gravity = Gravity.CENTER_HORIZONTAL
+    setLineSpacing(0f, 1.15f)
+  }
+
+  /** The one big button of a screen: round, brand blue, white words. */
+  fun primary(onClick: () -> Unit): Button = Button(context).apply {
+    isAllCaps = false
+    textSize = 18f
+    setTypeface(typeface, Typeface.BOLD)
+    setTextColor(color(R.color.surface))
+    background = rounded(color(R.color.brand), 32)
+    stateListAnimator = null
+    minHeight = dp(56)
+    setOnClickListener { onClick() }
+  }
+
+  /** A quiet button: soft fill, brand words. */
+  fun secondary(onClick: () -> Unit): Button = Button(context).apply {
+    isAllCaps = false
+    textSize = 16f
+    setTextColor(color(R.color.brand))
+    background = rounded(color(R.color.brand_soft), 24)
+    stateListAnimator = null
+    minHeight = dp(48)
+    setOnClickListener { onClick() }
+  }
+
+  /** Words only, for what is rarely wanted: turning off. */
+  fun quiet(onClick: () -> Unit): Button = Button(context).apply {
+    isAllCaps = false
+    textSize = 15f
+    setTextColor(color(R.color.muted))
+    background = null
+    stateListAnimator = null
+    setOnClickListener { onClick() }
+  }
+
+  /** A thick, round progress bar in the brand blue, on a soft track. */
+  fun progressBar(): ProgressBar = ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal).apply {
+    val fill = ClipDrawable(rounded(color(R.color.brand), 8), Gravity.START, ClipDrawable.HORIZONTAL)
+    progressDrawable = LayerDrawable(arrayOf(rounded(color(R.color.surface), 8, color(R.color.line)), fill)).apply {
+      setId(0, android.R.id.background)
+      setId(1, android.R.id.progress)
+    }
+    indeterminateTintList = ColorStateList.valueOf(color(R.color.brand))
+    max = 100
+    minimumHeight = dp(12)
+  }
+
+  fun gap(heightDp: Int): View = View(context).apply { minimumHeight = dp(heightDp) }
+
+  fun fullWidth(topMarginDp: Int = 0) = LinearLayout.LayoutParams(
+    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT,
+  ).apply { topMargin = dp(topMarginDp) }
+}
+
+internal fun Mascot.drawable(): Int = when (this) {
+  Mascot.HELLO -> R.drawable.mascot_hello
+  Mascot.RIDE -> R.drawable.mascot_ride
+  Mascot.THUMBS -> R.drawable.mascot_thumbs
+  Mascot.LEAN -> R.drawable.mascot_lean
+  Mascot.WAVE -> R.drawable.mascot_wave
+}
+
+internal fun Tone.fill(): Int = when (this) {
+  Tone.CALM -> R.color.surface
+  Tone.BUSY -> R.color.busy_soft
+  Tone.GOOD -> R.color.good_soft
+  Tone.WARN -> R.color.warn_soft
+}
+
+internal fun Words.title(): Int = when (this) {
+  Words.OFF -> R.string.off_title
+  Words.SETTING_UP -> R.string.setting_up_title
+  Words.STARTING -> R.string.starting_title
+  Words.WAKING -> R.string.waking_title
+  Words.RUNNING -> R.string.running_title
+  Words.RESTARTING -> R.string.restarting_title
+  Words.STOPPING -> R.string.stopping_title
+  Words.FAILED -> R.string.failed_title
+}
+
+internal fun Words.body(): Int = when (this) {
+  Words.OFF -> R.string.off_body
+  Words.SETTING_UP -> R.string.setting_up_body
+  Words.STARTING -> R.string.starting_body
+  Words.WAKING -> R.string.waking_body
+  Words.RUNNING -> R.string.running_body
+  Words.RESTARTING -> R.string.restarting_body
+  Words.STOPPING -> R.string.stopping_body
+  Words.FAILED -> R.string.failed_body
+}
+
+internal fun Step.label(): Int = when (this) {
+  Step.UNPACK -> R.string.step_unpack
+  Step.PACKAGES -> R.string.step_packages
+  Step.TOOLS -> R.string.step_tools
+  Step.NOURIDE -> R.string.step_nouride
+  Step.START -> R.string.step_start
+}
+
+internal fun Action.label(): Int? = when (this) {
+  Action.START -> R.string.action_start
+  Action.OPEN -> R.string.action_open
+  Action.RETRY -> R.string.action_retry
+  Action.NONE -> null
+}

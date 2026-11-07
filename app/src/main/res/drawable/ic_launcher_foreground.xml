@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The cat inside the adaptive icon's safe zone: a launcher may cut a third of the edge away. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+  android:drawable="@drawable/icon_cat"
+  android:inset="20%" />

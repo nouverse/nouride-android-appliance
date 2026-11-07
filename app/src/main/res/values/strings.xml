@@ -1,4 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Every word a person reads. Written for someone who has never opened a terminal: see the android-appliance-ui skill. -->
 <resources>
   <string name="app_name">Nouride Home</string>
+
+  <string name="off_title">Nouride is off</string>
+  <string name="off_body">Press Start, and this phone becomes the home of your AI assistant.</string>
+  <string name="setting_up_title">Setting up Nouride</string>
+  <string name="setting_up_body">This takes a few minutes the first time. Keep the phone on Wi-Fi and plugged in.</string>
+  <string name="step_unpack">Making room for Nouride</string>
+  <string name="step_packages">Getting the latest lists</string>
+  <string name="step_tools">Downloading what Nouride needs</string>
+  <string name="step_nouride">Downloading and installing Nouride</string>
+  <string name="step_start">Turning Nouride on for the first time</string>
+  <string name="step_count">Step %1$d of %2$d</string>
+  <string name="percent">%1$d%%</string>
+  <string name="starting_title">Starting Nouride</string>
+  <string name="starting_body">Almost there.</string>
+  <string name="waking_title">Nouride is waking up</string>
+  <string name="waking_body">It will be ready in a moment.</string>
+  <string name="running_title">Nouride is running</string>
+  <string name="running_body">Your assistant is ready. You can close this app: Nouride keeps running.</string>
+  <string name="restarting_title">Nouride is starting again</string>
+  <string name="restarting_body">It stopped for a moment. There is nothing you need to do.</string>
+  <string name="stopping_title">Turning Nouride off</string>
+  <string name="stopping_body">Just a moment.</string>
+  <string name="failed_title">Nouride could not start</string>
+  <string name="failed_body">Check that the phone is on Wi-Fi, then try again.</string>
+
+  <string name="action_start">Start</string>
+  <string name="action_open">Open Nouride</string>
+  <string name="action_retry">Try again</string>
+
+  <string name="other_device">Use from another device</string>
+  <string name="other_device_hint">Open Nouride on a computer or tablet</string>
+  <string name="other_device_body">Type this address in a browser on a computer or tablet that is on the same Wi-Fi as this phone.</string>
+  <string name="no_wifi">This phone is not on Wi-Fi. Connect it to use Nouride from another device.</string>
+  <string name="share">Share</string>
+  <string name="copy">Copy</string>
+  <string name="copied">Copied</string>
+  <string name="close">Close</string>
+
+  <string name="battery_title">Keep Nouride running</string>
+  <string name="battery_body">Your phone may stop Nouride to save battery. Allow it to keep running, even with the screen off.</string>
+  <string name="battery_allow">Allow</string>
+  <string name="battery_settings">Battery settings</string>
+
+  <string name="turn_off">Turn off</string>
+  <string name="turn_off_title">Turn Nouride off?</string>
+  <string name="turn_off_body">Your assistant will not answer until you start it again.</string>
+  <string name="cancel">Cancel</string>
+
+  <string name="details">Details for support</string>
+  <string name="details_copy">Copy details</string>
+
+  <string name="notification_channel">Nouride</string>
+  <string name="notification_tap">Tap to open Nouride Home</string>
 </resources>

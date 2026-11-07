@@ -68,6 +68,11 @@ class HealthPoller(
       .also { it.scheduleWithFixedDelay({ onResult(check()) }, 0, intervalSeconds, TimeUnit.SECONDS) }
   }
 
+  /** One extra check now, as soon as the daemon says it is ready, rather than up to a whole interval later. */
+  fun checkNow() {
+    executor?.execute { onResult(check()) }
+  }
+
   fun stop() {
     executor?.shutdownNow()
     executor = null

@@ -15,6 +15,11 @@ object ServerState {
   var detail: String = ""
     private set
 
+  /** How far the first start is, while it runs; null on every later start, which has nothing to measure. */
+  @Volatile
+  var progress: Progress? = null
+    private set
+
   @Volatile
   var health: Health? = null
     private set
@@ -26,9 +31,10 @@ object ServerState {
   private val main = Handler(Looper.getMainLooper())
   private val listeners = mutableSetOf<() -> Unit>()
 
-  fun set(phase: Phase, detail: String = "") {
+  fun set(phase: Phase, detail: String = "", progress: Progress? = this.progress) {
     this.phase = phase
     this.detail = detail
+    this.progress = progress
     notifyListeners()
   }
 

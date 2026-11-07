@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Soft on purpose: a phone that sits in a drawer as someone's assistant should look calm, not like a console. -->
+<resources>
+  <color name="background">#F5F8FF</color>
+  <color name="surface">#FFFFFF</color>
+  <color name="line">#E3E8F2</color>
+  <color name="ink">#1E2A3B</color>
+  <color name="muted">#5B6B82</color>
+  <color name="brand">#0084FC</color>
+  <color name="brand_soft">#E3F0FF</color>
+  <color name="good">#1F9D57</color>
+  <color name="good_soft">#E6F7EE</color>
+  <color name="busy_soft">#EEF2FF</color>
+  <color name="warn">#B7791F</color>
+  <color name="warn_soft">#FFF3DC</color>
+  <color name="icon_background">#DCEBFF</color>
+</resources>

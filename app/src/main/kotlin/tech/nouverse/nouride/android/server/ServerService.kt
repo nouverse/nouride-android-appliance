@@ -22,8 +22,13 @@ import tech.nouverse.nouride.android.install.AndroidIds
 import tech.nouverse.nouride.android.install.RootfsExtractor
 import tech.nouverse.nouride.android.install.RootfsSetup
 import tech.nouverse.nouride.android.ui.StatusActivity
+import tech.nouverse.nouride.android.ui.StatusLook
+import tech.nouverse.nouride.android.ui.title
+import tech.nouverse.nouride.android.R
 import java.io.File
+import java.io.FilterInputStream
 import java.io.IOException
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -52,6 +57,10 @@ class ServerService : Service() {
   @Volatile
   private var stopping = false
 
+  /** Only on the first start, the one a person waits minutes for. */
+  @Volatile
+  private var setup: SetupProgress? = null
+
   override fun onBind(intent: Intent?): IBinder? = null
 
   override fun onCreate() {
@@ -61,7 +70,7 @@ class ServerService : Service() {
     runner = ProotRunner(args, layout.prootTmp)
     if (Build.VERSION.SDK_INT >= 26) {
       getSystemService(NotificationManager::class.java)
-        .createNotificationChannel(NotificationChannel(CHANNEL, "Server", NotificationManager.IMPORTANCE_LOW))
+        .createNotificationChannel(NotificationChannel(CHANNEL, getString(R.string.notification_channel), NotificationManager.IMPORTANCE_LOW))
     }
   }
 
@@ -94,25 +103,34 @@ class ServerService : Service() {
 
   private fun runServer() {
     try {
+      setup = if (!layout.rootfs.isDirectory || !layout.installed) SetupProgress() else null
       if (!layout.rootfs.isDirectory) extractRootfs()
       prepareHostDirs()
-      if (!layout.installed) installNouride()
+      if (!layout.installed) {
+        installNouride()
+        if (!stopping) giveAccount()
+      }
       if (!stopping) superviseDaemon()
     } catch (e: Exception) {
       event("failed: $e")
-      ServerState.set(ServerState.Phase.FAILED, e.message ?: e.toString())
+      setup = null
+      ServerState.set(ServerState.Phase.FAILED, e.message ?: e.toString(), progress = null)
       showNotification()
     }
   }
 
   private fun extractRootfs() {
-    ServerState.set(ServerState.Phase.EXTRACTING, "unpacking Debian")
+    ServerState.set(ServerState.Phase.EXTRACTING, "unpacking Debian", setup?.snapshot())
     showNotification()
     if (layout.rootfsPartial.exists()) deleteTree(layout.rootfsPartial)
     val began = SystemClock.elapsedRealtime()
-    val count = assets.open(ROOTFS_ASSET).use { input ->
+    // Stored uncompressed in the APK (noCompress), so its length is known before reading it.
+    val total = assets.openFd(ROOTFS_ASSET).use { it.length }
+    val count = Counting(assets.open(ROOTFS_ASSET)).use { input ->
       RootfsExtractor(layout.rootfsPartial, AndroidFileOps).extract(input) { n ->
-        ServerState.set(ServerState.Phase.EXTRACTING, "unpacking Debian: $n files")
+        setup?.unpacked(input.read, total)
+        ServerState.set(ServerState.Phase.EXTRACTING, "unpacking Debian: $n files", setup?.snapshot())
+        showNotification()
       }
     }
     val ids = AndroidIds.parse(command("/system/bin/id"))
@@ -133,11 +151,20 @@ class ServerService : Service() {
   }
 
   private fun installNouride() {
-    ServerState.set(ServerState.Phase.INSTALLING, "running the Nouride installer")
+    setup?.line(SetupProgress.marker(Step.PACKAGES))
+    ServerState.set(ServerState.Phase.INSTALLING, "running the Nouride installer", setup?.snapshot())
     showNotification()
     event("installer started")
+    var shown = -1
     val process = runner.start(Nouride.INSTALL, layout.installLog) { line ->
-      ServerState.set(ServerState.Phase.INSTALLING, line.take(160))
+      setup?.line(line)
+      ServerState.set(ServerState.Phase.INSTALLING, line.take(160), setup?.snapshot())
+      // The notification only when the percent changes: apt prints hundreds of lines.
+      val percent = setup?.snapshot()?.percent ?: -1
+      if (percent != shown) {
+        shown = percent
+        showNotification()
+      }
     }
     current = process
     val code = process.waitFor()
@@ -147,14 +174,40 @@ class ServerService : Service() {
     if (code != 0 || !layout.installed) throw IOException("the installer exited with $code; see install.log")
   }
 
+  /** The account the dashboard on the phone signs in with (`FirstAdmin`): only on the install that makes it. */
+  private fun giveAccount() {
+    val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
+    val password = prefs.getString(PREF_ADMIN_PASSWORD, null) ?: FirstAdmin.newPassword().also {
+      prefs.edit().putString(PREF_ADMIN_PASSWORD, it).commit()
+    }
+    val env = if (layout.installEnv.isFile) layout.installEnv.readText() else ""
+    layout.installEnv.writeText(FirstAdmin.withAccount(env, password))
+    Os.chmod(layout.installEnv.path, "600".toInt(8))
+    event("dashboard account handed to the daemon")
+  }
+
+  /** Once the daemon is ready the account exists, so the password leaves its `.env`. */
+  private fun takeAccountBack() {
+    val env = layout.installEnv
+    if (!env.isFile) return
+    val text = env.readText()
+    val without = FirstAdmin.withoutAccount(text)
+    if (without != text) {
+      env.writeText(without)
+      event("dashboard account taken out of .env")
+    }
+  }
+
   private fun superviseDaemon() {
     val supervisor = Supervisor(
       start = {
         runner.start(Nouride.START, layout.daemonLog) { line ->
           if (line.contains(Nouride.READY_LINE)) {
             event("daemon ready")
+            takeAccountBack()
             ServerState.set(ServerState.Phase.RUNNING, "ready")
             showNotification()
+            poller?.checkNow()
           }
         }
       },
@@ -163,7 +216,8 @@ class ServerService : Service() {
       onStarted = { process ->
         current = process
         event("daemon started")
-        ServerState.set(ServerState.Phase.STARTING, "starting the daemon")
+        setup?.starting()
+        ServerState.set(ServerState.Phase.STARTING, "starting the daemon", setup?.snapshot())
         showNotification()
       },
       onExited = { code, restartInMs ->
@@ -204,7 +258,8 @@ class ServerService : Service() {
     poller?.stop()
     poller = null
     releaseLocks()
-    ServerState.set(ServerState.Phase.STOPPED)
+    setup = null
+    ServerState.set(ServerState.Phase.STOPPED, progress = null)
     @Suppress("DEPRECATION")
     stopForeground(true)
     stopSelf()
@@ -255,6 +310,11 @@ class ServerService : Service() {
     if (health.ok && ServerState.phase == ServerState.Phase.STARTING) {
       ServerState.set(ServerState.Phase.RUNNING, "ready")
     }
+    // Answering is the end of the first start: the bar's last 1 % is the ready screen itself.
+    if (health.ok && setup != null) {
+      setup = null
+      ServerState.set(ServerState.phase, ServerState.detail, progress = null)
+    }
     showNotification()
   }
 
@@ -284,15 +344,19 @@ class ServerService : Service() {
       this, 0, Intent(this, StatusActivity::class.java),
       PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 23) PendingIntent.FLAG_IMMUTABLE else 0),
     )
-    val health = ServerState.health
+    // The same sentence as the status screen, never a phase name or a log line: the users are not technical.
+    val look = StatusLook.of(ServerState.phase, answering = ServerState.health?.ok == true)
     val builder = if (Build.VERSION.SDK_INT >= 26) Notification.Builder(this, CHANNEL) else {
       @Suppress("DEPRECATION")
       Notification.Builder(this)
     }
+    val progress = ServerState.progress
+    if (progress != null && look.busy) builder.setProgress(100, progress.percent, false)
     val notification = builder
-      .setSmallIcon(android.R.drawable.stat_sys_upload_done)
-      .setContentTitle("Nouride: ${ServerState.phase.name.lowercase()}")
-      .setContentText(if (ServerState.phase == ServerState.Phase.RUNNING && health != null) health.summary() else ServerState.detail)
+      .setSmallIcon(R.drawable.ic_notification)
+      .setColor(getColor(R.color.brand))
+      .setContentTitle(getString(look.words.title()))
+      .setContentText(getString(R.string.notification_tap))
       .setContentIntent(open)
       .setOngoing(true)
       .build()
@@ -313,11 +377,25 @@ class ServerService : Service() {
     file.delete()
   }
 
+  /** Counts the bytes read, for the unpacking step of the progress bar. */
+  private class Counting(input: InputStream) : FilterInputStream(input) {
+    @Volatile
+    var read = 0L
+      private set
+
+    override fun read(): Int = super.read().also { if (it >= 0) read++ }
+
+    override fun read(b: ByteArray, off: Int, len: Int): Int = super.read(b, off, len).also { if (it > 0) read += it }
+
+    override fun skip(n: Long): Long = super.skip(n).also { read += it }
+  }
+
   companion object {
     const val ACTION_START = "tech.nouverse.nouride.android.START"
     const val ACTION_STOP = "tech.nouverse.nouride.android.STOP"
     const val PREFS = "server"
     const val PREF_RUN = "run"
+    const val PREF_ADMIN_PASSWORD = "admin_password"
     private const val CHANNEL = "server"
     private const val NOTIFICATION_ID = 1
     private const val ROOTFS_ASSET = "rootfs.tgz"
