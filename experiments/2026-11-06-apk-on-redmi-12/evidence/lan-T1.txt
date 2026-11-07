@@ -1,0 +1,6 @@
+== 2026-11-07T00:06:39Z from agent-host (LAN)
+GET http://10.18.1.99:18264/health
+{"status":"ok","edition":"basic","appliance":false,"uptime":19474,"version":"0.8.21","eventProtocol":"1.8","agents":1,"install":"461c687569e7","gateways":{"telegram:reno":"connected","web:dashboard":"connected"},"memory":{"rssBytes":51675136,"heapUsedBytes":12725429},"commands":{"isolated":false,"systemd":false,"reason":"not started by a service unit that hands its cgroup over"},"agentUsers":{"through":null,"reason":"/usr/local/lib/nouride-run/nouride-run is not installed: run install.sh again; until then agents' commands run as the daemon's user"}}
+HTTP 200 in 0.042371s
+GET /dashboard/ HTTP 200, 2940 bytes, text/html;charset=utf-8, 0.106684s
+<title>Nouride Dashboard</title>

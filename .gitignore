@@ -1,0 +1,8 @@
+build/
+.gradle/
+local.properties
+*/build/
+app/src/main/jniLibs/
+app/src/main/assets/rootfs.tgz
+.idea/
+*.iml

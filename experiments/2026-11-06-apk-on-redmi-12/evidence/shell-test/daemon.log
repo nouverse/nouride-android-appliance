@@ -1,0 +1,47 @@
+{"timestamp":"2026-11-06T15:38:39.196Z","level":"info","component":"daemon","message":"starting","data":{"name":"nouride","config":"built-in defaults","data_dir":"/srv/nouride/.nouride/data"}}
+{"timestamp":"2026-11-06T15:38:39.200Z","level":"info","component":"web","message":"http listening","data":{"url":"http://0.0.0.0:18274","dashboard":"http://localhost:18274/dashboard/"}}
+{"timestamp":"2026-11-06T15:38:39.208Z","level":"info","component":"daemon","message":"agents install into .nouride: global npm, bun, pipx, uv, go and cargo installs land in its bin","data":{"bin":"/srv/nouride/.nouride/bin","python":"/srv/nouride/.nouride/opt/python/bin","path":"/srv/nouride/.nouride/bin:/srv/nouride/.nouride/opt/python/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/srv/nouride/.nouride/home/.local/bin:/srv/nouride/.nouride/home/.cargo/bin"}}
+{"timestamp":"2026-11-06T15:38:39.590Z","level":"info","component":"db","message":"applying migration","data":{"migration":"069_baseline.sql"}}
+{"timestamp":"2026-11-06T15:38:39.626Z","level":"info","component":"db","message":"applying migration","data":{"migration":"070_mission_branch.sql"}}
+{"timestamp":"2026-11-06T15:38:39.629Z","level":"info","component":"db","message":"applying migration","data":{"migration":"071_approval_class.sql"}}
+{"timestamp":"2026-11-06T15:38:39.631Z","level":"info","component":"db","message":"applying migration","data":{"migration":"072_mission_told.sql"}}
+{"timestamp":"2026-11-06T15:38:39.632Z","level":"info","component":"db","message":"applying migration","data":{"migration":"073_mission_summary.sql"}}
+{"timestamp":"2026-11-06T15:38:39.634Z","level":"info","component":"db","message":"applying migration","data":{"migration":"074_mission_counts.sql"}}
+{"timestamp":"2026-11-06T15:38:39.637Z","level":"info","component":"db","message":"applying migration","data":{"migration":"075_session_token_hash.sql"}}
+{"timestamp":"2026-11-06T15:38:39.643Z","level":"info","component":"db","message":"applying migration","data":{"migration":"076_kept_across_restart.sql"}}
+{"timestamp":"2026-11-06T15:38:39.646Z","level":"info","component":"db","message":"applying migration","data":{"migration":"077_daemon_state.sql"}}
+{"timestamp":"2026-11-06T15:38:39.648Z","level":"info","component":"db","message":"applying migration","data":{"migration":"078_knowledge.sql"}}
+{"timestamp":"2026-11-06T15:38:39.649Z","level":"info","component":"db","message":"schema migrated","data":{"version":78,"applied":10}}
+{"timestamp":"2026-11-06T15:38:39.677Z","level":"warn","component":"daemon","message":"agents' commands run as the daemon's own user","data":{"reason":"/usr/local/lib/nouride-run/nouride-run is not installed: run install.sh again; until then agents' commands run as the daemon's user"}}
+{"timestamp":"2026-11-06T15:38:39.697Z","level":"info","component":"agents.registry","message":"agents loaded","data":{"count":0,"ids":[],"failed":0}}
+{"timestamp":"2026-11-06T15:38:39.708Z","level":"info","component":"daemon","message":"[llm.limits] neither max_daily_cost_usd nor max_daily_tokens is set, so nothing caps usage","data":{"hint":"A loop that retries a large context can spend a lot before anyone notices. `max_daily_tokens` works on every model, priced or not; `max_daily_cost_usd` only sees the ones with a published price."}}
+{"timestamp":"2026-11-06T15:38:39.711Z","level":"info","component":"daemon","message":"supervisor detected","data":{"kind":"none","restarts_on_exit":false}}
+{"timestamp":"2026-11-06T15:38:39.720Z","level":"info","component":"settings","message":"people moved to people/, one file each","data":{"moved":0}}
+{"timestamp":"2026-11-06T15:38:40.959Z","level":"info","component":"db.backup","message":"database backed up","data":{"path":"/srv/nouride/.nouride/data/backups/db/nouride-2026-11-06-15-38-40.db","bytes":720896,"removed":0}}
+{"timestamp":"2026-11-06T15:38:40.978Z","level":"info","component":"memory.backup","message":"memory vault backed up","data":{"path":"/srv/nouride/.nouride/data/backups/memory/2026-11-06-15-38-40","files":1,"linked":0,"removed":0}}
+{"timestamp":"2026-11-06T15:38:41.067Z","level":"info","component":"tools.web","message":"web_search is using the keyless fallback","data":{"sources":["duckduckgo-html","bing","duckduckgo-lite","github","reddit","hackernews","stackoverflow","npm","mdn","arxiv","google-news","wikipedia","wikipedia-local"],"hint":"set [security.web] search_api_key for Brave, or search_kind = \"searxng\" with an endpoint"}}
+{"timestamp":"2026-11-06T15:38:41.083Z","level":"info","component":"boot.missions","message":"missions resumed","data":{"open":0}}
+{"timestamp":"2026-11-06T15:38:41.086Z","level":"info","component":"cron","message":"scheduler started","data":{"jobs":0,"max_sleep_ms":60000}}
+{"timestamp":"2026-11-06T15:38:41.099Z","level":"info","component":"web.control","message":"generated a control token","data":{"path":"/srv/nouride/.nouride/data/.control-token"}}
+{"timestamp":"2026-11-06T15:38:42.419Z","level":"info","component":"users","message":"dashboard user created","data":{"user":"admin","role":"admin","password_login":"set"}}
+
+────────────────────────────────────────────────────────────────
+  Nouride is ready. Open the dashboard to finish setting it up:
+
+    http://localhost:18274/dashboard/
+
+  or from another device on this network:
+    http://10.18.1.99:18274/dashboard/
+
+    username  admin
+    password  <redacted>
+
+  This password was generated for the first login and must be changed
+  straight away. The daemon keeps only its hash, but this text stays in
+  wherever this log goes (the journal, a log file) until the password is changed.
+  Set INITIAL_ADMIN_USERNAME and INITIAL_ADMIN_PASSWORD to choose your own.
+────────────────────────────────────────────────────────────────
+{"timestamp":"2026-11-06T15:38:42.762Z","level":"info","component":"daemon","message":"nouride ready","data":{"agents":[],"gateways":["web:dashboard","web:mission"],"providers":[],"uptime_ms":3595}}
+{"timestamp":"2026-11-06T15:38:42.833Z","level":"info","component":"reflection.review","message":"the weekly skill review ran","data":{"tighten":[],"merge":[],"archive":[],"declined":0}}
+{"timestamp":"2026-11-06T15:39:00.428Z","level":"info","component":"daemon","message":"shutting down","data":{"signal":"SIGTERM","timeout_ms":30000}}
+{"timestamp":"2026-11-06T15:39:00.484Z","level":"info","component":"daemon","message":"shutdown complete"}

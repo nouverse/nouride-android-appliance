@@ -1,0 +1,24 @@
+# Inputs of the assets the APK carries. scripts/build-proot.sh and scripts/build-rootfs.sh
+# read this file and stop on a sha256 mismatch. The assets themselves are not committed.
+
+# proot: termux/proot at the release Termux ships (packages/proot/build.sh), same archive and sha256.
+PROOT_VERSION=5.1.107.102
+PROOT_URL=https://github.com/termux/proot/archive/v5.1.107.102.zip
+PROOT_SHA256=30d12a6e2cc4147123756ff58edea262d3083bbc238c12d0ab9b39e3d1c40852
+
+# talloc, linked into proot statically (Termux links it as a shared library).
+TALLOC_VERSION=2.5.0
+TALLOC_URL=https://www.samba.org/ftp/talloc/talloc-2.5.0.tar.gz
+TALLOC_SHA256=912afa237510ae542a7733998eb18a12bcda35ab6729c8e2ddb43e8d0ebab007
+
+# NDK and API level proot is compiled with (installed by scripts/setup-toolchain.sh).
+NDK_VERSION=27.3.13750724
+NDK_API=24
+
+# Debian rootfs: the image proot-distro 5.10 pulls for `debian` (Docker Hub library/debian),
+# trixie (13), linux/arm64/v8, built 2026-11-04. One layer; the app extracts it.
+DEBIAN_REF=docker.io/library/debian:trixie
+DEBIAN_INDEX_DIGEST=sha256:9c6e381421d0f48d1b8133e573f33c185ee16cbf505eda9c4a8a4791b25ea8a6
+DEBIAN_ARM64_MANIFEST_DIGEST=sha256:e529717ccc8118a0b9d38525f2b4e78cf150dbe470ad60d733c7c0023cabc3b0
+DEBIAN_LAYER_DIGEST=sha256:23b69c48ce5c2a6fb0681d959fa700427ad2a7cf7e6be5d25249170a1853d7ad
+DEBIAN_LAYER_SIZE=49778604

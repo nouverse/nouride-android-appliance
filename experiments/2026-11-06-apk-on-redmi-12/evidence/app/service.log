@@ -1,0 +1,9 @@
+2026-11-07T00:53:40+0700 server started
+2026-11-07T00:53:46+0700 rootfs unpacked: 5442 entries in 6s
+2026-11-07T00:53:46+0700 installer started
+2026-11-07T00:54:57+0700 installer exited with 0
+2026-11-07T00:54:57+0700 daemon started
+2026-11-07T00:54:59+0700 daemon ready
+2026-11-07T01:42:03+0700 daemon exited with 0, restarting in 2s
+2026-11-07T01:42:05+0700 daemon started
+2026-11-07T01:42:08+0700 daemon ready

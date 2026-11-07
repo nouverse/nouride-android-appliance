@@ -1,0 +1,33 @@
+== Sat Nov  7 07:06:40 WIB 2026
+  * ServiceRecord{e61b9f4 u0 tech.nouverse.nouride.android/.server.ServerService c:tech.nouverse.nouride.android}
+    isForeground=true foregroundId=1 types=0x40000000 foregroundNoti=Notification(channel=server shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=ONGOING_EVENT|NO_CLEAR|FOREGROUND_SERVICE color=0x00000000 vis=PRIVATE)
+    createTime=-6h13m0s356ms startingBgTimeout=--
+    lastActivity=-6h13m0s354ms restartTime=-6h13m0s354ms createdFromFg=true
+    startRequested=true delayedStop=false stopIfKilled=false callStart=true lastStartId=1
+== proc
+  *APP* UID 10306 ProcessRecord{2e5c7 26111:tech.nouverse.nouride.android/u0a306}
+    oom adj: max=1001 curRaw=200 setRaw=200 cur=200 set=200
+    curProcState=4 mMaxProcState=0 mRepProcState=4 setProcState=4 lastStateTime=-6h13m1s497ms
+      lastCpuTime=380 timeUsed=+51s300ms oom adj=200 seq=2097
+      lastCpuTime=0 oom adj=200 seq=2097
+      lastCpuTime=780 timeUsed=+1m52s790ms oom adj=200 seq=2097
+== standby bucket: 5
+== deviceidle whitelist:
+user,tech.nouverse.nouride.android,10306
+== deep=INACTIVE light=INACTIVE
+== mWakefulness=Dozing
+== wake locks
+  PARTIAL_WAKE_LOCK                 'nouride:server' ACQ=-6h13m0s248ms LONG (uid=10306 pid=26111 pkg=tech.nouverse.nouride.android)
+== wifi locks
+    WifiLock{nouride:server type=4 uid=1000 workSource=WorkSource{10306 tech.nouverse.nouride.android}}
+== battery
+  AC powered: false
+  USB powered: false
+  status: 3
+  level: 79
+  temperature: 270
+== app processes
+u0_a306       6175 26111   3248 libproot.so
+u0_a306       6178  6175    476 su
+u0_a306       6180  6178  53064 nouride
+u0_a306      26111  1351 160404 tech.nouverse.nouride.android
