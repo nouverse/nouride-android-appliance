@@ -28,8 +28,15 @@ object Nouride {
     """.trimIndent(),
   )
 
-  /** The start command the installer prints when there is no systemd, as the account it made. */
-  val START = listOf("/bin/su", "-s", "/bin/sh", "nouride", "-c", "cd /srv/nouride && exec ./nouride start")
+  /**
+   * What the app tells Nouride about itself: that it starts Nouride again whenever it exits (`Supervisor`). Nouride's
+   * own word for that (`service/supervisor.ts`); without it Nouride took itself for unsupervised and refused the
+   * dashboard's Restart, and an update, as a stop: "nothing on this server would start it again".
+   */
+  const val SUPERVISOR_MODE = "NOURIDE_SUPERVISOR_MODE=nouride-home"
+
+  /** The start command the installer prints when there is no systemd, as the account it made, saying who restarts it. */
+  val START = listOf("/bin/su", "-s", "/bin/sh", "nouride", "-c", "cd /srv/nouride && $SUPERVISOR_MODE exec ./nouride start")
 
   /** What the daemon logs at the end of every boot. */
   const val READY_LINE = "nouride ready"

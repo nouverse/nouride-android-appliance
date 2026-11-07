@@ -17,6 +17,13 @@ class NourideTest {
   }
 
   @Test
+  fun `Nouride is told the app restarts it, so the dashboard's Restart and updates are not refused`() {
+    val command = Nouride.START.last()
+    // NOURIDE_SUPERVISOR_MODE, set for the daemon itself: after cd, on the same line as exec.
+    assertTrue(command, command.contains("&& NOURIDE_SUPERVISOR_MODE=nouride-home exec ./nouride start"))
+  }
+
+  @Test
   fun `the setup script marks its steps in order, each before its work`() {
     val at = { step: Step -> script.indexOf(SetupProgress.marker(step)) }
     assertTrue(at(Step.PACKAGES) in 0 until script.indexOf("apt-get update"))
