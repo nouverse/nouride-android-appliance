@@ -7,7 +7,9 @@ import android.graphics.Typeface
 import android.graphics.drawable.ClipDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
+import android.os.Build
 import android.view.Gravity
+import android.view.Window
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
@@ -21,6 +23,17 @@ internal class Ui(private val context: Context) {
   /** Whether the phone is set to dark: the colours follow by themselves (`values-night`), the system bars do not. */
   fun night(): Boolean =
     context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+
+  /** Dark status and navigation bar icons on the light background; at night the dark theme's light icons are right. */
+  @Suppress("DEPRECATION")
+  fun lightSystemBars(window: Window) {
+    if (night()) return
+    if (Build.VERSION.SDK_INT >= 26) {
+      window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+    } else if (Build.VERSION.SDK_INT >= 23) {
+      window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+    }
+  }
 
   fun dp(value: Int): Int = (value * context.resources.displayMetrics.density).toInt()
 

@@ -4,10 +4,12 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
-import android.graphics.Typeface
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -19,7 +21,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.ScrollView
-import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import tech.nouverse.nouride.android.Layout
@@ -29,15 +30,11 @@ import tech.nouverse.nouride.android.power.PowerSettings
 import tech.nouverse.nouride.android.server.ServerService
 import tech.nouverse.nouride.android.server.ServerState
 import tech.nouverse.nouride.android.server.Step
-import java.io.File
-import java.io.RandomAccessFile
-import java.net.Inet4Address
-import java.net.NetworkInterface
 
 /**
  * The one screen a person uses: the cat, one sentence of how Nouride is, and at most one big button. The users are not
- * technical, so the server's phases, addresses and log stay behind "Details for support", off by default
- * (`StatusLook`, and the android-appliance-ui skill). The boolean extras `start`, `stop` and `dashboard` do what the
+ * technical, so the server's phases, addresses and log stay on a screen of their own, "Details for support", behind a
+ * quiet link at the bottom (`SupportActivity`, `StatusLook`, and the android-appliance-ui skill). The boolean extras `start`, `stop` and `dashboard` do what the
  * buttons do, for `adb shell am start --ez <name> true`.
  */
 class StatusActivity : Activity() {
@@ -56,8 +53,6 @@ class StatusActivity : Activity() {
   private lateinit var share: Button
   private lateinit var battery: LinearLayout
   private lateinit var turnOff: Button
-  private lateinit var details: TextView
-  private lateinit var detailsCopy: Button
   private var bob: ObjectAnimator? = null
   private var shownMascot: Mascot? = null
   private val handler = Handler(Looper.getMainLooper())
@@ -73,7 +68,7 @@ class StatusActivity : Activity() {
     super.onCreate(savedInstanceState)
     ui = Ui(this)
     layout = Layout(this)
-    lightSystemBars()
+    ui.lightSystemBars(window)
     setContentView(views())
     if (savedInstanceState == null) handleExtras(intent)
   }
@@ -149,7 +144,10 @@ class StatusActivity : Activity() {
     turnOff = ui.quiet { confirmTurnOff() }.apply { setText(R.string.turn_off) }
     column.addView(turnOff, ui.fullWidth(8))
 
-    column.addView(detailsSection(), ui.fullWidth(24))
+    column.addView(ui.quiet { startActivity(Intent(this, SupportActivity::class.java)) }.apply {
+      setText(R.string.details)
+      textSize = 13f
+    }, ui.fullWidth(24))
     return ScrollView(this).apply {
       setBackgroundColor(ui.color(R.color.background))
       addView(column)
@@ -184,33 +182,6 @@ class StatusActivity : Activity() {
     })
   }
 
-  /** "Details for support": everything technical, for whoever helps. Off unless the person turns it on. */
-  private fun detailsSection(): View {
-    val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
-    val section = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-    details = ui.text(11f, R.color.muted).apply {
-      typeface = Typeface.MONOSPACE
-      setTextIsSelectable(true)
-      background = ui.rounded(ui.color(R.color.surface), 16, ui.color(R.color.line))
-      setPadding(ui.dp(12), ui.dp(12), ui.dp(12), ui.dp(12))
-    }
-    detailsCopy = ui.quiet { copy(details.text.toString()) }.apply { setText(R.string.details_copy) }
-    val toggle = Switch(this).apply {
-      setText(R.string.details)
-      setTextColor(ui.color(R.color.muted))
-      textSize = 14f
-      isChecked = prefs.getBoolean(PREF_DETAILS, false)
-      setOnCheckedChangeListener { _, on ->
-        prefs.edit().putBoolean(PREF_DETAILS, on).apply()
-        render()
-      }
-    }
-    section.addView(toggle)
-    section.addView(details, ui.fullWidth(8))
-    section.addView(detailsCopy)
-    return section
-  }
-
   private fun render() {
     val health = ServerState.health
     val look = StatusLook.of(ServerState.phase, answering = health?.ok == true)
@@ -239,11 +210,6 @@ class StatusActivity : Activity() {
     share.visibility = if (StatusLook.canShare(look)) View.VISIBLE else View.GONE
     battery.visibility = if (PowerSettings.isExempt(this)) View.GONE else View.VISIBLE
     turnOff.visibility = if (StatusLook.canTurnOff(ServerState.phase)) View.VISIBLE else View.GONE
-
-    val showDetails = getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean(PREF_DETAILS, false)
-    details.visibility = if (showDetails) View.VISIBLE else View.GONE
-    detailsCopy.visibility = details.visibility
-    if (showDetails) details.text = technical()
   }
 
   private fun onPrimary() = when (StatusLook.of(ServerState.phase, ServerState.health?.ok == true).action) {
@@ -268,34 +234,50 @@ class StatusActivity : Activity() {
     }
   }
 
+  /**
+   * The address for another device, in a card of its own: the cat, one sentence, the address large, and Share as the
+   * main button, since the address is usually sent to the computer rather than typed from the phone's screen.
+   */
   private fun showAddress() {
-    val lan = lanAddress()
-    val box = LinearLayout(this).apply {
-      orientation = LinearLayout.VERTICAL
-      setPadding(ui.dp(24), ui.dp(20), ui.dp(24), ui.dp(8))
-    }
+    val lan = SupportText.lanAddress()
+    val dialog = Dialog(this)
+    val card = ui.card(padding = 24).apply { gravity = Gravity.CENTER_HORIZONTAL }
+    card.addView(ImageView(this).apply {
+      setImageResource(if (lan == null) R.drawable.mascot_lean else R.drawable.mascot_wave)
+      adjustViewBounds = true
+    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, ui.dp(120)))
+    card.addView(ui.text(20f, R.color.ink, bold = true, center = true).apply {
+      setText(if (lan == null) R.string.no_wifi_title else R.string.other_device_hint)
+    }, ui.fullWidth(12))
+    card.addView(ui.text(15f, R.color.muted, center = true).apply {
+      setText(if (lan == null) R.string.no_wifi else R.string.other_device_body)
+    }, ui.fullWidth(6))
     if (lan == null) {
-      box.addView(ui.text(16f, R.color.ink).apply { setText(R.string.no_wifi) })
-      AlertDialog.Builder(this).setView(box).setPositiveButton(R.string.close, null).show()
-      return
-    }
-    val address = "http://$lan:${Nouride.PORT}"
-    box.addView(ui.text(18f, R.color.ink, bold = true).apply { setText(R.string.other_device_hint) })
-    box.addView(ui.text(15f, R.color.muted).apply { setText(R.string.other_device_body) }, ui.fullWidth(8))
-    box.addView(ui.text(26f, R.color.brand, bold = true, center = true).apply {
-      text = address
-      setTextIsSelectable(true)
-      background = ui.rounded(ui.color(R.color.brand_soft), 20)
-      setPadding(ui.dp(12), ui.dp(16), ui.dp(12), ui.dp(16))
-    }, ui.fullWidth(16))
-    AlertDialog.Builder(this)
-      .setView(box)
-      .setPositiveButton(R.string.share) { _, _ ->
+      card.addView(ui.primary { dialog.dismiss() }.apply { setText(R.string.got_it) }, ui.fullWidth(20))
+    } else {
+      val address = "http://$lan:${Nouride.PORT}"
+      card.addView(ui.text(22f, R.color.brand, bold = true, center = true).apply {
+        text = address
+        setTextIsSelectable(true)
+        maxLines = 1
+        if (Build.VERSION.SDK_INT >= 26) setAutoSizeTextTypeUniformWithConfiguration(14, 22, 1, android.util.TypedValue.COMPLEX_UNIT_SP)
+        background = ui.rounded(ui.color(R.color.brand_soft), 20)
+        setPadding(ui.dp(12), ui.dp(16), ui.dp(12), ui.dp(16))
+      }, ui.fullWidth(18))
+      card.addView(ui.primary {
+        dialog.dismiss()
         startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, address), null))
-      }
-      .setNeutralButton(R.string.copy) { _, _ -> copy(address) }
-      .setNegativeButton(R.string.close, null)
-      .show()
+      }.apply { setText(R.string.share_address) }, ui.fullWidth(20))
+      card.addView(ui.secondary { copy(address) }.apply { setText(R.string.copy) }, ui.fullWidth(10))
+      card.addView(ui.quiet { dialog.dismiss() }.apply { setText(R.string.close) }, ui.fullWidth(4))
+    }
+    dialog.setContentView(card)
+    dialog.window?.apply {
+      setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+      val width = minOf(resources.displayMetrics.widthPixels - ui.dp(32), ui.dp(420))
+      setLayout(width, android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
+    }
+    dialog.show()
   }
 
   private fun confirmTurnOff() {
@@ -312,56 +294,9 @@ class StatusActivity : Activity() {
     Toast.makeText(this, R.string.copied, Toast.LENGTH_SHORT).show()
   }
 
-  /** For support only, behind the switch: the words a developer needs, never shown to anyone by default. */
-  private fun technical(): String {
-    val health = ServerState.health
-    val lan = lanAddress()
-    val file = if (layout.installed) layout.daemonLog else layout.installLog
-    return buildString {
-      appendLine("phase: ${ServerState.phase.name.lowercase()} ${ServerState.detail}")
-      appendLine("health: ${health?.summary() ?: "not asked yet"}")
-      appendLine("local: ${Nouride.DASHBOARD_URL}")
-      appendLine("lan: ${lan?.let { "http://$it:${Nouride.PORT}/dashboard/" } ?: "no Wi-Fi"}")
-      appendLine("android: ${Build.VERSION.RELEASE} (${Build.MANUFACTURER} ${Build.MODEL})")
-      appendLine()
-      appendLine("${file.name}:")
-      append(tail(file, 40))
-    }
-  }
-
-  @Suppress("DEPRECATION")
-  private fun lightSystemBars() {
-    // Dark icons on the light background only; at night the dark theme's light icons are already right.
-    if (ui.night()) return
-    if (Build.VERSION.SDK_INT >= 26) {
-      window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-    } else if (Build.VERSION.SDK_INT >= 23) {
-      window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-    }
-  }
-
   companion object {
     const val EXTRA_START = "start"
     const val EXTRA_STOP = "stop"
     const val EXTRA_DASHBOARD = "dashboard"
-    private const val PREFS = "status"
-    private const val PREF_DETAILS = "details"
-
-    private fun lanAddress(): String? =
-      NetworkInterface.getNetworkInterfaces()?.toList().orEmpty()
-        .filter { it.isUp && !it.isLoopback && it.name.startsWith("wlan") }
-        .flatMap { it.inetAddresses.toList() }
-        .firstOrNull { it is Inet4Address }?.hostAddress
-
-    private fun tail(file: File, lines: Int): String {
-      if (!file.isFile) return "(no log yet)"
-      RandomAccessFile(file, "r").use { raf ->
-        val start = maxOf(0L, raf.length() - 16_384)
-        raf.seek(start)
-        val bytes = ByteArray((raf.length() - start).toInt())
-        raf.readFully(bytes)
-        return String(bytes).lines().takeLast(lines).joinToString("\n")
-      }
-    }
   }
 }

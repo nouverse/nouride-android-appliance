@@ -33,8 +33,11 @@
 
   <string name="other_device">Use from another device</string>
   <string name="other_device_hint">Open Nouride on a computer or tablet</string>
-  <string name="other_device_body">Type this address in a browser on a computer or tablet that is on the same Wi-Fi as this phone.</string>
-  <string name="no_wifi">This phone is not on Wi-Fi. Connect it to use Nouride from another device.</string>
+  <string name="other_device_body">On the same Wi-Fi as this phone, type this address in its browser.</string>
+  <string name="share_address">Share address</string>
+  <string name="no_wifi_title">This phone isn\'t on Wi-Fi</string>
+  <string name="got_it">OK</string>
+  <string name="no_wifi">Connect it to Wi-Fi to use Nouride from a computer or tablet.</string>
   <string name="share">Share</string>
   <string name="copy">Copy</string>
   <string name="copied">Copied</string>
@@ -50,8 +53,8 @@
   <string name="turn_off_body">Your assistant will not answer until you start it again.</string>
   <string name="cancel">Cancel</string>
 
-  <string name="details">Details for support</string>
-  <string name="details_copy">Copy details</string>
+  <string name="details">Details for support ›</string>
+  <string name="support_title">Support details</string>
 
   <string name="notification_channel">Nouride</string>
   <string name="notification_tap">Tap to open Nouride Home</string>

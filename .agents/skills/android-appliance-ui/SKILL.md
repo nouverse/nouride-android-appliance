@@ -17,9 +17,11 @@ wrong, not the person.
 - A port number on its own, or a URL a person has to type, where a button can open it or a share sheet can send it.
 - Monospace text.
 
-All of it lives behind one **Details** switch, off by default, at the bottom of the status screen. Details is for
-support: it shows the technical state, the address with its port, and the end of the log, with a button that copies
-it all to share with whoever helps. Turning it on is remembered on this phone only.
+All of it lives on one screen of its own, **Support details** (`ui/SupportActivity.kt`), reached by a quiet
+"Details for support ›" link at the bottom of the status screen. It is for whoever helps: the technical state, the
+address with its port, the app's events and Nouride's log, the log taking the rest of the screen and opening at its
+end. Copy and Share send it all, Share straight into a chat. Never a box of log inside the scrolling status screen:
+two scrolls in one another catch the wrong finger.
 
 ## What the status screen shows
 
@@ -43,8 +45,9 @@ Under the main state, only what a person acts on:
 - **Open Nouride**: the dashboard inside the app, already signed in. Not a URL to copy, and never a login page on
   the phone: the app makes the dashboard account on the first start and signs in with it (`server/FirstAdmin.kt`).
   The password is never shown; a person who wants the dashboard elsewhere sets their own in the dashboard.
-- **Use from another device**: a button that opens the address as large text, with Share and Copy and "type this
-  in a browser on a computer or tablet on the same Wi-Fi". Never shown as `http://10.x.x.x:18254/...` in the middle
+- **Use from another device**: a button that opens a card with the cat, "Open Nouride on a computer or tablet", one
+  sentence ("on the same Wi-Fi as this phone, type this address in its browser"), the address large in a soft pill,
+  then Share address as the main button, Copy, and Close. Never shown as `http://10.x.x.x:18254/...` in the middle
   of the screen.
 - **Keep running with the screen off**: shown only while the phone may stop the app, with one sentence of why ("Your
   phone may stop Nouride to save battery. Allow it to keep running.") and a button that opens the right setting.
@@ -87,7 +90,7 @@ nothing technical. Tapping it opens the status screen. It has no log line and no
 ## Errors
 
 A failure the person can fix says how in one sentence (no Wi-Fi, no space left, battery setting). A failure they
-cannot fix says so plainly and offers Try again and "Copy details for support", which copies the Details text. Never
+cannot fix says so plainly and offers Try again and the "Details for support" link. Never
 a stack trace, never a raw message from Linux or Android.
 
 ## Checking a change
@@ -96,4 +99,4 @@ a stack trace, never a raw message from Linux or Android.
   explaining, replace it.
 - Test the state-to-words mapping as a unit test (the sentence and the button for each state), so a new state cannot
   ship without words.
-- Look at it on a real phone, in both languages, with Details off, and say in the change that you did.
+- Look at it on a real phone, in the light and the dark theme, and say in the change that you did.

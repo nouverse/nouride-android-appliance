@@ -43,6 +43,10 @@
       </intent-filter>
     </activity>
 
+    <activity
+      android:name=".ui.SupportActivity"
+      android:exported="false" />
+
     <service
       android:name=".server.ServerService"
       android:exported="false"

@@ -8,8 +8,8 @@ foreground service that keeps `nouride start` running. Kotlin, Gradle, no third-
 
 The person holding the phone has never opened a terminal and should never need to. Everything the app shows is for
 them. **By default the app never shows** a log, a file path, a port number on its own, a process state, an exception,
-JSON, a shell command, or the words health, proot, Debian, daemon, rootfs. Those live behind one "Details" switch,
-off by default, for support. Read the `android-appliance-ui` skill before you change anything a person sees: a
+JSON, a shell command, or the words health, proot, Debian, daemon, rootfs. Those live on one screen of their own,
+"Details for support", behind a quiet link at the bottom of the main screen. Read the `android-appliance-ui` skill before you change anything a person sees: a
 screen, a notification, a button, an error.
 
 ## Start here
