@@ -1,221 +1,247 @@
-# RFC: Nouride Android Native Wrapper (Nouride Hub for Android)
+# RFC 0001: Nouride on Android as an app that runs Debian under proot
 
-- **RFC Number:** 001
-- **Author:** Nouva (lead coordinator) & Gading (founder)
-- **Implementer:** Nix (software engineer)
-- **Status:** Draft / Proposed
-- **Target Repository:** `nouverse/nouride-android` (new repository)
-- **Created Date:** 2026-11-06
+- **Status:** Draft, rewritten on 2026-11-07 from what the spike measured (`SPIKE_REPORT.md`). It replaces
+  the draft of 2026-11-06.
+- **Authors:** Nouva and Gading (first draft and decisions of 2026-11-06), Nix (spike and this rewrite).
+- **Repository:** `nouverse/nouride-android`, on its own (no submodule of core yet).
 
----
+## 1. Summary
 
-## 1. Problem Statement & Motivation
+Nouride has no Android build: it ships for Linux (glibc and musl) and macOS. On 2026-11-05 it ran on a Redmi 12
+inside Termux, in a Debian userland under proot (`proot-distro`). This RFC proposes one APK that does the same
+without Termux or a terminal: it carries proot and a Debian rootfs, unpacks Debian on the first start, runs the
+official Nouride installer inside it, and keeps `nouride start` running from a foreground service. The spike on
+the mission branch built that APK and ran it on the same phone; the numbers below come from that run.
 
-Saat ini, menjalankan Nouride di HP Android bekas (sebagai server mandiri / LLM Router) membutuhkan intervensi manual yang rumit bagi pengguna awam:
-1. Memasang Termux secara manual dari F-Droid / GitHub Releases.
-2. Memasang `proot-distro` dan image Debian via command line.
-3. Menjalankan skrip instalasi bash, mengonfigurasi user non-root `nouride`, dan membuat skrip `nohup` manual.
-4. Mengonfigurasi wakelock dan pengecualian penghemat baterai secara manual via terminal dan menu pengaturan OS yang berbeda-beda di tiap vendor HP.
+## 2. Motivation
 
-Hambatan operasional ini membuat HP Android bekas sulit dijadikan perangkat *turnkey appliance* (seperti visi Nouride Box atau personal AI hub untuk UMKM).
+The Termux route works but asks a person to install Termux from F-Droid or GitHub, install `proot-distro` and
+Debian from a shell, run the installer, write a start script, take a wake lock and find the battery settings
+of their phone's brand. Each step is a place to give up. An old phone as a home server, or a phone as a small
+Nouride appliance, needs an app that is installed and started.
 
 ### Goals
-- Mengemas seluruh dependensi eksekusi (PRoot, minimal rootfs, dan binary `nouride-router`) ke dalam satu aplikasi native Android (`.apk`).
-- Pengguna cukup membuka aplikasi dan menekan tombol **"Start Server"** (Zero-CLI setup).
-- Aplikasi menangani manajemen background lifecycle (Foreground Service, Wakelock, pengecualian baterai) secara otomatis melalui API Android.
-- Menyediakan UI ringkas untuk memantau status server, URL dashboard, IP lokal, dan gateway port.
 
-### Non-Goals (Out of Scope untuk MVP)
-- Mengompilasi binary Nouride secara penuh ke target Android NDK/Bionic (terlalu banyak dependensi runtime Node/Bun yang rumit untuk cross-compile di tahap awal).
-- Menyediakan antarmuka terminal/shell interaktif di dalam aplikasi (menghindari kompleksitas UI dan potensi pelanggaran kebijakan Google Play W^X).
-- Mendukung arsitektur 32-bit (ARMv7). Aplikasi hanya menargetkan arsitektur `arm64-v8a` (64-bit).
+- One APK: install it, press Start, get the dashboard address.
+- The same Nouride as on any Linux: the official installer, the latest release, not a copy in the APK.
+- Keeps running with the screen off, and starts again when it stops on its own.
+- Shows its state, its addresses and its log; opens the dashboard.
 
----
+### Non-goals
 
-## 2. Technical Architecture
+- A native Android build of Nouride (bionic instead of glibc).
+- A terminal in the app.
+- 32-bit ARM. Nouride has no 32-bit ARM build; the app is arm64-v8a only.
+- Google Play (see 5.1). The app is sideloaded.
+- Accessibility automation of the phone, licensing and paid tiers: none of it is part of this design.
 
-Aplikasi dibangun sebagai aplikasi native Android (Kotlin / Jetpack Compose minimalis) yang bertindak sebagai *supervisor process*, *host environment*, sekaligus *client shell* (via Embedded WebView).
+## 3. What the spike measured
+
+On a Redmi 12 (HyperOS 2.0, Android 15, 5.5 GiB RAM), 2026-11-06/07:
+
+| | |
+| --- | --- |
+| APK | 50.9 MB debug build: 49.8 MB Debian layer (stored), 2.6 MB dex, 0.3 MB proot |
+| Install | `adb install` refused twice by Google Play Protect while nobody could confirm on screen; succeeded with a person at the phone |
+| First start | Debian unpacked in 6 s (5,442 entries); `apt-get` and the official installer in 71 s with the screen on; `nouride ready` 2 s after `nouride start` |
+| W^X | proot runs every Debian program from the app's data directory at targetSdk 28 on Android 15 |
+| Service | foreground, type `specialUse`, process state 4 (foreground service), partial wake lock and Wi-Fi lock held |
+| From the LAN | `/health` 200 `ok` in 0.1 s, `/dashboard/` 200, while the phone was in deep Doze on battery |
+| Screen off, on battery | 6 h 12 min from `ready`, the last 5 h 30 min with the screen off, mostly in deep Doze: every `/health` from the LAN (5 min apart) answered, the service never restarted, battery 83 → 79 % over the screen-off stretch. Stopped there by Gading, short of the planned 8 h |
+| Telegram | `telegram:reno` long-polling from the app stayed connected; a message reached the daemon after 5 h 30 min with the screen off (its turn failed at the provider, Nougate) |
+| Storage | 321 MB rootfs after install (Nouride 119 MB of it), 326 MB of app data |
+| Memory | `nouride` 64 MB RSS at the start, 52 MB after 6 h; app process 272 MB with a WebView open, 157 MB without |
+| Stop | SIGTERM to `./nouride start`: clean shutdown in 56 ms, proot exits by itself |
+
+## 4. Architecture
 
 ```
-+-------------------------------------------------------------------+
-|                     Android Application (APK)                     |
-|                                                                   |
-|  +--------------------+         +-------------------------------+ |
-|  |     UI Layer       |         |       Background Layer        | |
-|  | (Jetpack Compose / | <-----> |   (NourideForegroundService)  | |
-|  | Embedded WebView)  |         | Persistent Notification + WL  | |
-|  | http://127.0.0.1   |         |                               | |
-|  +--------------------+         +---------------+---------------+ |
-|            |                                    |                 |
-|            | HTTP/WS                            |                 |
-|            v                                    v                 |
-|  +--------------------------------------------------------------+ |
-|  |                  Native Sandbox (context.filesDir)           | |
-|  |                                                              | |
-|  |  +----------------+     chroot/ptrace    +----------------+  | |
-|  |  |  proot binary  | -------------------> | Minimal Rootfs |  | |
-|  |  |  (arm64-v8a)   |                      | (Debian/Alpine)|  | |
-|  |  +----------------+                      +-------+--------+  | |
-|  |                                                  |           | |
-|  |                                        exec /srv/nouride     | |
-|  |                                                  v           | |
-|  |                                    +-----------------------+ | |
-|  |                                    | nouride-router binary | | |
-|  |                                    | (port 18254 & 18256)  | | |
-|  |                                    +-----------------------+ | |
-|  +--------------------------------------------------------------+ |
-+-------------------------------------------------------------------+
+APK (tech.nouverse.nouride.android, targetSdk 28, arm64-v8a)
+├── lib/arm64-v8a/libproot.so, libproot-loader.so    termux/proot, built for this app
+├── assets/rootfs.tgz                                 Debian trixie arm64 layer, pinned by digest
+└── Kotlin, one :app module
+    ├── install/  TarReader, RootfsExtractor, RootfsSetup
+    ├── server/   ServerService, ProotArgs + SysData, ProotRunner, Supervisor + Backoff, HealthPoller
+    ├── power/    battery-exemption dialog, the app's settings page
+    ├── boot/     BootReceiver
+    └── ui/       StatusActivity, DashboardActivity (WebView on 127.0.0.1)
+
+files/debian/rootfs   Debian, unpacked on the first start
+  /srv/nouride        Nouride, as the official installer lays it out (its data in /srv/nouride/.nouride)
+files/debian/sysdata  fake /proc files, written at every start
+files/logs            service.log, install.log, daemon.log, health.log
 ```
 
-### 2.1. Komponen Utama
+Process tree while it runs: the app → `libproot.so` → `su` → `nouride` (and whatever the agents run).
 
-1. **Asset Extraction Engine (`AssetExtractor.kt`)**
-   - File assets dibundel di dalam APK:
-     - `proot` executable (`jniLibs/arm64-v8a/libproot.so` atau di `assets/bin/proot`).
-     - `rootfs.tar.gz` (image minimal Debian/Alpine arm64 berukuran ~35–45 MB).
-     - `nouride-router-linux-arm64` binary.
-   - Pada first-launch, aplikasi mengekstrak rootfs dan binary ke direktori internal aplikasi (`/data/data/<package>/files/rootfs`).
-   - Penanda versi file (`.version` atau hash) disimpan untuk menghindari ekstraksi ulang saat aplikasi dibuka kembali.
+## 5. Design
 
-2. **Foreground Service Supervisor (`NourideServerService.kt`)**
-   - Berjalan sebagai Android Foreground Service dengan notifikasi persisten bertipe `FOREGROUND_SERVICE_TYPE_DATA_SYNC` (atau `SPECIAL_USE` pada Android 14+).
-   - Mengambil `PowerManager.WakeLock` (`PARTIAL_WAKE_LOCK`) selama service aktif untuk mencegah deep sleep CPU saat layar mati.
-   - Menjalankan proses via `ProcessBuilder`:
-     ```bash
-     proot \
-       -r /data/data/<package>/files/rootfs \
-       -b /dev \
-       -b /proc \
-       -b /sys \
-       -w /srv/nouride \
-       /srv/nouride/nouride start
-     ```
-   - Mengawasi lifecycle proses (restart jika crash tak terduga, dan graceful stop saat tombol Stop ditekan melalui pengiriman sinyal `SIGTERM`).
+### 5.1 targetSdk 28, sideloaded
 
-3. **Lifecycle & Power Optimization (`PowerHelper.kt`)**
-   - Memeriksa status `PowerManager.isIgnoringBatteryOptimizations()`.
-   - Jika belum aktif, memunculkan intent dialog sistem `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` secara langsung tanpa membingungkan pengguna mencari menu vendor.
-   - Menyediakan panduan satu-klik untuk mematikan *Phantom Process Killer* (via opsi pengembang Android 14 atau perintah ADB ringkas).
+From targetSdk 29 an app may not execute files from its own data directory (W^X). proot loads every Debian
+program from there, so the app targets 28, as Termux does. Measured: it works on Android 15. Consequences:
 
-4. **UI Layer & Embedded WebView (`MainActivity.kt`)**
-   - Menggunakan pendekatan hybrid: Native Shell + **Embedded Android WebView**.
-   - **Boot & Loading State (Native Jetpack Compose):**
-     - Saat aplikasi dibuka pertama kali atau daemon sedang starting: menampilkan layar splash elegan (Status ekstraksi assets, progress bar, dan status "Starting daemon...").
-     - Melakukan polling background ke `http://127.0.0.1:18254/health`.
-   - **Dashboard View (WebView):**
-     - Begitu endpoint `/health` mengembalikan HTTP 200, layar otomatis berpindah/cross-fade ke WebView yang langsung me-load `http://127.0.0.1:18254/dashboard/`.
-     - **Konfigurasi WebView:**
-       - `javaScriptEnabled = true`, `domStorageEnabled = true`, `databaseEnabled = true`.
-       - Dukungan WebSocket (`ws://` / `wss://`) penuh untuk log streaming dan live chat agent.
-       - Mixed content diizinkan untuk komunikasi loopback (`127.0.0.1`).
-     - **Native Quick Sheet (Bottom Sheet Overlay / Floating Action Button):**
-       - Pengguna tetap bisa menggeser sheet kecil dari bawah untuk melihat status teknis:
-         - IP Lokal Wi-Fi (misal `http://192.168.1.50:18254` agar bisa dibuka dari PC lain).
-         - Router Gateway Port (`:18256`).
-         - Tombol Restart Daemon & Stop Server.
-         - Status CPU / RAM usage HP.
-   - **Offline / Crash Handling:**
-     - Jika daemon terhenti atau crash, WebView menampilkan layar fallback native yang jelas dengan opsi "Restart Server" daripada error page bawaan Chromium `ERR_CONNECTION_REFUSED`.
+- Google Play does not accept new apps or updates below its current target level. The app is sideloaded: an
+  APK from our site or GitHub releases.
+- Android refuses to install apps below a minimum target level, raised over time: below 23 since Android 14,
+  below 24 since Android 15. If a future Android raises it above 28, this design stops installing on that
+  version. Termux depends on the same thing.
+- Google Play Protect checks sideloaded APKs. It refused the spike's debug APK twice when nobody could confirm
+  on the screen; a person must confirm the first install. Whether a release build signed with our key, and
+  Android's developer verification (its verifier, `com.google.android.verifier`, was bound during the
+  install), change that, is open (8).
 
----
+### 5.2 proot
 
-## 3. Evaluasi Kemampuan Nix (Apakah Nix Bisa Mengerjakan Ini?)
+termux/proot at the release Termux ships (5.1.107.102), built with NDK r27d for API 24 by
+`scripts/build-proot.sh`, with talloc 2.5.0 linked in statically. It is packaged as `libproot.so` and its
+loader as `libproot-loader.so` in `jniLibs/arm64-v8a`, with legacy (extracted) native-library packaging:
+Android installs them into `nativeLibraryDir`, the one place an app may execute files from at any target
+level. The app always passes `PROOT_LOADER` (the loader's path there) and `PROOT_TMP_DIR` (in the app's files).
 
-###  Kekuatan & Kesiapan Nix:
-1. **Scaffolding Gradle & Android Tooling:**
-   - Nix dapat membuat struktur repository Gradle standar (`app/src/main/...`, `build.gradle.kts`, `settings.gradle.kts`, AndroidManifest.xml).
-   - Mampu menulis kode Kotlin modular (Service, ProcessBuilder runner, Asset decompression, Activity/Compose UI).
-2. **Pengemasan Rootfs & PRoot:**
-   - Nix memiliki akses shell untuk membuat tarball rootfs Debian/Alpine minimalis, mengekstrak binary `proot` statis `aarch64`, dan memvalidasi struktur filesystem.
-3. **Automasi Build & CI:**
-   - Nix dapat menyiapkan GitHub Actions workflow (`.github/workflows/build-apk.yml`) menggunakan runner Ubuntu standar dengan Android SDK/Gradle untuk mengompilasi APK debug/release secara otomatis.
+The command line is `proot-distro login debian`'s (5.10, Termux): `--kill-on-exit --link2symlink --sysvipc`,
+a faked kernel release (6.17.0), `-L`, `--change-id=0:0`, binds of `/dev`, `/proc`, `/sys`,
+`/dev/urandom:/dev/random`, an empty directory over `/sys/fs/selinux`, a 1777 directory as `/dev/shm`, and a
+fake file for each /proc entry the app cannot read (all nine of proot-distro's on Android 15:
+`loadavg`, `stat`, `uptime`, `version`, `vmstat` and four sysctl files).
 
-### ⚠️ Batasan & Hal yang Butuh Delegasi/Gading:
-1. **Host Lingkungan Daemon Saat Ini:**
-   - Host LXC tempat daemon berjalan tidak memiliki Android SDK / ADB / GUI terpasang langsung.
-   - Namun, Nix bisa mengompilasi menggunakan wrapper script atau Docker image Android builder (`cimg/android` / `gradle:jdk17`), atau memanfaatkan remote build di Mac Gading via SSH (`10.18.1.37`).
-2. **Pengujian Fisik ke HP (Redmi 12):**
-   - Nix tidak bisa langsung mencolok kabel fisik atau menyentuh layar HP. Pengujian instalasi APK (`adb install`) dan interaksi UI dilakukan lewat ADB Wireless ke IP `10.18.1.98` atau langsung oleh Gading.
+Differences from Termux's build: static talloc (Termux's binary has a RUNPATH into `/data/data/com.termux`), no
+libandroid-shmem (only needed to share SysV shm with Termux's own processes), only the 64-bit loader. Two
+build steps are adjusted for NDK r27d and a box without gawk (see the spike report).
 
-**Kesimpulan:** Nix **100% mampu** mengerjakan scaffolding repo, arsitektur kode Kotlin, asset builder script, dan GitHub Actions CI untuk build APK.
+proot is GPL-2.0: the APK must come with its source or a written offer, with our build script.
 
----
+### 5.3 The Debian rootfs
 
-## 4. Rencana Implementasi & Tahapan (Implementation Phases)
+The image `proot-distro install debian` pulls: `docker.io/library/debian`, trixie, linux/arm64/v8, a single
+layer. `scripts/build-rootfs.sh` fetches it by manifest digest, checks the layer against its digest, and puts it
+in the APK as `rootfs.tgz` (not `.tar.gz`: the Android Gradle plugin gunzips assets named `*.gz`). The app
+unpacks it on the first start (6 s on the Redmi 12) and applies what proot-distro applies: `resolv.conf` with
+8.8.8.8 and 8.8.4.4, a plain `hosts`, `aid_` users and groups for the app's own Android ids, `/tmp` 1777.
+Android refuses hard links in app storage, so a hard link in the layer becomes a copy.
 
-### Phase 1: Tooling Scaffolding & Rootfs Builder (Hari 1 / ~3 jam)
-1. Inisialisasi repository baru `nouverse/nouride-android`.
-2. Skrip otomatisasi persiapan assets (`scripts/prepare-assets.sh`):
-   - Unduh binary `proot` statis arm64 teruji.
-   - Buat minimal rootfs Debian arm64 (~35MB) yang sudah memuat binary `nouride-router`.
-   - Kompres ke dalam `app/src/main/assets/rootfs.tar.gz`.
-3. Setup project Android (Gradle 8.x, Java 17, Target SDK 34, Min SDK 24).
+The digest is pinned in `scripts/assets.lock`; moving to a newer Debian is a change of that file.
 
-### Phase 2: Core Service & Process Runner (Hari 1 / ~3 jam)
-1. Implementasi `AssetExtractor.kt`: utilitas un-tar streaming di background thread dengan progress bar.
-2. Implementasi `NourideServerService.kt`:
-   - Setup Foreground Notification (`Nouride is running`).
-   - Eksekusi PRoot via `ProcessBuilder` dengan redirect output log ke file internal app.
-   - Pengambilan `WakeLock`.
-3. Endpoint Health Poller: Coroutine background yang melakukan poll ke `http://localhost:18254/health`.
+### 5.4 Nouride: the official installer, not a bundled binary
 
-### Phase 3: Minimal Dashboard UI & Power Helper (Hari 2 / ~2 jam)
-1. Tampilan antarmuka Jetpack Compose ringkas:
-   - Status indikator & uptime.
-   - Deteksi IP lokal Wi-Fi aktif (`NetworkCapabilities`).
-   - Tombol Start/Stop, tombol "Buka Dashboard" via Chrome Custom Tabs.
-2. Dialog izin penghemat baterai (`PowerHelper.requestBatteryOptimizationExemption`).
+The APK does not carry Nouride. On the first start the app runs, as faked root inside Debian:
 
-### Phase 4: Validasi & Pengujian di Redmi 12 (Hari 2 / ~2 jam)
-1. Build APK debug via Gradle / GitHub Actions.
-2. Deploy APK ke Redmi 12 via Wireless ADB (`adb install -r app-debug.apk`).
-3. Verifikasi skenario:
-   - Start server dari UI -> Buka dashboard dari Mac/laptop -> Lolos.
-   - Matikan layar HP selama 30 menit -> Request API router tetap responsif -> Lolos.
-   - Matikan dan nyalakan ulang server via toggle UI -> Lolos.
-
----
-
-## 5. Premium Extension: Nouride Hands (Accessibility Bridge)
-
-Sebagai ekstensi komersial (Pro / Business Tier), aplikasi menyediakan kapabilitas otomasi sistem penuh tanpa memerlukan root atau koneksi ADB kabel, menggunakan **Android Accessibility Service (AAS)**.
-
-### 5.1. Arsitektur Komponen
 ```
-[Nouride Daemon (Agent Skill)]
-          |
-          | HTTP (Localhost only: 127.0.0.1:18259)
-          v
-[Embedded NanoHTTPD / Ktor IPC Bridge di Android Native]
-          |
-          v
-[NourideAccessibilityService]
-    ├── getRootInActiveWindow() -> UI Hierarchy (Text, IDs, Bounds) dalam format JSON
-    ├── dispatchGesture()       -> Tap, Long Press, Swipe, Drag
-    └── performAction()         -> Set Text, Focus, Scroll, Global Actions (Back, Home)
+apt-get update && apt-get install -y curl ca-certificates procps
+curl -fsSL https://get.nouride.com/install.sh | sh -s -- --host 0.0.0.0 --port <port>
 ```
 
-### 5.2. Keunggulan vs Vision-based Computer Use
-1. **Zero Image Token Cost:** Mengirimkan representasi semantik UI murni (teks tombol, input field) ke LLM, menghemat ribuan token per aksi dibanding model vision.
-2. **Akurasi Deterministik:** Tidak terpengaruh kesalahan estimasi koordinat piksel atau perubahan resolusi layar.
+The latest release is installed, and the APK is not rebuilt for each Nouride release. The installer makes the
+`nouride` account and says there is no systemd; the app then runs
+`su -s /bin/sh nouride -c 'cd /srv/nouride && exec ./nouride start'`, as the Android guide does in Termux.
+The first start needs the internet (about 18 MB of Debian packages and the Nouride release).
 
-### 5.3. Model Monetisasi & Lisensi
-- **Community Edition:** Fitur Core Server, Router Gateway, dan Embedded WebView Dashboard tersedia gratis (Free).
-- **Pro / Commercial Edition (Nouride Hands):** Fitur Accessibility Bridge dikunci menggunakan verifikasi lisensi (token aktivasi Nouverse / NOU credits) yang divalidasi ke API master Nouverse.
+What the daemon cannot do here, the same as on Termux: each agent as its own user (`nouride-run` needs
+systemd), `--allow-packages`, and Nouride Box features such as the setup hotspot.
 
----
+### 5.5 The service
 
-## 6. Repository & Development Strategy
+`ServerService` is a foreground service of type `specialUse`. `dataSync` would be wrong for a server, and for
+apps targeting Android 15 it is limited to 6 hours a day; the spike targets 28, where that limit does not
+apply, but the type says what the service is. It does, on a worker thread: unpack Debian if needed, write the
+fake /proc files, run the installer if Nouride is not installed, then keep the daemon running through
+`Supervisor`. The daemon restarts after 2 s, doubling up to 5 min, and the count starts again after a run of
+10 min. The service returns `START_STICKY`, so Android brings it back if it kills the app.
 
-Disepakati menggunakan **Repository Terpisah: `nouverse/nouride-android`**, dengan pertimbangan:
-1. **Isolasi Toolchain:** Memisahkan ekosistem Gradle, Java, dan Android SDK dari monorepo utama (Rust / Bun / Astro).
-2. **Decoupled Release Cycle:** Wrapper Android bertindak sebagai host shell independen yang mengunduh atau memuat binary `nouride-router` rilis terbaru tanpa perlu merilis ulang APK untuk setiap perubahan kecil pada core daemon.
-3. **Proteksi IP:** Memisahkan modul komersial (Accessibility bridge & lisensi) dari core daemon yang direncanakan untuk open-source.
+Stop: SIGTERM to `./nouride start` (found under proot's pid in /proc), then SIGQUIT to proot, which kills
+everything it runs (proot ignores SIGTERM), then SIGKILL.
 
----
+`HealthPoller` asks `http://127.0.0.1:<port>/health` every 60 s. Only HTTP 200 with `status: ok` counts as up
+(`starting`, `degraded` and `shutting_down` are 503).
 
-## 7. Rekomendasi Langkah Selanjutnya
+### 5.6 Staying alive with the screen off
 
-1. Buat repository baru di organisasi `@nouverse`: `nouverse/nouride-android`.
-2. Tugaskan **Nix** untuk mengeksekusi **Phase 1 & Phase 2** (mempersiapkan rootfs bundle, project Gradle, dan native Foreground Service).
-3. Evaluasi hasil build APK pertama langsung di HP Redmi 12.
+- A partial wake lock and a Wi-Fi lock while the service runs, as `termux-wake-lock` takes. Android 15 turns the
+  requested `WIFI_MODE_FULL_HIGH_PERF` into a low-latency lock (type 4), documented as effective only with the
+  screen on; the daemon stayed reachable on the LAN without it.
+- Android's battery-exemption dialog (`ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`) on Start. On the Redmi 12
+  the exemption put the app on the Doze allowlist (standby bucket 5). HyperOS has its own battery saver per app;
+  the status screen links to the app's settings page.
+- Android 12 and later kill an app's child processes beyond 32 in total (phantom process killer). The phone of
+  the spike already had the limit raised for Termux, so this was not tested. A busy agent can cross 32 child
+  processes; the app should detect the setting and explain the adb commands the Android guide gives.
+
+### 5.7 The screens
+
+`StatusActivity`: state, `/health` summary, the dashboard on the phone and on the LAN (the Wi-Fi address),
+Start, Stop, the battery buttons while the app is not exempt, and the end of the current log. It is where the
+first login appears: the daemon prints the generated `admin` password once, in `daemon.log`.
+
+`DashboardActivity`: a WebView on `http://127.0.0.1:<port>/dashboard/`, JavaScript and DOM storage on.
+Cleartext HTTP is allowed for `127.0.0.1` only (network security config). The full app must open it only once
+`/health` is ok, or show a native "starting" view and reload: in the spike it could be opened before the daemon
+was up.
+
+### 5.8 Start on boot
+
+`BootReceiver` starts the service after a reboot if it was running before. Not tested: the spike did not reboot
+the phone. Xiaomi phones also have an Autostart permission per app that can hold `BOOT_COMPLETED` back.
+
+### 5.9 Network
+
+The daemon binds `0.0.0.0` so other devices on the Wi-Fi can open the dashboard; that is the point of a home
+server, and it is also an exposure on an untrusted network. The default port is 18254, as everywhere; the spike
+used 18264 because the same phone runs Nouride in Termux on 18254. The Router edition (`--variant router`) adds
+the in-process Nougate gateway on 18256; the spike installed the basic edition.
+
+## 6. What changed from the first draft
+
+| First draft | Now |
+| --- | --- |
+| targetSdk 34 | 28: from 29 the app could not execute Debian's programs (W^X). |
+| `nouride-router` bundled in the rootfs in the APK | Not bundled: the official installer fetches the latest release on the first start. |
+| `dataSync` foreground service | `specialUse`: a server is not a data sync, and `dataSync` is limited to 6 h a day for apps targeting Android 15. |
+| proot `-r rootfs -b /dev -b /proc -b /sys -w /srv/nouride /srv/nouride/nouride start`, as root | proot-distro's full command line (link2symlink, sysvipc, fake /proc, faked kernel release, faked root) and the daemon as the `nouride` account through `su`. |
+| A minimal rootfs of 35 to 45 MB | The Debian layer is 49.8 MB packed, 152 MB unpacked, 321 MB with Nouride. |
+| Static proot downloaded from elsewhere | termux/proot built by our script, inputs pinned by sha256. |
+| Hard-coded LAN addresses of the phone and a Mac | None in the design: the status screen reads the phone's Wi-Fi address. |
+| Core described as a monorepo of several languages | Core is a Bun and TypeScript monorepo; this app shares no build with it. |
+| Jetpack Compose UI and Chrome Custom Tabs | Framework views in the spike and a WebView on the loopback address; Compose stays open for the full app. |
+| An accessibility bridge, licensing and paid tiers | Not part of this design. |
+| An assessment of who can do the work | Replaced by the measurements in section 3. |
+
+## 7. Risks
+
+- **The minimum installable target level** (5.1). If Android raises it above 28, installs stop on that Android
+  version. Nothing in this design avoids that; it is the same risk Termux carries.
+- **Play Protect and developer verification.** A person has to confirm the first install on the phone, and a
+  remote install (adb with the screen off) fails. For a sideloaded product this is the first impression.
+- **Vendor battery savers.** The spike measured one phone, with the exemption granted. Other brands and other
+  HyperOS versions differ.
+- **The phantom process killer** on phones without the raised limit (5.6).
+- **The first start depends on the network**: Debian's mirrors, get.nouride.com and GitHub releases. A failure
+  leaves the app in a failed state with `install.log`; the full app needs a retry.
+- **Exposure on the LAN** with `--host 0.0.0.0`.
+
+## 8. Open questions
+
+1. Does a release build, signed with our key, install without a confirmation on screen? What does Android's
+   developer verification ask of us for a sideloaded app?
+2. Does the service survive a full night (the spike stopped at 5 h 30 min with the screen off), more than one
+   night, a reboot (with HyperOS Autostart), low memory, and agents at work, without the battery exemption, and
+   on other phones?
+3. How should Nouride update itself here? `nouride update` has no service manager to hand the restart to; the
+   app's supervisor can restart the daemon, but the flow is untested.
+4. Basic or Router edition by default in the app?
+5. Where does the first login go: the status screen reads it from the daemon's log today.
+6. Distribution and source offer for proot (GPL-2.0).
+
+## 9. Plan for the full app
+
+1. Release signing, the install path (download page or GitHub releases) and the Play Protect behaviour of a
+   release build.
+2. The first start as a guided screen: progress of unpack and install, retry on failure, the first login shown
+   once.
+3. The dashboard screen gated on `/health`; Stop and restart from the notification.
+4. Battery: the exemption, HyperOS and other vendors' settings pages, the phantom-process check with the adb
+   commands to fix it.
+5. Boot and updates: `BootReceiver` with Autostart guidance; `nouride update` with the supervisor restarting the
+   daemon.
+6. A soak matrix: several phones, several nights, with and without the exemption, with agents running.
+7. CI: the toolchain script, proot and rootfs scripts and the unit tests in GitHub Actions, the APK as an
+   artifact.
