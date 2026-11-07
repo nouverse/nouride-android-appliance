@@ -2,14 +2,24 @@ package tech.nouverse.nouride.android.ui
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Message
 import android.webkit.CookieManager
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import org.json.JSONObject
 import tech.nouverse.nouride.android.Nouride
+import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.server.FirstAdmin
 import tech.nouverse.nouride.android.server.ServerService
+import tech.nouverse.nouride.android.signin.CallbackCatcher
+import tech.nouverse.nouride.android.signin.LoopbackSignIn
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -19,6 +29,10 @@ import kotlin.concurrent.thread
  * The daemon's own dashboard, from the loopback address, already signed in: the app signs in with the account it made
  * on the first start (`FirstAdmin`) and hands the session cookie to the WebView. When that fails (the person changed
  * the password, or the install is older than the account) the dashboard shows its own login page, as anywhere else.
+ *
+ * Only Nouride's own pages open here (`LinkPolicy`); every other link leaves for the browser or the app that owns it,
+ * a provider's sign-in page included (`LoopbackSignIn`). `nouridehome://dashboard`, where a finished sign-in sends the
+ * browser, brings this screen back where it was, and the dashboard asks the gateway again for its accounts.
  */
 class DashboardActivity : Activity() {
   private lateinit var web: WebView
@@ -29,7 +43,10 @@ class DashboardActivity : Activity() {
     web = WebView(this)
     web.settings.javaScriptEnabled = true
     web.settings.domStorageEnabled = true
-    web.webViewClient = WebViewClient()
+    web.settings.setSupportMultipleWindows(true)
+    web.settings.javaScriptCanOpenWindowsAutomatically = true
+    web.webViewClient = Guard()
+    web.webChromeClient = NewWindows()
     setContentView(web)
     if (savedInstanceState != null) {
       web.restoreState(savedInstanceState)
@@ -50,6 +67,73 @@ class DashboardActivity : Activity() {
         }
         web.loadUrl(Nouride.DASHBOARD_URL)
       }
+    }
+  }
+
+  override fun onNewIntent(intent: Intent) {
+    super.onNewIntent(intent)
+    // Not a reload: the setup wizard keeps where the person is in memory, and a reload put them back on its first
+    // step. The dashboard asks again for what it shows when the page becomes visible (react-query's refetch on
+    // focus), and this says so in case the WebView did not.
+    if (intent.data?.toString() == CallbackCatcher.BACK) {
+      web.evaluateJavascript("document.dispatchEvent(new Event('visibilitychange'))", null)
+    }
+  }
+
+  /** Nouride's pages stay; anything else goes out, redirects too: `/oauth/start` answers with Google's page. */
+  private inner class Guard : WebViewClient() {
+    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+      val url = request.url.toString()
+      // A frame inside a page is the page's business; only where the page itself goes is decided here.
+      if (!request.isForMainFrame || LinkPolicy.inApp(url)) return false
+      openOutside(url)
+      return true
+    }
+  }
+
+  /**
+   * A link that opens a new tab (the gateway's "Open sign-in") goes to a WebView of its own that is never shown: a
+   * page of Nouride's moves into this one, anything else, or what a Nouride path redirects to, goes out.
+   */
+  private inner class NewWindows : WebChromeClient() {
+    override fun onCreateWindow(view: WebView, isDialog: Boolean, isUserGesture: Boolean, resultMsg: Message): Boolean {
+      val popup = WebView(this@DashboardActivity)
+      popup.webViewClient = object : WebViewClient() {
+        override fun shouldOverrideUrlLoading(v: WebView, request: WebResourceRequest): Boolean {
+          val url = request.url.toString()
+          if (LinkPolicy.inApp(url)) return false
+          openOutside(url)
+          v.destroy()
+          return true
+        }
+
+        override fun onPageFinished(v: WebView, url: String) {
+          if (url == "about:blank" || !LinkPolicy.inApp(url)) return
+          web.loadUrl(url)
+          v.destroy()
+        }
+      }
+      (resultMsg.obj as WebView.WebViewTransport).webView = popup
+      resultMsg.sendToTarget()
+      return true
+    }
+  }
+
+  private fun openOutside(url: String) {
+    LoopbackSignIn.expect(url, System.currentTimeMillis())?.let { CallbackCatcher.arm(this, it) }
+    val intent = if (url.startsWith("intent:")) {
+      try {
+        Intent.parseUri(url, Intent.URI_INTENT_SCHEME).apply { component = null; selector = null }
+      } catch (e: Exception) {
+        return
+      }
+    } else {
+      Intent(Intent.ACTION_VIEW, Uri.parse(url))
+    }
+    try {
+      startActivity(intent.addCategory(Intent.CATEGORY_BROWSABLE))
+    } catch (e: ActivityNotFoundException) {
+      Toast.makeText(this, R.string.no_app_for_link, Toast.LENGTH_SHORT).show()
     }
   }
 

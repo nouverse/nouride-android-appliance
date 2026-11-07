@@ -55,4 +55,10 @@
 
   <string name="notification_channel">Nouride</string>
   <string name="notification_tap">Tap to open Nouride Home</string>
+  <string name="signin_done_title">You\'re signed in</string>
+  <string name="signin_done_body">Your account is added. Go back to Nouride Home to keep going.</string>
+  <string name="signin_failed_title">Sign-in didn\'t finish</string>
+  <string name="signin_failed_body">Go back to Nouride Home and try again.</string>
+  <string name="signin_back">Back to Nouride Home</string>
+  <string name="no_app_for_link">No app on this phone can open this link.</string>
 </resources>
