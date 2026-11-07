@@ -54,4 +54,12 @@ object UpdateFeed {
       val match = Regex("^([0-9a-fA-F]{64})\\s+\\*?(\\S+)$").find(line) ?: return@firstNotNullOfOrNull null
       if (match.groupValues[2] == fileName) match.groupValues[1].lowercase() else null
     }
+
+  /**
+   * Whether the feed is asked again: the last answer is older than [maxAgeMs], or it was given to another version of
+   * this app. An answer kept from before an update is about the old version: the phone updated by hand (or from a test
+   * feed) waited out the rest of six hours before it looked for anything newer than itself.
+   */
+  fun due(nowMs: Long, checkedAtMs: Long, maxAgeMs: Long, checkedFor: String?, installed: String): Boolean =
+    checkedFor != installed || nowMs - checkedAtMs >= maxAgeMs
 }

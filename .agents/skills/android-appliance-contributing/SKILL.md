@@ -19,7 +19,7 @@ description: How to work on Nouride Home, the Android app that runs Nouride on t
 5. `power/` asks for the battery exemption and opens the phone's own battery settings. `boot/` starts the service on
    boot.
 6. `update/` is the app's own updates, from this repository's GitHub Releases: `UpdateFeed` reads `releases/latest`
-   (pure, tested), `Updates` checks it when the app opens (every 6 h at most) and from the service twice a day,
+   (pure, tested), `Updates` checks it when the app opens (every 6 h at most, at once after the app changed version) and from the service twice a day,
    downloads the APK against its sha256 and hands it to `PackageInstaller`. `UpdateReceiver` hears the installer: the
    screen asking the person, then the result, and the new version starts Nouride again on success. `ui/UpdateCard`
    is the card and the big card once a release; both wait while the first start sets Nouride up.

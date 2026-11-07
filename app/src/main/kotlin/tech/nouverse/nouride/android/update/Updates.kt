@@ -29,6 +29,7 @@ object Updates {
   private const val APK = "apk"
   private const val SHA = "sha"
   private const val CHECKED_AT = "checked_at"
+  private const val CHECKED_FOR = "checked_for"
   private const val OFFERED = "offered"
   private const val FAILED = "failed"
 
@@ -64,7 +65,10 @@ object Updates {
    */
   fun check(context: Context, maxAgeMs: Long): Release? {
     val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-    if (System.currentTimeMillis() - prefs.getLong(CHECKED_AT, 0) < maxAgeMs) return waiting(context)
+    val installed = installedVersion(context)
+    if (!UpdateFeed.due(System.currentTimeMillis(), prefs.getLong(CHECKED_AT, 0), maxAgeMs, prefs.getString(CHECKED_FOR, null), installed)) {
+      return waiting(context)
+    }
     val text = try {
       get(context.getString(R.string.update_feed), context)
     } catch (e: IOException) {
@@ -72,7 +76,7 @@ object Updates {
     }
     val release = UpdateFeed.parse(text)
     prefs.edit().apply {
-      putLong(CHECKED_AT, System.currentTimeMillis())
+      putLong(CHECKED_AT, System.currentTimeMillis()).putString(CHECKED_FOR, installed)
       if (release != null) putString(VERSION, release.version).putString(APK, release.apkUrl).putString(SHA, release.sha256Url)
     }.apply()
     return waiting(context)

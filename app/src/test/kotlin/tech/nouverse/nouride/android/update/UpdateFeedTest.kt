@@ -61,4 +61,15 @@ class UpdateFeedTest {
     assertNull(UpdateFeed.expectedSha256("abc  nouride-home-0.1.1.apk", "nouride-home-0.1.1.apk"))
     assertNull(UpdateFeed.expectedSha256("", "nouride-home-0.1.1.apk"))
   }
+
+  @Test
+  fun `the feed is asked again once its answer is old, or was given to another version of the app`() {
+    val hour = 3_600_000L
+    assertFalse(UpdateFeed.due(nowMs = 2 * hour, checkedAtMs = hour, maxAgeMs = 6 * hour, checkedFor = "0.1.0", installed = "0.1.0"))
+    assertTrue(UpdateFeed.due(nowMs = 8 * hour, checkedAtMs = hour, maxAgeMs = 6 * hour, checkedFor = "0.1.0", installed = "0.1.0"))
+    // Updated since the last answer (by hand, or from a test feed): asked at once, not six hours later.
+    assertTrue(UpdateFeed.due(nowMs = 2 * hour, checkedAtMs = hour, maxAgeMs = 6 * hour, checkedFor = "0.0.11", installed = "0.1.0"))
+    // An answer from a version that did not record it.
+    assertTrue(UpdateFeed.due(nowMs = 2 * hour, checkedAtMs = hour, maxAgeMs = 6 * hour, checkedFor = null, installed = "0.1.0"))
+  }
 }
