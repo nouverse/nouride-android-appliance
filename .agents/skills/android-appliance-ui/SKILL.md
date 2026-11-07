@@ -1,6 +1,6 @@
 ---
 name: android-appliance-ui
-description: The rules for everything a person sees in Nouride Home, the Android app that runs Nouride on the phone, whose users are not technical - the status screen, the first start, the notification, buttons, errors, battery guidance and the words on them, in English and Indonesian; what is hidden by default (logs, paths, ports, process states) and where it goes instead. Use when adding or changing a screen, a notification, a button, a message or an error, or reviewing one.
+description: The rules for everything a person sees in Nouride Home, the Android app that runs Nouride on the phone, whose users are not technical - the status screen, the first start, the notification, buttons, errors, battery guidance and the words on them, in English; what is hidden by default (logs, paths, ports, process states) and where it goes instead. Use when adding or changing a screen, a notification, a button, a message or an error, or reviewing one.
 ---
 
 # A phone server for people who are not technical
@@ -74,10 +74,10 @@ Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
 - The app is "Nouride Home"; what it runs is "Nouride", never the server, the daemon or the service. Say "the
   phone", not the device.
 - Times as people say them: "a few minutes", "just now". Not timestamps.
-- Every string is a resource, in `res/values/strings.xml` (English) and `res/values-in/strings.xml` (Indonesian),
-  written as a person would say it in that language, not translated word for word. Indonesian is everyday Indonesian:
-  "Nouride sedang jalan.", not "Server sedang dalam status berjalan."
-- No exclamation marks, no emoji, no jargon in either language.
+- Every string is a resource in `res/values/strings.xml`. The app is English only, whatever language the phone is
+  set to (the owner, 2026-11-07): no `values-<language>` folder. Plain everyday English: "Nouride is running.", not
+  "The server is in the running state."
+- No exclamation marks, no emoji, no jargon.
 
 ## The notification
 

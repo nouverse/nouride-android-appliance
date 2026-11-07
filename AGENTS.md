@@ -33,8 +33,8 @@ screen, a notification, a button, an error.
    `experiments/` has them removed.
 6. Every change carries a test that fails without it (`./gradlew testDebugUnitTest`); break the change, watch the
    test go red, put it back. What a unit test cannot reach is checked on a real phone and said so.
-7. Every text a person reads is a string resource (`res/values/strings.xml`, English, and `res/values-in/strings.xml`,
-   Indonesian), never a literal in Kotlin.
+7. Every text a person reads is a string resource in `res/values/strings.xml`, never a literal in Kotlin. The app
+   is in English only, whatever the phone's language: there is no `values-<language>` folder.
 
 ## Verify
 
@@ -45,6 +45,6 @@ screen, a notification, a button, an error.
 
 ## Writing
 
-Code, comments, commits and docs in English; the app's words in English and Indonesian. A comment says why. Commits
+Code, comments, commits and docs in English; the app's words in English. A comment says why. Commits
 are conventional (`fix(service): ...`), attributed to the person you work for, with no AI co-author or attribution
 line. Do not push to `main` unless asked.

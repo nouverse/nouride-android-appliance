@@ -11,7 +11,7 @@ enum class Tone { CALM, BUSY, GOOD, WARN }
 /** The one big button, or none while the app is busy and there is nothing to press. */
 enum class Action { START, OPEN, RETRY, NONE }
 
-/** Which sentence the screen says. Each has a title and a body in `strings.xml`, English and Indonesian. */
+/** Which sentence the screen says. Each has a title and a body in `strings.xml`. */
 enum class Words { OFF, SETTING_UP, STARTING, WAKING, RUNNING, RESTARTING, STOPPING, FAILED }
 
 data class Look(val mascot: Mascot, val tone: Tone, val words: Words, val action: Action, val busy: Boolean)

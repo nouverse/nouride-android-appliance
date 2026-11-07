@@ -11,7 +11,8 @@ object Nouride {
 
   /**
    * As root in Debian: the packages the minimal image lacks, then the official installer. Each part echoes its marker
-   * first, which moves the progress bar to that step (`SetupProgress`).
+   * first, which moves the progress bar to that step (`SetupProgress`). The Router edition: the free build with the
+   * LLM gateway, so a person can sign in with an account they already pay for instead of finding an API key.
    */
   val INSTALL = listOf(
     "/bin/sh", "-c",
@@ -23,7 +24,7 @@ object Nouride {
     echo '${SetupProgress.marker(Step.TOOLS)}'
     apt-get install -y curl ca-certificates procps
     echo '${SetupProgress.marker(Step.NOURIDE)}'
-    curl -fsSL $INSTALL_URL | sh -s -- --host 0.0.0.0 --port $PORT
+    curl -fsSL $INSTALL_URL | sh -s -- --variant router --host 0.0.0.0 --port $PORT
     """.trimIndent(),
   )
 
