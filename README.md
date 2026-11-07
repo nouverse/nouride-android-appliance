@@ -33,9 +33,10 @@ Every release is signed with the same key, so a new one installs over the old on
 
 ## Releasing
 
-Push a tag `vX.Y.Z` on `main`. The `Release` workflow builds the APK from the pinned inputs, runs the unit tests,
-signs it with the release key (the repository's `NOURIDE_HOME_*` secrets), checks the signature against
-`scripts/release-cert.sha256`, and publishes it on Releases. Run the workflow by hand with a version for a dry run: the
+Publish a release `vX.Y.Z` on GitHub (Releases → Draft a new release, a new tag on `main`). The `Release` workflow
+runs on that, never on a push: it builds the APK from the pinned inputs, runs the unit tests, signs it with the
+release key (the repository's `NOURIDE_HOME_*` secrets), checks the signature against `scripts/release-cert.sha256`,
+and attaches it to the release. Run the workflow by hand with a version for a dry run: the
 APK is kept as the run's artifact and nothing is published. The release key is the owner's; losing it means no phone
 can update to a later release without uninstalling, so it is kept outside the repository and backed up.
 

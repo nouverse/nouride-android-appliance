@@ -48,8 +48,8 @@ red, put it back, and say so in the commit.
 
 ## Releases
 
-A release is a tag `vX.Y.Z` on `main`; `.github/workflows/release.yml` builds, tests, signs and publishes
-`nouride-home-X.Y.Z.apk` on GitHub Releases. The version code comes from the version (major × 1 000 000 + minor ×
+A release is a GitHub release `vX.Y.Z` published on `main`; `.github/workflows/release.yml` runs on that (never on a
+push), builds, tests, signs and attaches `nouride-home-X.Y.Z.apk` to it. The version code comes from the version (major × 1 000 000 + minor ×
 1 000 + patch), so each release must be higher than the last. The workflow refuses an APK not signed with the key
 in `scripts/release-cert.sha256`: a phone refuses an update signed with another key. Never commit a keystore. Try a
 change to the workflow with a manual run (a dry run) before tagging.

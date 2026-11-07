@@ -1,12 +1,12 @@
-# A release of Nouride Home: push a tag `vX.Y.Z` and this builds the APK from the pinned inputs, runs the unit tests,
-# signs it with the release key, checks the signature against scripts/release-cert.sha256, and publishes it on the
-# repository's Releases with its sha256. Run by hand (Actions → Release → Run workflow) it builds the same APK as a
-# dry run: kept as the run's artifact for 7 days, nothing published.
+# A release of Nouride Home: publish a release `vX.Y.Z` on GitHub and this builds the APK from the pinned inputs, runs
+# the unit tests, signs it with the release key, checks the signature against scripts/release-cert.sha256, and
+# attaches it to that release with its sha256. Never on a push. Run by hand (Actions → Release → Run workflow) it
+# builds the same APK as a dry run: kept as the run's artifact for 7 days, nothing attached.
 name: Release
 
 on:
-  push:
-    tags: ["v*"]
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       version:
@@ -22,12 +22,16 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The release's own tag, not whatever main is now.
+          ref: ${{ github.event.release.tag_name || github.ref }}
 
       - name: Version
         env:
           INPUT_VERSION: ${{ inputs.version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          if [ "$GITHUB_REF_TYPE" = tag ]; then v="${GITHUB_REF_NAME#v}"; else v="$INPUT_VERSION"; fi
+          if [ -n "$RELEASE_TAG" ]; then v="${RELEASE_TAG#v}"; else v="$INPUT_VERSION"; fi
           echo "$v" | grep -Eq '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' || { echo "not a version x.y.z: $v" >&2; exit 1; }
           echo "NOURIDE_HOME_VERSION=$v" >> "$GITHUB_ENV"
 
@@ -89,11 +93,11 @@ jobs:
           path: nouride-home-*.apk*
           retention-days: 7
 
-      - name: Publish
-        if: github.ref_type == 'tag'
+      - name: Attach to the release
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            "nouride-home-$NOURIDE_HOME_VERSION.apk" "nouride-home-$NOURIDE_HOME_VERSION.apk.sha256" \
-            --title "Nouride Home $NOURIDE_HOME_VERSION" --generate-notes --latest
+          gh release upload "$RELEASE_TAG" --clobber \
+            "nouride-home-$NOURIDE_HOME_VERSION.apk" "nouride-home-$NOURIDE_HOME_VERSION.apk.sha256"
