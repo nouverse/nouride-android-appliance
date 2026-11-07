@@ -1,0 +1,99 @@
+# A release of Nouride Home: push a tag `vX.Y.Z` and this builds the APK from the pinned inputs, runs the unit tests,
+# signs it with the release key, checks the signature against scripts/release-cert.sha256, and publishes it on the
+# repository's Releases with its sha256. Run by hand (Actions → Release → Run workflow) it builds the same APK as a
+# dry run: kept as the run's artifact for 7 days, nothing published.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build as a dry run, x.y.z"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then v="${GITHUB_REF_NAME#v}"; else v="$INPUT_VERSION"; fi
+          echo "$v" | grep -Eq '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' || { echo "not a version x.y.z: $v" >&2; exit 1; }
+          echo "NOURIDE_HOME_VERSION=$v" >> "$GITHUB_ENV"
+
+      - name: Toolchain cache
+        uses: actions/cache@v4
+        with:
+          path: ~/android-toolchain
+          key: toolchain-${{ hashFiles('scripts/setup-toolchain.sh') }}
+
+      - name: Toolchain
+        # sdkmanager asks to accept each licence; the script is the one every build of this app uses.
+        run: yes | scripts/setup-toolchain.sh "$HOME/android-toolchain" > /dev/null
+
+      - name: Rootfs cache
+        uses: actions/cache@v4
+        with:
+          path: build/rootfs
+          key: rootfs-${{ hashFiles('scripts/assets.lock') }}
+
+      - name: proot and the Debian layer
+        run: |
+          . "$HOME/android-toolchain/env.sh"
+          scripts/build-proot.sh
+          scripts/build-rootfs.sh
+
+      - name: Release key
+        env:
+          KEYSTORE_B64: ${{ secrets.NOURIDE_HOME_KEYSTORE_B64 }}
+        run: |
+          test -n "$KEYSTORE_B64" || { echo "the NOURIDE_HOME_KEYSTORE_B64 secret is missing" >&2; exit 1; }
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "NOURIDE_HOME_KEYSTORE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      - name: Test and build
+        env:
+          NOURIDE_HOME_KEYSTORE_PASSWORD: ${{ secrets.NOURIDE_HOME_KEYSTORE_PASSWORD }}
+          NOURIDE_HOME_KEY_ALIAS: ${{ secrets.NOURIDE_HOME_KEY_ALIAS }}
+        run: |
+          . "$HOME/android-toolchain/env.sh"
+          ./gradlew --no-daemon testDebugUnitTest assembleRelease
+
+      - name: Signature
+        # The key every earlier release was signed with, or phones refuse the update: a wrong key fails here.
+        run: |
+          . "$HOME/android-toolchain/env.sh"
+          apk=app/build/outputs/apk/release/app-release.apk
+          got=$("$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" | sed -n 's/.*certificate SHA-256 digest: //p' | head -1)
+          want=$(cat scripts/release-cert.sha256)
+          [ "$got" = "$want" ] || { echo "signed with $got, releases use $want" >&2; exit 1; }
+          out="nouride-home-$NOURIDE_HOME_VERSION.apk"
+          cp "$apk" "$out"
+          sha256sum "$out" > "$out.sha256"
+          ls -l "$out"
+          rm -f "$RUNNER_TEMP/release.jks"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nouride-home-${{ env.NOURIDE_HOME_VERSION }}
+          path: nouride-home-*.apk*
+          retention-days: 7
+
+      - name: Publish
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "nouride-home-$NOURIDE_HOME_VERSION.apk" "nouride-home-$NOURIDE_HOME_VERSION.apk.sha256" \
+            --title "Nouride Home $NOURIDE_HOME_VERSION" --generate-notes --latest

@@ -25,6 +25,20 @@ Nouride listens on its default port, `18254`. The dashboard is `http://<the phon
 Limits: arm64 phones only (Nouride has no 32-bit ARM build), sideloaded (not on Google Play: `targetSdk` is 28 on
 purpose, see `AGENTS.md`).
 
+## Download
+
+The APK of each release is on the [Releases](https://github.com/nouverse/nouride-android-appliance/releases) page,
+`nouride-home-X.Y.Z.apk`, with its sha256. Open it on the phone and allow installing from that app when Android asks.
+Every release is signed with the same key, so a new one installs over the old one and keeps Nouride's data.
+
+## Releasing
+
+Push a tag `vX.Y.Z` on `main`. The `Release` workflow builds the APK from the pinned inputs, runs the unit tests,
+signs it with the release key (the repository's `NOURIDE_HOME_*` secrets), checks the signature against
+`scripts/release-cert.sha256`, and publishes it on Releases. Run the workflow by hand with a version for a dry run: the
+APK is kept as the run's artifact and nothing is published. The release key is the owner's; losing it means no phone
+can update to a later release without uninstalling, so it is kept outside the repository and backed up.
+
 ## Building
 
 Everything installs without root, into one directory:
