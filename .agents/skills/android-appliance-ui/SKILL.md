@@ -55,6 +55,13 @@ Under the main state, only what a person acts on:
   the exact names that brand's settings use.
 - **Stop**: a text button, not a main button. Stopping asks once: "Stop Nouride? Your agents will not answer until
   you start it again."
+- **A new version of the app** (`ui/UpdateCard.kt`): the first time a release is found, a round card over the screen
+  with the riding cat, "A new Nouride Home is ready", the version and that Nouride and the agents stay as they are,
+  then Update now and Later. After that a small card at the top until it is installed: Update, the download's
+  percent, "Almost done. When your phone asks, tap Update." Android 8 and later first ask the person to allow
+  installing from the app: a card with the waving cat says so and opens that setting, and the update goes on when
+  they come back. Nothing of it shows while the first start sets Nouride up. Words only: no version code, sha, URL
+  or file name; a failed download says to check the Wi-Fi and try again.
 
 ## How it looks
 
@@ -85,7 +92,8 @@ Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
 ## The notification
 
 The foreground service must show one. It says the state in the same words as the screen ("Nouride is running") and
-nothing technical. Tapping it opens the status screen. It has no log line and no address.
+nothing technical. Tapping it opens the status screen. It has no log line and no address. When a new version of the
+app is waiting, its second line says "A new version is ready. Tap to update."
 
 ## Errors
 

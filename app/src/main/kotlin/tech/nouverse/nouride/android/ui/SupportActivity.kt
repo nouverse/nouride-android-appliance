@@ -19,6 +19,7 @@ import tech.nouverse.nouride.android.Layout
 import tech.nouverse.nouride.android.Nouride
 import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.server.ServerState
+import tech.nouverse.nouride.android.update.Updates
 
 /**
  * "Support details": everything technical, on a screen of its own, for whoever helps the person. The main screen only
@@ -106,6 +107,7 @@ class SupportActivity : Activity() {
       "health" to (health?.summary() ?: "not asked yet"),
       "local" to Nouride.DASHBOARD_URL,
       "lan" to (lan?.let { "http://$it:${Nouride.PORT}/dashboard/" } ?: "no Wi-Fi"),
+      "app" to Updates.installedVersion(this),
       "android" to "${Build.VERSION.RELEASE} (${Build.MANUFACTURER} ${Build.MODEL})",
     ))
     val nouride = if (layout.installed) layout.daemonLog else layout.installLog

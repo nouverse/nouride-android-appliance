@@ -53,10 +53,14 @@ class StatusActivity : Activity() {
   private lateinit var share: Button
   private lateinit var battery: LinearLayout
   private lateinit var turnOff: Button
+  private lateinit var update: UpdateCard
   private var bob: ObjectAnimator? = null
   private var shownMascot: Mascot? = null
   private val handler = Handler(Looper.getMainLooper())
-  private val listener: () -> Unit = { render() }
+  private val listener: () -> Unit = {
+    render()
+    update.serverChanged()
+  }
   private val refresh = object : Runnable {
     override fun run() {
       render()
@@ -88,6 +92,7 @@ class StatusActivity : Activity() {
     super.onResume()
     ServerState.listen(listener)
     handler.post(refresh)
+    update.resume()
   }
 
   override fun onPause() {
@@ -97,6 +102,7 @@ class StatusActivity : Activity() {
   }
 
   private fun startServer() {
+    update.starting()
     ServerService.start(this)
     if (!PowerSettings.isExempt(this)) startActivity(PowerSettings.exemptionRequest(this))
   }
@@ -109,6 +115,8 @@ class StatusActivity : Activity() {
       setPadding(ui.dp(20), ui.dp(16), ui.dp(20), ui.dp(32))
     }
     column.addView(header())
+    update = UpdateCard(this, ui)
+    column.addView(update.view, ui.fullWidth(12))
 
     hero = ui.card(padding = 24).apply { gravity = Gravity.CENTER_HORIZONTAL }
     mascot = ImageView(this).apply { adjustViewBounds = true; scaleType = ImageView.ScaleType.FIT_CENTER }

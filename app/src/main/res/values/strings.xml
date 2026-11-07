@@ -64,5 +64,21 @@
   <string name="signin_failed_body">Go back to Nouride Home and try again.</string>
   <string name="signin_back">Back to Nouride Home</string>
   <string name="no_app_for_link">No app on this phone can open this link.</string>
+  <string name="notification_update">A new version is ready. Tap to update.</string>
+  <string name="update_title">A new version is ready</string>
+  <string name="update_body">Nouride Home %1$s is ready. Nouride and your agents stay as they are.</string>
+  <string name="update_button">Update</string>
+  <string name="update_retry">Try again</string>
+  <string name="update_downloading">Downloading the update… %1$d%%</string>
+  <string name="update_installing">Almost done. When your phone asks, tap Update.</string>
+  <string name="update_failed">The update didn\'t download. Check the Wi-Fi, then try again.</string>
+  <string name="update_install_failed">The update didn\'t install. Try again.</string>
+  <string name="update_dialog_title">A new Nouride Home is ready</string>
+  <string name="update_dialog_body">Version %1$s. It takes a minute: Nouride and your agents stay as they are, and Nouride starts again by itself.</string>
+  <string name="update_now">Update now</string>
+  <string name="later">Later</string>
+  <string name="update_allow_title">Let Nouride Home update itself</string>
+  <string name="update_allow_body">Android asks this once. On the next screen, turn on "Allow from this source", then come back.</string>
+  <string name="update_allow">Open settings</string>
   <string name="dashboard_opening">Opening Nouride…</string>
 </resources>

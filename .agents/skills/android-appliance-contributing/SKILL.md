@@ -18,6 +18,11 @@ description: How to work on Nouride Home, the Android app that runs Nouride on t
    for the screens and the notification.
 5. `power/` asks for the battery exemption and opens the phone's own battery settings. `boot/` starts the service on
    boot.
+6. `update/` is the app's own updates, from this repository's GitHub Releases: `UpdateFeed` reads `releases/latest`
+   (pure, tested), `Updates` checks it when the app opens (every 6 h at most) and from the service twice a day,
+   downloads the APK against its sha256 and hands it to `PackageInstaller`. `UpdateReceiver` hears the installer: the
+   screen asking the person, then the result, and the new version starts Nouride again on success. `ui/UpdateCard`
+   is the card and the big card once a release; both wait while the first start sets Nouride up.
 
 Nouride listens on its default port, 18254 (`Nouride.PORT`).
 
@@ -31,6 +36,9 @@ Nouride listens on its default port, 18254 (`Nouride.PORT`).
 - **Pinned inputs.** `scripts/assets.lock` holds the sha256 of the proot and talloc archives and the Debian layer's
   digest. Changing one is one commit with the lock and the reason.
 - **No third-party Android libraries.** The APK is 48.5 MiB already, nearly all of it Debian.
+- **HyperOS (Xiaomi) blocks broadcasts to an app not allowed to autostart:** `BOOT_COMPLETED` and
+  `MY_PACKAGE_REPLACED` never arrive (logcat: "process is not permitted to auto start"). The installer's own report to
+  the app does, which is why `UpdateReceiver`, not `BootReceiver`, starts Nouride after an update.
 
 ## Build and test
 
@@ -47,6 +55,14 @@ handling. A change carries a test that fails without it: break the change, run `
 red, put it back, and say so in the commit.
 
 ## Releases
+
+Test an update before a release with two signed builds and a feed of your own: build with
+`NOURIDE_HOME_VERSION=0.0.10 NOURIDE_HOME_UPDATE_FEED=http://127.0.0.1:18299/latest.json` and again as `0.0.11`,
+sign both with the release key on the owner's machine (`apksigner sign --ks-pass env:...`, never a password on the
+command line), serve a `latest.json` shaped like GitHub's (`tag_name`, `draft`, `prerelease`, `assets` with
+`name` and `browser_download_url`) with the APK and its `.sha256` next to it, `adb reverse tcp:18299 tcp:18299`,
+install the first and let it find the second. Plain HTTP is accepted from `127.0.0.1` only. A wrong sha256 must end
+in "The update didn't download"; after the update, Nouride must be running again without the app being opened.
 
 A release is a GitHub release `vX.Y.Z` published on `main`; `.github/workflows/release.yml` runs on that (never on a
 push), builds, tests, signs and attaches `nouride-home-X.Y.Z.apk` to it. The version code comes from the version (major × 1 000 000 + minor ×

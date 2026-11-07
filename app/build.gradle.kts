@@ -33,6 +33,9 @@ android {
     versionCode = releaseVersion?.let(::versionCodeOf) ?: 1
     versionName = releaseVersion ?: "0.0.0-dev"
     ndk { abiFilters += "arm64-v8a" }
+    // Where the app looks for its own updates (update/Updates.kt). A test build may point it elsewhere.
+    resValue("string", "update_feed", System.getenv("NOURIDE_HOME_UPDATE_FEED")
+      ?: "https://api.github.com/repos/nouverse/nouride-android-appliance/releases/latest")
   }
 
   // One key for every release, kept by the owner and in the repository's secrets: Android installs an update only

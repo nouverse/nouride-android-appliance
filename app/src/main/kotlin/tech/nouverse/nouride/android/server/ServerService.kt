@@ -24,6 +24,7 @@ import tech.nouverse.nouride.android.install.RootfsSetup
 import tech.nouverse.nouride.android.ui.StatusActivity
 import tech.nouverse.nouride.android.ui.StatusLook
 import tech.nouverse.nouride.android.ui.title
+import tech.nouverse.nouride.android.update.Updates
 import tech.nouverse.nouride.android.R
 import java.io.File
 import java.io.FilterInputStream
@@ -32,6 +33,9 @@ import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 /**
@@ -47,6 +51,7 @@ class ServerService : Service() {
   private var wifiLock: WifiManager.WifiLock? = null
   private var worker: Thread? = null
   private var poller: HealthPoller? = null
+  private var updateChecks: ScheduledExecutorService? = null
 
   @Volatile
   private var supervisor: Supervisor? = null
@@ -99,6 +104,19 @@ class ServerService : Service() {
     stopping = false
     worker = thread(name = "nouride-server") { runServer() }
     poller = HealthPoller(Nouride.HEALTH_URL, HEALTH_INTERVAL_SECONDS, ::onHealth).also { it.start() }
+    // Twice a day, for a person who never opens the app: the notification is where they see an update of it.
+    if (updateChecks == null) {
+      updateChecks = Executors.newSingleThreadScheduledExecutor { Thread(it, "update-check").apply { isDaemon = true } }.also {
+        it.scheduleWithFixedDelay({
+          try {
+            Updates.check(this, UPDATE_CHECK_HOURS * 3_600_000L)
+            showNotification()
+          } catch (e: Exception) {
+            event("update check failed: $e")
+          }
+        }, 1, UPDATE_CHECK_HOURS * 60, TimeUnit.MINUTES)
+      }
+    }
   }
 
   private fun runServer() {
@@ -257,6 +275,8 @@ class ServerService : Service() {
   private fun finish() {
     poller?.stop()
     poller = null
+    updateChecks?.shutdownNow()
+    updateChecks = null
     releaseLocks()
     setup = null
     ServerState.set(ServerState.Phase.STOPPED, progress = null)
@@ -356,7 +376,7 @@ class ServerService : Service() {
       .setSmallIcon(R.drawable.ic_notification)
       .setColor(getColor(R.color.brand))
       .setContentTitle(getString(look.words.title()))
-      .setContentText(getString(R.string.notification_tap))
+      .setContentText(getString(if (Updates.waiting(this) != null) R.string.notification_update else R.string.notification_tap))
       .setContentIntent(open)
       .setOngoing(true)
       .build()
@@ -400,6 +420,7 @@ class ServerService : Service() {
     private const val NOTIFICATION_ID = 1
     private const val ROOTFS_ASSET = "rootfs.tgz"
     private const val HEALTH_INTERVAL_SECONDS = 60L
+    private const val UPDATE_CHECK_HOURS = 12L
 
     fun start(context: Context) = send(context, ACTION_START)
 

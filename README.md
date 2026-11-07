@@ -19,6 +19,9 @@ skill.
 - Keeps Nouride running from a foreground service, with the screen off, and starts it again if it stops on its own.
 - Shows whether Nouride is running, the address to open, and opens the dashboard inside the app.
 - Starts on boot, once the phone allows it.
+- Updates itself: when a newer release is on this repository's Releases page, the app says so (a card on its screen
+  and in its notification), downloads it, checks its sha256 and hands it to Android's installer. Nouride, Debian and
+  the agents stay as they are, and Nouride starts again by itself once the new version is in.
 
 Nouride listens on its default port, `18254`. The dashboard is `http://<the phone's address>:18254/dashboard/`.
 
@@ -29,7 +32,8 @@ purpose, see `AGENTS.md`).
 
 The APK of each release is on the [Releases](https://github.com/nouverse/nouride-android-appliance/releases) page,
 `nouride-home-X.Y.Z.apk`, with its sha256. Open it on the phone and allow installing from that app when Android asks.
-Every release is signed with the same key, so a new one installs over the old one and keeps Nouride's data.
+Every release is signed with the same key, so a new one installs over the old one and keeps Nouride's data. After
+the first install the app finds its own updates; the first one asks once to allow installing from Nouride Home.
 
 ## Releasing
 
