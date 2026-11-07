@@ -33,6 +33,10 @@ import kotlin.concurrent.thread
  * Only Nouride's own pages open here (`LinkPolicy`); every other link leaves for the browser or the app that owns it,
  * a provider's sign-in page included (`LoopbackSignIn`). `nouridehome://dashboard`, where a finished sign-in sends the
  * browser, brings this screen back where it was, and the dashboard asks the gateway again for its accounts.
+ *
+ * Back always goes to the app's own screen, never through the dashboard's history: walking that like a browser took a
+ * person from the dashboard back to the setup wizard. The dashboard's header has the same way back inside the app
+ * (`LinkPolicy.HOME`), so there is one bar on screen, the dashboard's. The user agent says it is the app.
  */
 class DashboardActivity : Activity() {
   private lateinit var web: WebView
@@ -47,6 +51,7 @@ class DashboardActivity : Activity() {
     web.settings.javaScriptCanOpenWindowsAutomatically = true
     web.webViewClient = Guard()
     web.webChromeClient = NewWindows()
+    web.settings.userAgentString = "${web.settings.userAgentString} ${LinkPolicy.USER_AGENT_MARK}"
     setContentView(web)
     if (savedInstanceState != null) {
       web.restoreState(savedInstanceState)
@@ -70,6 +75,12 @@ class DashboardActivity : Activity() {
     }
   }
 
+  /** The status screen, whether it is under this one or not: after a sign-in this screen may be the only one left. */
+  private fun goHome() {
+    startActivity(Intent(this, StatusActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+    finish()
+  }
+
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
     // Not a reload: the setup wizard keeps where the person is in memory, and a reload put them back on its first
@@ -84,6 +95,10 @@ class DashboardActivity : Activity() {
   private inner class Guard : WebViewClient() {
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
       val url = request.url.toString()
+      if (url == LinkPolicy.HOME) {
+        goHome()
+        return true
+      }
       // A frame inside a page is the page's business; only where the page itself goes is decided here.
       if (!request.isForMainFrame || LinkPolicy.inApp(url)) return false
       openOutside(url)
@@ -168,7 +183,7 @@ class DashboardActivity : Activity() {
 
   @Deprecated("Activity.onBackPressed")
   override fun onBackPressed() {
-    if (web.canGoBack()) web.goBack() else @Suppress("DEPRECATION") super.onBackPressed()
+    goHome()
   }
 
   override fun onDestroy() {

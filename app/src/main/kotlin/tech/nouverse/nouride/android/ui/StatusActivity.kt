@@ -331,6 +331,8 @@ class StatusActivity : Activity() {
 
   @Suppress("DEPRECATION")
   private fun lightSystemBars() {
+    // Dark icons on the light background only; at night the dark theme's light icons are already right.
+    if (ui.night()) return
     if (Build.VERSION.SDK_INT >= 26) {
       window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
     } else if (Build.VERSION.SDK_INT >= 23) {

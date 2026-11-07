@@ -2,6 +2,7 @@ package tech.nouverse.nouride.android.ui
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.graphics.Typeface
 import android.graphics.drawable.ClipDrawable
 import android.graphics.drawable.GradientDrawable
@@ -17,6 +18,10 @@ import tech.nouverse.nouride.android.server.Step
 
 /** The pieces every screen is built from: soft cards, round buttons, calm text. No third-party UI library. */
 internal class Ui(private val context: Context) {
+  /** Whether the phone is set to dark: the colours follow by themselves (`values-night`), the system bars do not. */
+  fun night(): Boolean =
+    context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
+
   fun dp(value: Int): Int = (value * context.resources.displayMetrics.density).toInt()
 
   fun color(id: Int): Int = context.getColor(id)
@@ -46,7 +51,7 @@ internal class Ui(private val context: Context) {
     isAllCaps = false
     textSize = 18f
     setTypeface(typeface, Typeface.BOLD)
-    setTextColor(color(R.color.surface))
+    setTextColor(color(R.color.on_brand))
     background = rounded(color(R.color.brand), 32)
     stateListAnimator = null
     minHeight = dp(56)

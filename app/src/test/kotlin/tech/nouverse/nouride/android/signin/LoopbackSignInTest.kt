@@ -61,4 +61,12 @@ class LoopbackSignInTest {
     assertFalse(LinkPolicy.inApp("http://127.0.0.1.evil.com:18254/"))
     assertFalse(LinkPolicy.inApp("mailto:someone@example.com"))
   }
+
+  @Test
+  fun `the dashboard's way back and its user agent mark are the ones it looks for`() {
+    // commons/lib/home-app.ts in Nouride: HOME_APP_BACK, and the mark it finds in the user agent.
+    assertEquals("nouridehome://home", LinkPolicy.HOME)
+    assertTrue(LinkPolicy.USER_AGENT_MARK.startsWith("NourideHome/"))
+    assertFalse(LinkPolicy.inApp(LinkPolicy.HOME))
+  }
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The same calm palette at night: deep blue-grey instead of black, the brand blue a step lighter so it reads. -->
+<resources>
+  <color name="background">#0F1724</color>
+  <color name="surface">#172233</color>
+  <color name="line">#26344C</color>
+  <color name="ink">#E6ECF5</color>
+  <color name="muted">#9AA8BD</color>
+  <color name="brand">#3A9DFF</color>
+  <color name="brand_soft">#16304F</color>
+  <color name="good">#45C985</color>
+  <color name="good_soft">#13301F</color>
+  <color name="busy_soft">#1A2540</color>
+  <color name="warn">#E3A548</color>
+  <color name="warn_soft">#33270F</color>
+  <color name="icon_background">#1D3352</color>
+</resources>
