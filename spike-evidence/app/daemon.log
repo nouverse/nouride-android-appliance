@@ -1,0 +1,74 @@
+{"timestamp":"2026-11-06T17:54:58.067Z","level":"info","component":"daemon","message":"starting","data":{"name":"nouride","config":"built-in defaults","data_dir":"/srv/nouride/.nouride/data"}}
+{"timestamp":"2026-11-06T17:54:58.072Z","level":"info","component":"web","message":"http listening","data":{"url":"http://0.0.0.0:18264","dashboard":"http://localhost:18264/dashboard/"}}
+{"timestamp":"2026-11-06T17:54:58.087Z","level":"info","component":"daemon","message":"agents install into .nouride: global npm, bun, pipx, uv, go and cargo installs land in its bin","data":{"bin":"/srv/nouride/.nouride/bin","python":"/srv/nouride/.nouride/opt/python/bin","path":"/srv/nouride/.nouride/bin:/srv/nouride/.nouride/opt/python/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/srv/nouride/.nouride/home/.local/bin:/srv/nouride/.nouride/home/.cargo/bin"}}
+{"timestamp":"2026-11-06T17:54:58.195Z","level":"info","component":"db","message":"applying migration","data":{"migration":"069_baseline.sql"}}
+{"timestamp":"2026-11-06T17:54:58.247Z","level":"info","component":"db","message":"applying migration","data":{"migration":"070_mission_branch.sql"}}
+{"timestamp":"2026-11-06T17:54:58.253Z","level":"info","component":"db","message":"applying migration","data":{"migration":"071_approval_class.sql"}}
+{"timestamp":"2026-11-06T17:54:58.267Z","level":"info","component":"db","message":"applying migration","data":{"migration":"072_mission_told.sql"}}
+{"timestamp":"2026-11-06T17:54:58.275Z","level":"info","component":"db","message":"applying migration","data":{"migration":"073_mission_summary.sql"}}
+{"timestamp":"2026-11-06T17:54:58.281Z","level":"info","component":"db","message":"applying migration","data":{"migration":"074_mission_counts.sql"}}
+{"timestamp":"2026-11-06T17:54:58.290Z","level":"info","component":"db","message":"applying migration","data":{"migration":"075_session_token_hash.sql"}}
+{"timestamp":"2026-11-06T17:54:58.297Z","level":"info","component":"db","message":"applying migration","data":{"migration":"076_kept_across_restart.sql"}}
+{"timestamp":"2026-11-06T17:54:58.301Z","level":"info","component":"db","message":"applying migration","data":{"migration":"077_daemon_state.sql"}}
+{"timestamp":"2026-11-06T17:54:58.302Z","level":"info","component":"db","message":"applying migration","data":{"migration":"078_knowledge.sql"}}
+{"timestamp":"2026-11-06T17:54:58.303Z","level":"info","component":"db","message":"schema migrated","data":{"version":78,"applied":10}}
+{"timestamp":"2026-11-06T17:54:58.364Z","level":"warn","component":"daemon","message":"agents' commands run as the daemon's own user","data":{"reason":"/usr/local/lib/nouride-run/nouride-run is not installed: run install.sh again; until then agents' commands run as the daemon's user"}}
+{"timestamp":"2026-11-06T17:54:58.431Z","level":"info","component":"agents.registry","message":"agents loaded","data":{"count":0,"ids":[],"failed":0}}
+{"timestamp":"2026-11-06T17:54:58.500Z","level":"info","component":"daemon","message":"[llm.limits] neither max_daily_cost_usd nor max_daily_tokens is set, so nothing caps usage","data":{"hint":"A loop that retries a large context can spend a lot before anyone notices. `max_daily_tokens` works on every model, priced or not; `max_daily_cost_usd` only sees the ones with a published price."}}
+{"timestamp":"2026-11-06T17:54:58.525Z","level":"info","component":"daemon","message":"supervisor detected","data":{"kind":"none","restarts_on_exit":false}}
+{"timestamp":"2026-11-06T17:54:58.573Z","level":"info","component":"settings","message":"people moved to people/, one file each","data":{"moved":0}}
+{"timestamp":"2026-11-06T17:54:58.737Z","level":"info","component":"db.backup","message":"database backed up","data":{"path":"/srv/nouride/.nouride/data/backups/db/nouride-2026-11-06-17-54-58.db","bytes":720896,"removed":0}}
+{"timestamp":"2026-11-06T17:54:58.770Z","level":"info","component":"memory.backup","message":"memory vault backed up","data":{"path":"/srv/nouride/.nouride/data/backups/memory/2026-11-06-17-54-58","files":1,"linked":0,"removed":0}}
+{"timestamp":"2026-11-06T17:54:59.047Z","level":"info","component":"tools.web","message":"web_search is using the keyless fallback","data":{"sources":["duckduckgo-html","bing","duckduckgo-lite","github","reddit","hackernews","stackoverflow","npm","mdn","arxiv","google-news","wikipedia","wikipedia-local"],"hint":"set [security.web] search_api_key for Brave, or search_kind = \"searxng\" with an endpoint"}}
+{"timestamp":"2026-11-06T17:54:59.062Z","level":"info","component":"boot.missions","message":"missions resumed","data":{"open":0}}
+{"timestamp":"2026-11-06T17:54:59.065Z","level":"info","component":"cron","message":"scheduler started","data":{"jobs":0,"max_sleep_ms":60000}}
+{"timestamp":"2026-11-06T17:54:59.080Z","level":"info","component":"web.control","message":"generated a control token","data":{"path":"/srv/nouride/.nouride/data/.control-token"}}
+{"timestamp":"2026-11-06T17:54:59.138Z","level":"info","component":"reflection.review","message":"the weekly skill review ran","data":{"tighten":[],"merge":[],"archive":[],"declined":0}}
+{"timestamp":"2026-11-06T17:54:59.182Z","level":"info","component":"users","message":"dashboard user created","data":{"user":"admin","role":"admin","password_login":"set"}}
+
+────────────────────────────────────────────────────────────────
+  Nouride is ready. Open the dashboard to finish setting it up:
+
+    http://localhost:18264/dashboard/
+
+  or from another device on this network:
+    http://10.18.1.99:18264/dashboard/
+
+    username  admin
+    password  <redacted>
+
+  This password was generated for the first login and must be changed
+  straight away. The daemon keeps only its hash, but this text stays in
+  wherever this log goes (the journal, a log file) until the password is changed.
+  Set INITIAL_ADMIN_USERNAME and INITIAL_ADMIN_PASSWORD to choose your own.
+────────────────────────────────────────────────────────────────
+{"timestamp":"2026-11-06T17:54:59.199Z","level":"info","component":"daemon","message":"nouride ready","data":{"agents":[],"gateways":["web:dashboard","web:mission"],"providers":[],"uptime_ms":1168}}
+{"timestamp":"2026-11-06T18:41:42.655Z","level":"info","component":"settings","message":"gateway saved","data":{"id":"telegram:reno","enabled":true,"actor":"cli"}}
+{"timestamp":"2026-11-06T18:41:51.526Z","level":"info","component":"access","message":"access allowed","data":{"gateway_id":"telegram:reno","sender":"<telegram id>","by":"cli"}}
+{"timestamp":"2026-11-06T18:41:52.298Z","level":"info","component":"settings","message":"access mode changed","data":{"mode":"allowlist","previous":"pair","actor":"cli"}}
+{"timestamp":"2026-11-06T18:42:03.264Z","level":"info","component":"daemon","message":"shutting down","data":{"signal":"SIGTERM","timeout_ms":30000}}
+{"timestamp":"2026-11-06T18:42:03.341Z","level":"info","component":"daemon","message":"shutdown complete"}
+{"timestamp":"2026-11-06T18:42:06.272Z","level":"info","component":"daemon","message":"starting","data":{"name":"nouride","config":"/srv/nouride/.nouride/config.toml","data_dir":"/srv/nouride/.nouride/data"}}
+{"timestamp":"2026-11-06T18:42:06.282Z","level":"info","component":"web","message":"http listening","data":{"url":"http://0.0.0.0:18264","dashboard":"http://localhost:18264/dashboard/"}}
+{"timestamp":"2026-11-06T18:42:06.288Z","level":"info","component":"daemon","message":"agents install into .nouride: global npm, bun, pipx, uv, go and cargo installs land in its bin","data":{"bin":"/srv/nouride/.nouride/bin","python":"/srv/nouride/.nouride/opt/python/bin","path":"/srv/nouride/.nouride/bin:/srv/nouride/.nouride/opt/python/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/srv/nouride/.nouride/home/.local/bin:/srv/nouride/.nouride/home/.cargo/bin"}}
+{"timestamp":"2026-11-06T18:42:06.567Z","level":"warn","component":"daemon","message":"agents' commands run as the daemon's own user","data":{"reason":"/usr/local/lib/nouride-run/nouride-run is not installed: run install.sh again; until then agents' commands run as the daemon's user"}}
+{"timestamp":"2026-11-06T18:42:06.617Z","level":"info","component":"daemon","message":"database check skipped: the last run stopped cleanly","data":{"checked":"2026-11-06T17:54:58.399Z"}}
+{"timestamp":"2026-11-06T18:42:06.736Z","level":"info","component":"agents.registry","message":"agents loaded","data":{"count":1,"ids":["reno"],"failed":0}}
+{"timestamp":"2026-11-06T18:42:06.827Z","level":"warn","component":"daemon","message":"[alerts] has no gateway or chat_id, so daemon failures reach the log and nobody else","data":{"hint":"Point it at a chat you read: `gateway = \"telegram:reno\"`, `chat_id = \"…\"`."}}
+{"timestamp":"2026-11-06T18:42:06.830Z","level":"info","component":"daemon","message":"[llm.limits] neither max_daily_cost_usd nor max_daily_tokens is set, so nothing caps usage","data":{"hint":"A loop that retries a large context can spend a lot before anyone notices. `max_daily_tokens` works on every model, priced or not; `max_daily_cost_usd` only sees the ones with a published price."}}
+{"timestamp":"2026-11-06T18:42:06.876Z","level":"info","component":"daemon","message":"supervisor detected","data":{"kind":"none","restarts_on_exit":false}}
+{"timestamp":"2026-11-06T18:42:07.071Z","level":"info","component":"config.snapshot","message":"the config and its people backed up","data":{"path":"/srv/nouride/.nouride/data/backups/config/2026-11-06-18-42-07","files":1,"linked":0,"removed":0}}
+{"timestamp":"2026-11-06T18:42:07.445Z","level":"info","component":"tools.web","message":"web_search is using the keyless fallback","data":{"sources":["duckduckgo-html","bing","duckduckgo-lite","github","reddit","hackernews","stackoverflow","npm","mdn","arxiv","google-news","wikipedia","wikipedia-local"],"hint":"set [security.web] search_api_key for Brave, or search_kind = \"searxng\" with an endpoint"}}
+{"timestamp":"2026-11-06T18:42:07.473Z","level":"info","component":"gateway.telegram:reno","message":"status","data":{"status":"connecting"}}
+{"timestamp":"2026-11-06T18:42:07.715Z","level":"info","component":"agents.backup","message":"persona packs backed up","data":{"path":"/srv/nouride/.nouride/data/backups/agents/2026-11-06-18-42-06","agents":1,"files":5,"removed":0}}
+{"timestamp":"2026-11-06T18:42:08.435Z","level":"warn","component":"gateway.telegram:reno","message":"privacy mode is on: in groups where it is not an admin, @RenoNourideBot receives only commands and replies to its own messages; tags and agent names never reach it. Turn it off with BotFather /setprivacy (then remove and re-add the bot to each group), or make the bot a group admin","data":{"username":"RenoNourideBot"}}
+{"timestamp":"2026-11-06T18:42:08.443Z","level":"info","component":"gateway.telegram:reno","message":"status","data":{"status":"connected"}}
+{"timestamp":"2026-11-06T18:42:08.504Z","level":"info","component":"boot.missions","message":"missions resumed","data":{"open":0}}
+{"timestamp":"2026-11-06T18:42:08.515Z","level":"info","component":"cron","message":"scheduler started","data":{"jobs":0,"max_sleep_ms":60000}}
+{"timestamp":"2026-11-06T18:42:08.577Z","level":"info","component":"daemon","message":"nouride ready","data":{"agents":["reno"],"gateways":["telegram:reno","web:dashboard","web:mission"],"providers":["default"],"uptime_ms":2388}}
+{"timestamp":"2026-11-06T18:42:08.721Z","level":"info","component":"gateway.telegram:reno","message":"polling started","data":{"username":"RenoNourideBot"}}
+{"timestamp":"2026-11-06T18:42:09.368Z","level":"info","component":"pipeline","message":"command menu published","data":{"gateway":"telegram:reno","synced":27}}
+{"timestamp":"2026-11-07T00:03:49.908Z","level":"info","component":"llm.providers","message":"provider ready","data":{"profile":"default","kind":"openai","base_url":"http://10.18.1.106:3000/openai/v1"}}
+{"timestamp":"2026-11-07T00:03:52.603Z","level":"error","component":"pipeline.turn","message":"turn failed","agent_id":"reno","chat_id":"<telegram id>","data":{"error":"LLMError: 403 Forbidden: {\"error\":{\"message\":\"Access denied: unknown_error\",\"type\":\"access_denied\",\"code\":\"403\"}} (through nougate, tried antigravity)","failure_class":"auth","action":"stop"}}
+{"timestamp":"2026-11-07T00:03:52.611Z","level":"warn","component":"notify","message":"alert","data":{"key":"provider_auth:default","text":"reno cannot reach default: auth. the provider rejected the credential. Check the secret named in [providers.*] api_key (`nouride doctor` lists which resolve)."}}
+{"timestamp":"2026-11-07T00:03:52.663Z","level":"info","component":"pipeline.turn-context","message":"closed an unfinished turn","chat_id":"<telegram id>","data":{"cause":"error","done":0,"cut_off":0,"not_started":0}}

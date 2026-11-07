@@ -1,0 +1,21 @@
+2026-11-06T15:22:30Z
+device
+adb: failed to install app/build/outputs/apk/debug/app-debug.apk: Failure [INSTALL_FAILED_VERIFICATION_FAILURE: Install not allowed for file:///data/app/vmdl1642058399.tmp]
+Performing Streamed Install
+
+real	2m5.359s
+user	0m0.002s
+sys	0m0.023s
+== waiting for the screen, from 2026-11-06T15:29:18Z, device 10.18.1.99:42571
+== waiting for the screen, from 2026-11-06T15:39:55Z, adb port 42571
+== screen on at 2026-11-06T17:38:13Z, install try 1
+adb: failed to install /srv/nouride/.nouride/workspace/private/nix/work/nouride-android-spike/apk/nouride-android-spike-1.apk: Failure [INSTALL_FAILED_VERIFICATION_FAILURE: Install not allowed for file:///data/app/vmdl286623148.tmp]
+Performing Streamed Install
+== adb install exit 1 after 78s at 2026-11-06T17:39:31Z
+== screen on at 2026-11-06T17:53:01Z, install try 2
+Performing Streamed Install
+Success
+== adb install exit 0 after 36s at 2026-11-06T17:53:37Z
+Starting: Intent { cmp=tech.nouverse.nouride.android/.ui.StatusActivity (has extras) }
+== am start at 2026-11-06T17:53:38Z
+== soak logger started at 2026-11-06T17:53:38Z
