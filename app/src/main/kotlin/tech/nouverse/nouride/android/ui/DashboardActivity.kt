@@ -7,11 +7,16 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Message
+import android.view.Gravity
+import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import org.json.JSONObject
 import tech.nouverse.nouride.android.Nouride
@@ -40,6 +45,7 @@ import kotlin.concurrent.thread
  */
 class DashboardActivity : Activity() {
   private lateinit var web: WebView
+  private lateinit var opening: View
 
   @SuppressLint("SetJavaScriptEnabled")
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,8 +58,28 @@ class DashboardActivity : Activity() {
     web.webViewClient = Guard()
     web.webChromeClient = NewWindows()
     web.settings.userAgentString = "${web.settings.userAgentString} ${LinkPolicy.USER_AGENT_MARK}"
-    setContentView(web)
+    // The sign-in and the first page take a moment: a blank white WebView looked broken. The app's own background and
+    // the cat until the dashboard is on screen.
+    val ui = Ui(this)
+    web.setBackgroundColor(ui.color(R.color.background))
+    opening = LinearLayout(this).apply {
+      orientation = LinearLayout.VERTICAL
+      gravity = Gravity.CENTER
+      setBackgroundColor(ui.color(R.color.background))
+      addView(ImageView(context).apply {
+        setImageResource(R.drawable.mascot_ride)
+        adjustViewBounds = true
+      }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, ui.dp(160)))
+      addView(ui.text(17f, R.color.ink, bold = true, center = true).apply { setText(R.string.dashboard_opening) }, ui.fullWidth(16))
+      addView(ui.progressBar().apply { isIndeterminate = true }, LinearLayout.LayoutParams(ui.dp(160), ui.dp(12)).apply { topMargin = ui.dp(16) })
+    }
+    setContentView(FrameLayout(this).apply {
+      addView(web)
+      addView(opening)
+    })
+    ui.lightSystemBars(window)
     if (savedInstanceState != null) {
+      opening.visibility = View.GONE
       web.restoreState(savedInstanceState)
       return
     }
@@ -93,6 +119,10 @@ class DashboardActivity : Activity() {
 
   /** Nouride's pages stay; anything else goes out, redirects too: `/oauth/start` answers with Google's page. */
   private inner class Guard : WebViewClient() {
+    override fun onPageCommitVisible(view: WebView, url: String) {
+      if (LinkPolicy.inApp(url) && url != "about:blank") opening.visibility = View.GONE
+    }
+
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
       val url = request.url.toString()
       if (url == LinkPolicy.HOME) {

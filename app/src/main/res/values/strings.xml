@@ -64,4 +64,5 @@
   <string name="signin_failed_body">Go back to Nouride Home and try again.</string>
   <string name="signin_back">Back to Nouride Home</string>
   <string name="no_app_for_link">No app on this phone can open this link.</string>
+  <string name="dashboard_opening">Opening Nouride…</string>
 </resources>
