@@ -65,6 +65,11 @@ The APK is `app/build/outputs/apk/debug/app-debug.apk`. Every downloaded input i
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
+The debug build is another app beside the release, so a developer's phone can keep both: **Nouride Home Dev**
+(`tech.nouverse.nouride.home.dev`), with a yellow icon, its own Debian and Nouride, Nouride on `18264` and its LLM
+gateway on `18266` (the release: `18254` and `18256`), and its own way back from a sign-in (`nouridehome-dev://`).
+Testing it never stops or replaces the Nouride the release runs. It is never offered an update.
+
 Over wireless ADB, Google Play Protect asks for a confirmation on the phone's screen: someone has to be at the phone
 to tap it, or the install is refused.
 

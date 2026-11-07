@@ -5,6 +5,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import tech.nouverse.nouride.android.Nouride
 import tech.nouverse.nouride.android.ui.LinkPolicy
 
 class LoopbackSignInTest {
@@ -45,20 +46,23 @@ class LoopbackSignInTest {
   @Test
   fun `the code goes to the gateway the way the paste box sends it`() {
     val route = LoopbackSignIn.ROUTES.first { it.provider == "antigravity" }
-    assertEquals("http://127.0.0.1:18254/llm-gateway/api/providers/antigravity/accounts/add", LoopbackSignIn.addAccountUrl(route))
+    assertEquals("http://127.0.0.1:${Nouride.PORT}/llm-gateway/api/providers/antigravity/accounts/add", LoopbackSignIn.addAccountUrl(route))
     assertEquals("""{"code":"c"}""", LoopbackSignIn.addAccountBody(LoopbackSignIn.Callback("c", null)))
     assertEquals("""{"code":"c","state":"s"}""", LoopbackSignIn.addAccountBody(LoopbackSignIn.Callback("c", "s")))
   }
 
   @Test
   fun `the WebView keeps Nouride's own pages and sends every other link out`() {
-    assertTrue(LinkPolicy.inApp("http://127.0.0.1:18254/dashboard/"))
-    assertTrue(LinkPolicy.inApp("http://localhost:18254/llm-gateway/oauth/start"))
+    val port = Nouride.PORT
+    assertTrue(LinkPolicy.inApp("http://127.0.0.1:$port/dashboard/"))
+    assertTrue(LinkPolicy.inApp("http://localhost:$port/llm-gateway/oauth/start"))
     assertTrue(LinkPolicy.inApp("about:blank"))
     assertFalse(LinkPolicy.inApp("https://accounts.google.com/o/oauth2/v2/auth"))
-    assertFalse(LinkPolicy.inApp("http://127.0.0.1:18256/"))
-    assertFalse(LinkPolicy.inApp("https://127.0.0.1:18254/dashboard/"))
-    assertFalse(LinkPolicy.inApp("http://127.0.0.1.evil.com:18254/"))
+    // The gateway's own port, and another copy of the app's Nouride, are not this dashboard.
+    assertFalse(LinkPolicy.inApp("http://127.0.0.1:${Nouride.GATEWAY_PORT}/"))
+    assertFalse(LinkPolicy.inApp("http://127.0.0.1:${if (port == 18254) 18264 else 18254}/dashboard/"))
+    assertFalse(LinkPolicy.inApp("https://127.0.0.1:$port/dashboard/"))
+    assertFalse(LinkPolicy.inApp("http://127.0.0.1.evil.com:$port/"))
     assertFalse(LinkPolicy.inApp("mailto:someone@example.com"))
   }
 

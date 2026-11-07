@@ -3,6 +3,7 @@ package tech.nouverse.nouride.android.signin
 import android.content.Context
 import android.text.Html
 import android.webkit.CookieManager
+import tech.nouverse.nouride.android.BuildConfig
 import tech.nouverse.nouride.android.Nouride
 import tech.nouverse.nouride.android.R
 import java.io.IOException
@@ -115,5 +116,5 @@ background:#0084FC;color:#fff;font-weight:bold;font-size:18px;text-decoration:no
   }
 
   /** Brings the dashboard back where it was, and it asks for its accounts again (`DashboardActivity`). */
-  const val BACK = "nouridehome://dashboard"
+  const val BACK = "${BuildConfig.LINK_SCHEME}://dashboard"
 }

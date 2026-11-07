@@ -36,7 +36,16 @@ android {
     // Where the app looks for its own updates (update/Updates.kt). A test build may point it elsewhere.
     resValue("string", "update_feed", System.getenv("NOURIDE_HOME_UPDATE_FEED")
       ?: "https://api.github.com/repos/nouverse/nouride-android-appliance/releases/latest")
+    // What a person's copy is: its name, Nouride's ports (Nouride.kt) and the link a browser comes back with after a
+    // sign-in (CallbackCatcher, the manifest). The debug build below changes every one of them.
+    resValue("string", "app_name", "Nouride Home")
+    buildConfigField("int", "NOURIDE_PORT", "18254")
+    buildConfigField("int", "GATEWAY_PORT", "18256")
+    buildConfigField("String", "LINK_SCHEME", "\"nouridehome\"")
+    manifestPlaceholders["linkScheme"] = "nouridehome"
   }
+
+  buildFeatures { buildConfig = true }
 
   // One key for every release, kept by the owner and in the repository's secrets: Android installs an update only
   // when it is signed with the key of the app already on the phone. No key in the environment, no signed release.
@@ -53,6 +62,17 @@ android {
   }
 
   buildTypes {
+    // A developer's build is another app beside the release on the same phone: its own id and name, so its own
+    // Debian, Nouride and agents, on ports of its own, with its own way back from a sign-in. Testing it never stops,
+    // replaces or answers for the Nouride a person runs. Never offered an update: its version is not x.y.z.
+    debug {
+      applicationIdSuffix = ".dev"
+      resValue("string", "app_name", "Nouride Home Dev")
+      buildConfigField("int", "NOURIDE_PORT", "18264")
+      buildConfigField("int", "GATEWAY_PORT", "18266")
+      buildConfigField("String", "LINK_SCHEME", "\"nouridehome-dev\"")
+      manifestPlaceholders["linkScheme"] = "nouridehome-dev"
+    }
     release {
       isMinifyEnabled = false
       if (System.getenv("NOURIDE_HOME_KEYSTORE") != null) signingConfig = signingConfigs.getByName("release")

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A developer's build (the debug build type, "Nouride Home Dev") sits beside the release on the same phone: its icon,
+     and the cat at the top of its screen, are on yellow so the two are never mistaken for each other. -->
+<resources>
+  <color name="icon_background">#FFD84D</color>
+</resources>

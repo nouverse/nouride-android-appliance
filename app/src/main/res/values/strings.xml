@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Every word a person reads. Written for someone who has never opened a terminal: see the android-appliance-ui skill. -->
 <resources>
-  <string name="app_name">Nouride Home</string>
+  <!-- app_name is in build.gradle.kts: a developer's build is named apart. -->
 
   <string name="off_title">Nouride is off</string>
   <string name="off_body">Press Start, and this phone becomes the home of your AI assistant.</string>

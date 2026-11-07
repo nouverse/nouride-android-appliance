@@ -75,7 +75,9 @@ Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
   black, no saturated red.
 - **Round**: cards 28dp, buttons pill-shaped, the main button 56dp tall and full width.
 - **The icon** is the cat's head on the soft blue (`mipmap/ic_launcher`); the notification's small icon is a white
-  paw (`drawable/ic_notification`), as Android draws small icons as a silhouette.
+  paw (`drawable/ic_notification`), as Android draws small icons as a silhouette. The developer's build, "Nouride
+  Home Dev", is the same cat on yellow (`app/src/debug/res`), on its icon and at the top of its screen, so the two
+  apps on one phone are never mistaken for each other.
 - No third-party UI library: the pieces are in `ui/Ui.kt`.
 
 ## Words

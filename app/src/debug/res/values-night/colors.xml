@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Yellow at night too: dark mode must not make the developer's build look like the release. -->
+<resources>
+  <color name="icon_background">#E6B000</color>
+</resources>

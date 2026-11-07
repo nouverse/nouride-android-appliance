@@ -5,18 +5,27 @@ import tech.nouverse.nouride.android.server.Step
 
 /** What the app runs inside Debian. */
 object Nouride {
-  /** Nouride's default port, as on every other install. */
-  const val PORT = 18254
+  /** Nouride's default port, as on every other install; a developer's build takes the next one (`build.gradle.kts`). */
+  const val PORT = BuildConfig.NOURIDE_PORT
+
+  /**
+   * Where the Router edition's LLM gateway listens, on the phone's loopback. Nouride's default (`[nougate] port`) for a
+   * release; a developer's build moves it too, or its Nouride would reach the release's gateway and its accounts.
+   */
+  const val GATEWAY_PORT = BuildConfig.GATEWAY_PORT
+  const val DEFAULT_GATEWAY_PORT = 18256
   const val INSTALL_URL = "https://get.nouride.com/install.sh"
 
   /**
    * As root in Debian: the packages the minimal image lacks, then the official installer. Each part echoes its marker
    * first, which moves the progress bar to that step (`SetupProgress`). The Router edition: the free build with the
-   * LLM gateway, so a person can sign in with an account they already pay for instead of finding an API key.
+   * LLM gateway, so a person can sign in with an account they already pay for instead of finding an API key. A gateway
+   * port other than Nouride's default goes into its config before the setup wizard reads it, owned by the account
+   * Nouride runs as, which writes that file later.
    */
-  val INSTALL = listOf(
-    "/bin/sh", "-c",
-    """
+  val INSTALL = listOf("/bin/sh", "-c", installScript(GATEWAY_PORT))
+
+  internal fun installScript(gatewayPort: Int): String = """
     set -e
     export DEBIAN_FRONTEND=noninteractive
     echo '${SetupProgress.marker(Step.PACKAGES)}'
@@ -25,8 +34,13 @@ object Nouride {
     apt-get install -y curl ca-certificates procps
     echo '${SetupProgress.marker(Step.NOURIDE)}'
     curl -fsSL $INSTALL_URL | sh -s -- --variant router --host 0.0.0.0 --port $PORT
-    """.trimIndent(),
-  )
+    """.trimIndent() + (if (gatewayPort == DEFAULT_GATEWAY_PORT) "" else "\n" + gatewayConfig(gatewayPort))
+
+  private const val CONFIG = "/srv/nouride/.nouride/config.toml"
+
+  internal fun gatewayConfig(port: Int): String =
+    "[ -e $CONFIG ] || { printf '[nougate]\\nport = %s\\n' $port > $CONFIG; " +
+      "chown --reference=/srv/nouride/.nouride $CONFIG; chmod 640 $CONFIG; }"
 
   /**
    * What the app tells Nouride about itself: that it starts Nouride again whenever it exits (`Supervisor`). Nouride's

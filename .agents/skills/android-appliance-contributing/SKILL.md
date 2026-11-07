@@ -24,7 +24,8 @@ description: How to work on Nouride Home, the Android app that runs Nouride on t
    screen asking the person, then the result, and the new version starts Nouride again on success. `ui/UpdateCard`
    is the card and the big card once a release; both wait while the first start sets Nouride up.
 
-Nouride listens on its default port, 18254 (`Nouride.PORT`).
+Nouride listens on its default port, 18254 (`Nouride.PORT`), and the Router edition's LLM gateway on 18256
+(`Nouride.GATEWAY_PORT`). The debug build moves both (below).
 
 ## Constraints, and why
 
@@ -36,6 +37,11 @@ Nouride listens on its default port, 18254 (`Nouride.PORT`).
 - **Pinned inputs.** `scripts/assets.lock` holds the sha256 of the proot and talloc archives and the Debian layer's
   digest. Changing one is one commit with the lock and the reason.
 - **No third-party Android libraries.** The APK is 48.5 MiB already, nearly all of it Debian.
+- **The debug build is a second app.** `applicationIdSuffix ".dev"` in `app/build.gradle.kts`: "Nouride Home Dev",
+  `tech.nouverse.nouride.home.dev`, a yellow icon (`app/src/debug/res`), Nouride on 18264, its gateway on 18266 (written
+  into Nouride's `config.toml` before the wizard, as Nouride has no environment variable for it), and the link scheme
+  `nouridehome-dev`. Anything that names the app's ports, its id or its link reads `BuildConfig`, never a literal, or
+  the developer's copy reaches the person's Nouride.
 - **HyperOS (Xiaomi) blocks broadcasts to an app not allowed to autostart:** `BOOT_COMPLETED` and
   `MY_PACKAGE_REPLACED` never arrive (logcat: "process is not permitted to auto start"). The installer's own report to
   the app does, which is why `UpdateReceiver`, not `BootReceiver`, starts Nouride after an update.
@@ -76,11 +82,12 @@ What a unit test cannot reach (the service staying alive, Doze, a brand's batter
 checked on a phone, and the change says which phone, which Android, and what was seen.
 
 - Install: `adb install -r app/build/outputs/apk/debug/app-debug.apk`. Over wireless ADB, Play Protect asks on the
-  screen; someone has to tap it.
-- The status screen takes extras for adb (the app id is `tech.nouverse.nouride.home`, the classes keep the package
-  `tech.nouverse.nouride.android`):
-  `adb shell am start -n tech.nouverse.nouride.home/tech.nouverse.nouride.android.ui.StatusActivity --ez start true`
-  (also `stop`, `dashboard`).
+  screen; someone has to tap it. HyperOS also asks "Install via USB" for a package new to the phone, not for an
+  update of one it has.
+- The status screen takes extras for adb (the debug build's id is `tech.nouverse.nouride.home.dev`, a release's
+  `tech.nouverse.nouride.home`; the classes keep the package `tech.nouverse.nouride.android`):
+  `adb shell am start -n tech.nouverse.nouride.home.dev/tech.nouverse.nouride.android.ui.StatusActivity --ez start true`
+  (also `stop`, `dashboard`). `run-as` works on the debug build only.
 - Never put a real password, bot token or personal id in a test, a fixture, a commit or a log you keep.
 
 ## Recording a measurement

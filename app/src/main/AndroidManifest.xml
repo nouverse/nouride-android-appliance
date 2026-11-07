@@ -30,8 +30,8 @@
       </intent-filter>
     </activity>
 
-    <!-- Exported for nouridehome://dashboard only: where the browser goes back to after a sign-in. It opens the
-         dashboard and nothing more. -->
+    <!-- Exported for nouridehome://dashboard only (nouridehome-dev:// for a developer's build): where the browser goes
+         back to after a sign-in. It opens the dashboard and nothing more. -->
     <activity
       android:name=".ui.DashboardActivity"
       android:configChanges="orientation|screenSize|keyboardHidden"
@@ -41,7 +41,7 @@
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="nouridehome" android:host="dashboard" />
+        <data android:scheme="${linkScheme}" android:host="dashboard" />
       </intent-filter>
     </activity>
 
