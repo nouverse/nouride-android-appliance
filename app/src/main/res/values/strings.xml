@@ -53,8 +53,8 @@
   <string name="turn_off_body">Your assistant will not answer until you start it again.</string>
   <string name="cancel">Cancel</string>
 
-  <string name="details">Details for support ›</string>
-  <string name="support_title">Support details</string>
+  <string name="details">Technical Logs ›</string>
+  <string name="support_title">Technical Logs</string>
 
   <string name="notification_channel">Nouride</string>
   <string name="notification_tap">Tap to open Nouride Home</string>

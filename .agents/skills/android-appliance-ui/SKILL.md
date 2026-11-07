@@ -17,8 +17,8 @@ wrong, not the person.
 - A port number on its own, or a URL a person has to type, where a button can open it or a share sheet can send it.
 - Monospace text.
 
-All of it lives on one screen of its own, **Support details** (`ui/SupportActivity.kt`), reached by a quiet
-"Details for support ›" link at the bottom of the status screen. It is for whoever helps: the technical state, the
+All of it lives on one screen of its own, **Technical Logs** (`ui/SupportActivity.kt`), reached by a quiet
+"Technical Logs ›" link at the bottom of the status screen. It is for whoever helps: the technical state, the
 address with its port, the app's events and Nouride's log, the log taking the rest of the screen and opening at its
 end. Copy and Share send it all, Share straight into a chat. Never a box of log inside the scrolling status screen:
 two scrolls in one another catch the wrong finger.
@@ -100,7 +100,7 @@ app is waiting, its second line says "A new version is ready. Tap to update."
 ## Errors
 
 A failure the person can fix says how in one sentence (no Wi-Fi, no space left, battery setting). A failure they
-cannot fix says so plainly and offers Try again and the "Details for support" link. Never
+cannot fix says so plainly and offers Try again and the "Technical Logs" link. Never
 a stack trace, never a raw message from Linux or Android.
 
 ## Checking a change

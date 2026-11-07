@@ -6,7 +6,7 @@ import java.net.Inet4Address
 import java.net.NetworkInterface
 
 /**
- * What "Support details" says, for whoever helps the person: the technical words the main screen never shows. The
+ * What "Technical Logs" says, for whoever helps the person: the technical words the main screen never shows. The
  * summary first, then the app's own events, then Nouride's log (the installer's until Nouride is installed), newest
  * last, so the screen opens on what just happened. Pure apart from reading the files, so the shape is tested.
  */

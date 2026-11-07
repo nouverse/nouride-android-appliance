@@ -33,7 +33,7 @@ import tech.nouverse.nouride.android.server.Step
 
 /**
  * The one screen a person uses: the cat, one sentence of how Nouride is, and at most one big button. The users are not
- * technical, so the server's phases, addresses and log stay on a screen of their own, "Details for support", behind a
+ * technical, so the server's phases, addresses and log stay on a screen of their own, "Technical Logs", behind a
  * quiet link at the bottom (`SupportActivity`, `StatusLook`, and the android-appliance-ui skill). The boolean extras `start`, `stop` and `dashboard` do what the
  * buttons do, for `adb shell am start --ez <name> true`.
  */

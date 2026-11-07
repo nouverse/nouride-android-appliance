@@ -22,7 +22,7 @@ import tech.nouverse.nouride.android.server.ServerState
 import tech.nouverse.nouride.android.update.Updates
 
 /**
- * "Support details": everything technical, on a screen of its own, for whoever helps the person. The main screen only
+ * "Technical Logs": everything technical, on a screen of its own, for whoever helps the person. The main screen only
  * has a quiet link to it. The log scrolls on its own here, the whole screen given to it rather than a box inside a
  * scrolling page, and opens at its end. Copy and Share send the whole report, Share straight into a chat.
  */
