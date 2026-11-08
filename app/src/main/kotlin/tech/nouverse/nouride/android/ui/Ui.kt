@@ -12,6 +12,7 @@ import android.view.Gravity
 import android.view.Window
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -102,6 +103,21 @@ internal class Ui(private val context: Context) {
     indeterminateTintList = ColorStateList.valueOf(color(R.color.brand))
     max = 100
     minimumHeight = dp(12)
+  }
+
+  /** The top of every tab, alike on each: the cat on its soft disc and the tab's name, so a tab never jumps in size. */
+  fun header(titleId: Int): View = LinearLayout(context).apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+    addView(ImageView(context).apply {
+      setImageResource(R.drawable.icon_cat)
+      background = rounded(color(R.color.icon_background), 18)
+      clipToOutline = true
+    }, LinearLayout.LayoutParams(dp(36), dp(36)))
+    addView(text(18f, R.color.ink, bold = true).apply {
+      setText(titleId)
+      setPadding(dp(10), 0, 0, 0)
+    })
   }
 
   fun gap(heightDp: Int): View = View(context).apply { minimumHeight = dp(heightDp) }

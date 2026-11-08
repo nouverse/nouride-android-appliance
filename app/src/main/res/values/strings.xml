@@ -31,22 +31,16 @@
   <string name="action_open">Open Nouride</string>
   <string name="action_retry">Try again</string>
 
-  <string name="other_device">Use from another device</string>
-  <string name="other_device_hint">Open Nouride on a computer or tablet</string>
-  <string name="other_device_body">On the same Wi-Fi as this phone, type this address in its browser.</string>
   <string name="share_address">Share address</string>
   <string name="no_wifi_title">This phone isn\'t on Wi-Fi</string>
-  <string name="got_it">OK</string>
   <string name="no_wifi">Connect it to Wi-Fi to use Nouride from a computer or tablet.</string>
   <string name="share">Share</string>
   <string name="copy">Copy</string>
   <string name="copied">Copied</string>
   <string name="close">Close</string>
 
-  <string name="battery_title">Keep Nouride running</string>
   <string name="battery_body">Your phone may stop Nouride to save battery. Allow it to keep running, even with the screen off.</string>
   <string name="battery_allow">Allow</string>
-  <string name="battery_settings">Battery settings</string>
 
   <string name="turn_off">Turn off</string>
   <string name="turn_off_title">Turn Nouride off?</string>
@@ -81,4 +75,32 @@
   <string name="update_allow_body">Android asks this once. On the next screen, turn on "Allow from this source", then come back.</string>
   <string name="update_allow">Open settings</string>
   <string name="dashboard_opening">Opening Nouride…</string>
+
+  <!-- The bar along the bottom, and its three tabs. -->
+  <string name="tab_home">Home</string>
+  <string name="tab_connect">Connect</string>
+  <string name="tab_more">More</string>
+  <string name="home_battery_banner">Nouride may stop when the screen is off. Fix it in More ›</string>
+
+  <string name="connect_ready_title">Open Nouride on another device</string>
+  <string name="connect_ready_body">On a tablet, a computer or another phone on the same Wi-Fi, scan this code with its camera, or type the address in its browser.</string>
+  <string name="connect_qr_description">A code that opens Nouride on another device</string>
+  <string name="connect_sign_in_title">Signing in</string>
+  <string name="connect_sign_in_body">Use the username and password you chose when you set up Nouride.</string>
+  <string name="connect_off_title">Nouride isn\'t running yet</string>
+  <string name="connect_off_body">Start it on Home, then come back here to open it on another device.</string>
+  <string name="go_home">Go to Home</string>
+
+  <string name="keep_running_title">Keep Nouride running</string>
+  <string name="battery_ok">Your phone lets Nouride run with the screen off.</string>
+  <string name="autostart_title">Start again after a restart</string>
+  <string name="autostart_body">On this phone, open Nouride Home\'s settings, turn on Autostart, and set Battery saver to No restrictions.</string>
+  <string name="open_settings">Open settings</string>
+  <string name="app_version">Version %1$s</string>
+  <string name="up_to_date">You have the newest version.</string>
+  <string name="update_ready_more">Version %1$s is ready. You can update it on Home.</string>
+  <string name="checking">Checking…</string>
+  <string name="check_failed">Couldn\'t check. Check the Wi-Fi, then try again.</string>
+  <string name="check_updates">Check for updates</string>
+  <string name="turn_off_nouride">Turn off Nouride</string>
 </resources>

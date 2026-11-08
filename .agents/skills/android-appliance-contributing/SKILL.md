@@ -24,6 +24,11 @@ description: How to work on Nouride Home, the Android app that runs Nouride on t
    screen asking the person, then the result, and the new version starts Nouride again on success. `ui/UpdateCard`
    is the card and the big card once a release; both wait while the first start sets Nouride up.
 
+7. `ui/` is everything a person sees: `StatusActivity` holds the three tabs along the bottom (`HomeTab`, `ConnectTab`,
+   `MoreTab`, `BottomBar`, the rules in `Tabs`), `DashboardActivity` the dashboard in a WebView, `SupportActivity`
+   Technical Logs. `QrCode` draws the Connect tab's code without a library; `QrCodeTest` checks it module by module
+   against segno's output.
+
 Nouride listens on its default port, 18254 (`Nouride.PORT`), and the Router edition's LLM gateway on 18256
 (`Nouride.GATEWAY_PORT`). The debug build moves both (below).
 
@@ -87,7 +92,8 @@ checked on a phone, and the change says which phone, which Android, and what was
 - The status screen takes extras for adb (the debug build's id is `tech.nouverse.nouride.home.dev`, a release's
   `tech.nouverse.nouride.home`; the classes keep the package `tech.nouverse.nouride.android`):
   `adb shell am start -n tech.nouverse.nouride.home.dev/tech.nouverse.nouride.android.ui.StatusActivity --ez start true`
-  (also `stop`, `dashboard`). `run-as` works on the debug build only.
+  (also `stop`, `dashboard`), and `--es tab connect` (or `home`, `more`) opens a tab. `run-as` works on the debug
+  build only.
 - Never put a real password, bot token or personal id in a test, a fixture, a commit or a log you keep.
 
 ## Recording a measurement

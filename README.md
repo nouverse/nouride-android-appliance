@@ -17,7 +17,8 @@ skill.
   Nouride installer inside it (`https://get.nouride.com/install.sh`), so the phone gets the same Nouride as any Linux
   install, at the latest release.
 - Keeps Nouride running from a foreground service, with the screen off, and starts it again if it stops on its own.
-- Shows whether Nouride is running, the address to open, and opens the dashboard inside the app.
+- Shows whether Nouride is running and opens the dashboard inside the app; its Connect tab has a QR code and the
+  address for opening Nouride on a tablet, a computer or another phone on the same Wi-Fi.
 - Starts on boot, once the phone allows it.
 - Updates itself: when a newer release is on this repository's Releases page, the app says so (a card on its screen
   and in its notification), downloads it, checks its sha256 and hands it to Android's installer. Nouride, Debian and

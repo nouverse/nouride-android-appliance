@@ -17,13 +17,21 @@ wrong, not the person.
 - A port number on its own, or a URL a person has to type, where a button can open it or a share sheet can send it.
 - Monospace text.
 
-All of it lives on one screen of its own, **Technical Logs** (`ui/SupportActivity.kt`), reached by a quiet
-"Technical Logs ›" link at the bottom of the status screen. It is for whoever helps: the technical state, the
+All of it lives on one screen of its own, **Technical Logs** (`ui/SupportActivity.kt`), reached from the end
+of the More tab, "Technical Logs ›". It is for whoever helps: the technical state, the
 address with its port, the app's events and Nouride's log, the log taking the rest of the screen and opening at its
 end. Copy and Share send it all, Share straight into a chat. Never a box of log inside the scrolling status screen:
 two scrolls in one another catch the wrong finger.
 
-## What the status screen shows
+## The tabs
+
+Three tabs along a bar at the bottom (`ui/BottomBar.kt`), each opened with the same header, the cat on its disc and
+the tab's name, so no tab jumps in size: **Home** (the state and its one button), **Connect** (Nouride on another
+device) and **More** (what is rarely needed). The open tab's icon sits in a soft pill; a dot on More says something
+there needs the person. The bar is hidden while the first start sets Nouride up: its progress is the one thing to
+watch. Back from Connect or More goes Home; from Home it leaves the app (`ui/Tabs.kt`).
+
+## Home
 
 One sentence of state, in plain words, and one main button. Each state has its own sentence and its own button:
 
@@ -45,16 +53,8 @@ Under the main state, only what a person acts on:
 - **Open Nouride**: the dashboard inside the app, already signed in. Not a URL to copy, and never a login page on
   the phone: the app makes the dashboard account on the first start and signs in with it (`server/FirstAdmin.kt`).
   The password is never shown; a person who wants the dashboard elsewhere sets their own in the dashboard.
-- **Use from another device**: a button that opens a card with the cat, "Open Nouride on a computer or tablet", one
-  sentence ("on the same Wi-Fi as this phone, type this address in its browser"), the address large in a soft pill,
-  then Share address as the main button, Copy, and Close. Never shown as `http://10.x.x.x:18254/...` in the middle
-  of the screen.
-- **Keep running with the screen off**: shown only while the phone may stop the app, with one sentence of why ("Your
-  phone may stop Nouride to save battery. Allow it to keep running.") and a button that opens the right setting.
-  For brands with their own battery screens (Xiaomi, Oppo, Vivo, Samsung), a short step list for that brand, with
-  the exact names that brand's settings use.
-- **Stop**: a text button, not a main button. Stopping asks once: "Stop Nouride? Your agents will not answer until
-  you start it again."
+- **Keep running with the screen off**: only while the phone may stop the app, one amber line, "Nouride may stop when
+  the screen is off. Fix it in More ›", which opens More, where it is fixed.
 - **A new version of the app** (`ui/UpdateCard.kt`): the first time a release is found, a round card over the screen
   with the riding cat, "A new Nouride Home is ready", the version and that Nouride and the agents stay as they are,
   then Update now and Later. After that a small card at the top until it is installed: Update, the download's
@@ -62,6 +62,26 @@ Under the main state, only what a person acts on:
   installing from the app: a card with the waving cat says so and opens that setting, and the update goes on when
   they come back. Nothing of it shows while the first start sets Nouride up. Words only: no version code, sha, URL
   or file name; a failed download says to check the Wi-Fi and try again.
+
+## Connect
+
+Only when Nouride answers and the phone is on Wi-Fi: "Open Nouride on another device", one sentence, a QR code a
+tablet's or a phone's camera opens (`ui/QrCode.kt`, dark on white in both themes, as a camera reads contrast), the
+address large in a soft pill, Copy and Share address, and how to sign in there: "Use the username and password you
+chose when you set up Nouride." Before that, the cat and "Nouride isn't running yet" with Go to Home; off Wi-Fi, "This
+phone isn't on Wi-Fi". Never an address that leads nowhere, and never `http://10.x.x.x:18254/...` in a sentence.
+
+## More
+
+- **Keep Nouride running**: a green check and one sentence once the phone lets Nouride run with the screen off; before
+  that, why ("Your phone may stop Nouride to save battery.") and Allow. On Xiaomi's phones (Xiaomi, Redmi, POCO), the
+  steps in that brand's words, Autostart and Battery saver set to No restrictions, and Open settings
+  (`PowerSettings.asksForAutostart`): without Autostart, Nouride does not come back after the phone restarts.
+- **This app**: its name and version, "You have the newest version." or the version that is ready, and Check for
+  updates, which asks at once; a release found goes to Home, where it is installed.
+- **Turn off Nouride**: amber words, not a button, so it is never pressed by mistake. It asks once: "Turn Nouride off?
+  Your assistant will not answer until you start it again."
+- **Technical Logs ›**, last.
 
 ## How it looks
 

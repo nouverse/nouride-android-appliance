@@ -33,8 +33,12 @@ object Updates {
   private const val OFFERED = "offered"
   private const val FAILED = "failed"
 
-  /** How old the last answer may be when the app opens before the feed is asked again. */
-  const val ON_OPEN_MS = 6 * 60 * 60 * 1000L
+  /**
+   * How old the last answer may be when the app opens before the feed is asked again: 15 minutes, so a release is seen
+   * the next time the app is opened (six hours had the owner open it twice after one was published and see nothing).
+   * GitHub answers 60 unauthenticated requests an hour per address; the service's own check stays twice a day.
+   */
+  const val ON_OPEN_MS = 15 * 60 * 1000L
 
   /**
    * While the first start sets Nouride up, an update waits: replacing the app stops the setup halfway, and an installer
@@ -69,17 +73,28 @@ object Updates {
     if (!UpdateFeed.due(System.currentTimeMillis(), prefs.getLong(CHECKED_AT, 0), maxAgeMs, prefs.getString(CHECKED_FOR, null), installed)) {
       return waiting(context)
     }
-    val text = try {
-      get(context.getString(R.string.update_feed), context)
+    try {
+      fetch(context)
     } catch (e: IOException) {
-      return waiting(context)
+      // No network is not "no update": the last answer stands.
     }
-    val release = UpdateFeed.parse(text)
+    return waiting(context)
+  }
+
+  /** "Check for updates" on the More tab: the feed asked now, however fresh the last answer. Throws when it cannot. */
+  fun checkNow(context: Context): Release? {
+    fetch(context)
+    return waiting(context)
+  }
+
+  private fun fetch(context: Context) {
+    val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    val installed = installedVersion(context)
+    val release = UpdateFeed.parse(get(context.getString(R.string.update_feed), context))
     prefs.edit().apply {
       putLong(CHECKED_AT, System.currentTimeMillis()).putString(CHECKED_FOR, installed)
       if (release != null) putString(VERSION, release.version).putString(APK, release.apkUrl).putString(SHA, release.sha256Url)
     }.apply()
-    return waiting(context)
   }
 
   /** Whether the person has been asked about [version] already: the big card shows once a release, then the small one. */
