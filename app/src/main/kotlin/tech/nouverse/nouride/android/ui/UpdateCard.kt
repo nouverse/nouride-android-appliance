@@ -26,7 +26,12 @@ import kotlin.concurrent.thread
  * asks once. Words only: no version code, no sha, no URL. All of it waits while the first start sets Nouride up
  * (`Updates.waitsFor`), and comes once it is done.
  */
-internal class UpdateCard(private val activity: Activity, private val ui: Ui) {
+internal class UpdateCard(
+  private val activity: Activity,
+  private val ui: Ui,
+  /** After each check of the feed: the More tab's line says what it found too, not what it knew before. */
+  private val onChecked: () -> Unit = {},
+) {
   private enum class State { IDLE, DOWNLOADING, INSTALLING, FAILED }
 
   val view: LinearLayout = ui.card(fill = ui.color(R.color.brand_soft)).apply { visibility = View.GONE }
@@ -68,6 +73,7 @@ internal class UpdateCard(private val activity: Activity, private val ui: Ui) {
       activity.runOnUiThread {
         if (activity.isDestroyed) return@runOnUiThread
         show(found)
+        onChecked()
         offerOnce()
       }
     }

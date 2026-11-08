@@ -103,7 +103,8 @@ class StatusActivity : Activity() {
   private fun openDashboard() = startActivity(Intent(this, DashboardActivity::class.java))
 
   private fun views(): View {
-    update = UpdateCard(this, ui)
+    // More said "You have the newest version" behind the dialog offering one: its line was read before the check.
+    update = UpdateCard(this, ui, onChecked = { more.resume() })
     home = HomeTab(this, ui, update, onPrimary = ::onPrimary, onKeepRunning = { show(Tab.MORE) })
     connect = ConnectTab(this, ui, onGoHome = { show(Tab.HOME) })
     more = MoreTab(this, ui, onTurnOff = ::confirmTurnOff, onUpdateFound = {
