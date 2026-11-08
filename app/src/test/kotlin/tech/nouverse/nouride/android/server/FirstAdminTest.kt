@@ -10,10 +10,11 @@ class FirstAdminTest {
   private val installed = "PORT=18254\nHOST=0.0.0.0\n"
 
   @Test
-  fun `the account goes into the env, and every line already there stays`() {
+  fun `the account goes into the env, to be replaced on the first screen, and every line already there stays`() {
+    // MUST_CHANGE: the dashboard opens on choosing a username and password (the owner, 2026-11-07).
     val env = FirstAdmin.withAccount(installed, "abc123abc123abc123abc123")
     assertEquals(
-      "PORT=18254\nHOST=0.0.0.0\nINITIAL_ADMIN_USERNAME=admin\nINITIAL_ADMIN_PASSWORD=abc123abc123abc123abc123\n",
+      "PORT=18254\nHOST=0.0.0.0\nINITIAL_ADMIN_USERNAME=admin\nINITIAL_ADMIN_PASSWORD=abc123abc123abc123abc123\nINITIAL_ADMIN_MUST_CHANGE=1\n",
       env,
     )
     // A file without a last newline does not glue the account to its last line.

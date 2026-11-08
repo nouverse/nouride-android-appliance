@@ -10,8 +10,12 @@ import java.security.SecureRandom
  * The app picks the password on the first start and keeps it in its own private storage. It reaches the daemon the
  * documented way, `INITIAL_ADMIN_USERNAME` and `INITIAL_ADMIN_PASSWORD` in the install's `.env` (`users/bootstrap.ts`
  * in Nouride), and those lines are taken out again once the daemon is ready: by then the account exists, and the file
- * should not keep a password it no longer needs. The app signs in with it each time it opens the dashboard; if the
- * person changed the password since, that sign-in fails and the dashboard shows its own login page.
+ * should not keep a password it no longer needs. With `INITIAL_ADMIN_MUST_CHANGE=1` beside them: the dashboard opens
+ * signed in on its first screen, "Choose the username and password you will sign in with from now on" (`/welcome`),
+ * before the setup wizard. The owner, 2026-11-07: a generated account the person never saw left them no way to sign in
+ * from another device, and the password could not be changed without the old one. The app signs in with its password
+ * each time it opens the dashboard; once the person has chosen their own, that fails and the session they hold, or the
+ * dashboard's own login page, takes over.
  */
 object FirstAdmin {
   const val USERNAME = "admin"
@@ -24,7 +28,7 @@ object FirstAdmin {
   /** The `.env` with the account in it, in place of any `INITIAL_ADMIN_*` it had. */
   fun withAccount(env: String, password: String): String =
     withoutAccount(env).let { if (it.isEmpty() || it.endsWith("\n")) it else "$it\n" } +
-      "${PREFIX}USERNAME=$USERNAME\n${PREFIX}PASSWORD=$password\n"
+      "${PREFIX}USERNAME=$USERNAME\n${PREFIX}PASSWORD=$password\n${PREFIX}MUST_CHANGE=1\n"
 
   /** The `.env` without any `INITIAL_ADMIN_*` line; every other line exactly as it was. */
   fun withoutAccount(env: String): String =
