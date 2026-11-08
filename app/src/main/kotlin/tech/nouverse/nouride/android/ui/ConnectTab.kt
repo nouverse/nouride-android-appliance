@@ -54,7 +54,7 @@ internal class ConnectTab(private val activity: Activity, private val ui: Ui, pr
     when (reach) {
       Reach.OFF -> column.addView(notYet(R.drawable.mascot_hello, R.string.connect_off_title, R.string.connect_off_body, home = true), ui.fullWidth(16))
       Reach.THIS_PHONE -> column.addView(notYet(R.drawable.mascot_hello, R.string.this_phone_title, R.string.this_phone_body, home = false), ui.fullWidth(16))
-      Reach.NO_WIFI -> column.addView(notYet(R.drawable.mascot_lean, R.string.no_wifi_title, R.string.no_wifi, home = false), ui.fullWidth(16))
+      Reach.NO_WIFI -> column.addView(notYet(R.drawable.mascot_unplugged, R.string.no_wifi_title, R.string.no_wifi, home = false), ui.fullWidth(16))
       Reach.READY -> ready(address!!)
     }
   }

@@ -131,8 +131,7 @@ internal fun Mascot.drawable(): Int = when (this) {
   Mascot.HELLO -> R.drawable.mascot_hello
   Mascot.RIDE -> R.drawable.mascot_ride
   Mascot.THUMBS -> R.drawable.mascot_thumbs
-  Mascot.LEAN -> R.drawable.mascot_lean
-  Mascot.WAVE -> R.drawable.mascot_wave
+  Mascot.UNPLUGGED -> R.drawable.mascot_unplugged
 }
 
 internal fun Tone.fill(): Int = when (this) {

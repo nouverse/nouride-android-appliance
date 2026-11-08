@@ -170,7 +170,7 @@ internal class UpdateCard(
 
   /** Android 8 and later ask the person, once, to let this app install its own updates. */
   private fun askToAllow() {
-    card(R.drawable.mascot_hello, activity.getString(R.string.update_allow_title), activity.getString(R.string.update_allow_body),
+    card(R.drawable.mascot_pointing, activity.getString(R.string.update_allow_title), activity.getString(R.string.update_allow_body),
       R.string.update_allow) {
       askedToAllow = true
       activity.startActivity(Updates.allowInstallIntent(activity))
@@ -178,7 +178,7 @@ internal class UpdateCard(
   }
 
   private fun offer(found: Release) {
-    offerDialog = card(R.drawable.mascot_ride, activity.getString(R.string.update_dialog_title),
+    offerDialog = card(R.drawable.mascot_update, activity.getString(R.string.update_dialog_title),
       activity.getString(R.string.update_dialog_body, found.version), R.string.update_now) { start() }
   }
 

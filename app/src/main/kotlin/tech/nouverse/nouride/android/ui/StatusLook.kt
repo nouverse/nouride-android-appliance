@@ -2,8 +2,12 @@ package tech.nouverse.nouride.android.ui
 
 import tech.nouverse.nouride.android.server.ServerState.Phase
 
-/** The cat's pose: one for each mood the screen can be in. */
-enum class Mascot { HELLO, RIDE, THUMBS, LEAN, WAVE }
+/**
+ * The cat's pose, each meaning what it means in the dashboard (Nouride's design rules): waving to greet, and to say
+ * goodbye while turning off; riding its scooter while something is on its way; a thumbs up when it went well; sad
+ * beside an unplugged cable when something failed or there is no network.
+ */
+enum class Mascot { HELLO, RIDE, THUMBS, UNPLUGGED }
 
 /** The colour of the card around the cat. */
 enum class Tone { CALM, BUSY, GOOD, WARN }
@@ -31,8 +35,8 @@ object StatusLook {
       if (answering) Look(Mascot.THUMBS, Tone.GOOD, Words.RUNNING, Action.OPEN, busy = false)
       else Look(Mascot.RIDE, Tone.BUSY, Words.WAKING, Action.NONE, busy = true)
     Phase.RESTARTING -> Look(Mascot.RIDE, Tone.BUSY, Words.RESTARTING, Action.NONE, busy = true)
-    Phase.STOPPING -> Look(Mascot.WAVE, Tone.CALM, Words.STOPPING, Action.NONE, busy = true)
-    Phase.FAILED -> Look(Mascot.LEAN, Tone.WARN, Words.FAILED, Action.RETRY, busy = false)
+    Phase.STOPPING -> Look(Mascot.HELLO, Tone.CALM, Words.STOPPING, Action.NONE, busy = true)
+    Phase.FAILED -> Look(Mascot.UNPLUGGED, Tone.WARN, Words.FAILED, Action.RETRY, busy = false)
   }
 
   /** Whether "Turn off" is offered: whenever Nouride is on or on its way, never when it is off already. */

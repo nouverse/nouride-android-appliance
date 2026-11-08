@@ -90,7 +90,7 @@ class DashboardActivity : Activity() {
       visibility = View.GONE
       isClickable = true
       addView(ImageView(context).apply {
-        setImageResource(R.drawable.mascot_lean)
+        setImageResource(R.drawable.mascot_unplugged)
         adjustViewBounds = true
       }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, ui.dp(160)))
       addView(ui.text(20f, R.color.ink, bold = true, center = true).apply { setText(R.string.dashboard_unreachable_title) }, ui.fullWidth(16))

@@ -15,5 +15,6 @@
   <color name="busy_soft">#EEF2FF</color>
   <color name="warn">#B7791F</color>
   <color name="warn_soft">#FFF3DC</color>
-  <color name="icon_background">#DCEBFF</color>
+  <!-- The icon's pastel lavender, the cat's hoodie and glasses, in Nouride's soft look. -->
+  <color name="icon_background">#EFEAFB</color>
 </resources>

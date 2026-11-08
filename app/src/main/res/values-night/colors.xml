@@ -13,5 +13,6 @@
   <color name="busy_soft">#1A2540</color>
   <color name="warn">#E3A548</color>
   <color name="warn_soft">#33270F</color>
-  <color name="icon_background">#1D3352</color>
+  <!-- Light at night as well: the cat's helmet is black and would vanish on a dark disc. -->
+  <color name="icon_background">#D4CCF0</color>
 </resources>

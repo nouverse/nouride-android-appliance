@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Before Android 8, one round icon: the soft blue disc and the cat. -->
+<!-- Before Android 8, one round icon: the lavender disc and the cat's head. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
   <item>
     <shape android:shape="oval">
       <solid android:color="@color/icon_background" />
     </shape>
   </item>
-  <item android:drawable="@drawable/icon_cat" android:bottom="6dp" android:left="6dp" android:right="6dp" android:top="6dp" />
+  <item android:drawable="@drawable/icon_cat" android:bottom="4dp" android:left="4dp" android:right="4dp" android:top="4dp" />
 </layer-list>

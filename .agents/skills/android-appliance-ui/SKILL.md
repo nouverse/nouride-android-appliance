@@ -96,15 +96,22 @@ phone isn't on Wi-Fi". Never an address that leads nowhere, and never `http://10
 
 Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
 
-- **The cat changes with the state** (`ui/StatusLook.kt`, the poses in `res/drawable-nodpi/mascot_*.png`, cut from
-  the brand's mascot sheet): hello when off, riding its scooter while setting up or starting (it floats gently),
-  thumbs up when running, leaning on the scooter when something failed, waving while turning off.
+- **The cat changes with the state** (`ui/StatusLook.kt`, the poses in `res/drawable-nodpi/mascot_*.webp`). It is
+  Nouride's soft mascot, the tuxedo cat in the lavender hoodie, and each pose means what it means in the dashboard
+  (Nouride's design rules, `.agents/skills/nouride-contributing/references/design-rules.md` in the nouride repository):
+  waving when off and while turning off, riding its scooter while setting up or starting (it floats gently), thumbs up
+  when running, sad beside an unplugged cable when something failed or there is no Wi-Fi. Pointing at what needs the
+  person (allowing updates), the wrench for a new version. A pose is copied from nouride's
+  `packages/shared/assets/mascot/` (or `docs/design/mascot/` for one the dashboard does not draw yet) and trimmed to
+  the cat, as the screens size it by height: `magick <pose>.webp -trim +repage -strip -quality 92 -define
+  webp:alpha-quality=100 mascot_<name>.webp`.
 - **Soft colours** from `res/values/colors.xml`: a pale blue background, white cards, the brand blue `#0084FC` for the
   one main button, and a soft fill behind the cat for the mood (blue busy, green ready, amber needs you). No pure
   black, no saturated red. A dark palette in `values-night`, used when the phone is dark or Dark is chosen on More.
 - **Round**: cards 28dp, buttons pill-shaped, the main button 56dp tall and full width.
-- **The icon** is the cat's head on the soft blue (`mipmap/ic_launcher`); the notification's small icon is a white
-  paw (`drawable/ic_notification`), as Android draws small icons as a silhouette. The developer's build, "Nouride
+- **The icon** is the cat's head on pastel lavender (`mipmap/ic_launcher`, `drawable-nodpi/icon_cat.webp`: the
+  dashboard's head with its sparkles cut, and a margin so a round disc never cuts its ears); the notification's small
+  icon is a white paw (`drawable/ic_notification`), as Android draws small icons as a silhouette. The developer's build, "Nouride
   Home Dev", is the same cat on yellow (`app/src/debug/res`), on its icon and at the top of its screen, so the two
   apps on one phone are never mistaken for each other.
 - No third-party UI library: the pieces are in `ui/Ui.kt`.

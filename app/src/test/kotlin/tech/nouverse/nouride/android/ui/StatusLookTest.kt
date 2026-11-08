@@ -45,6 +45,18 @@ class StatusLookTest {
     assertEquals(Words.FAILED, look.words)
     assertEquals(Action.RETRY, look.action)
     assertEquals(Tone.WARN, look.tone)
+    assertEquals(Mascot.UNPLUGGED, look.mascot)
+  }
+
+  @Test
+  fun `each pose means one thing, as in the dashboard`() {
+    // Turning off is the cat waving goodbye: the waving pose, the same as hello, not a pose of its own.
+    assertEquals(Mascot.HELLO, StatusLook.of(Phase.STOPPING, answering = false).mascot)
+    assertEquals(Mascot.THUMBS, StatusLook.of(Phase.RUNNING, answering = true).mascot)
+    for (phase in listOf(Phase.EXTRACTING, Phase.INSTALLING, Phase.STARTING, Phase.RESTARTING)) {
+      assertEquals("$phase", Mascot.RIDE, StatusLook.of(phase, answering = false).mascot)
+    }
+    assertEquals(Mascot.RIDE, StatusLook.of(Phase.RUNNING, answering = false).mascot)
   }
 
   @Test
