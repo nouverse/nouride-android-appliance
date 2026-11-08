@@ -101,7 +101,11 @@ object Updates {
     val expected = UpdateFeed.expectedSha256(get(release.sha256Url, context), name)
       ?: throw IOException("the release's sha256 file does not name $name")
     val dir = File(context.cacheDir, "updates").apply { mkdirs() }
-    dir.listFiles()?.forEach { it.delete() }
+    // Downloaded and checked before, and not installed since: straight to the installer (`Downloaded`).
+    Downloaded.keep(dir, name, expected)?.let {
+      progress(100)
+      return it
+    }
     val file = File(dir, name)
     val digest = MessageDigest.getInstance("SHA-256")
     val connection = open(release.apkUrl, context)
