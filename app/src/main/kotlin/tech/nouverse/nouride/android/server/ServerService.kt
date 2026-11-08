@@ -86,6 +86,10 @@ class ServerService : Service() {
       stopServer()
       return START_NOT_STICKY
     }
+    if (intent?.action == ACTION_RESTART) {
+      restartDaemon()
+      return START_STICKY
+    }
     // A null intent is the system bringing the service back after it killed the app.
     startServer(if (intent == null) "restarted by the system" else "started")
     return START_STICKY
@@ -253,6 +257,18 @@ class ServerService : Service() {
     supervisor.run()
   }
 
+  /**
+   * The daemon stopped cleanly and started again at once, to read its `.env` again: the Connect tab changed who may
+   * open Nouride. Nothing when Nouride is off: it reads the change when it is started.
+   */
+  private fun restartDaemon() {
+    val process = current ?: return
+    val supervisor = supervisor ?: return
+    event("daemon restarting: who may open Nouride changed")
+    supervisor.restartNext()
+    thread(name = "nouride-restart") { terminate(process) }
+  }
+
   private fun stopServer() {
     getSharedPreferences(PREFS, MODE_PRIVATE).edit().putBoolean(PREF_RUN, false).apply()
     if (worker?.isAlive != true) {
@@ -413,6 +429,7 @@ class ServerService : Service() {
   companion object {
     const val ACTION_START = "tech.nouverse.nouride.android.START"
     const val ACTION_STOP = "tech.nouverse.nouride.android.STOP"
+    const val ACTION_RESTART = "tech.nouverse.nouride.android.RESTART"
     const val PREFS = "server"
     const val PREF_RUN = "run"
     const val PREF_ADMIN_PASSWORD = "admin_password"
@@ -425,6 +442,22 @@ class ServerService : Service() {
     fun start(context: Context) = send(context, ACTION_START)
 
     fun stop(context: Context) = send(context, ACTION_STOP)
+
+    /**
+     * Who may open Nouride, written into its `.env`, and Nouride started again to read it if it is running. Off, it
+     * reads it at its next start.
+     */
+    fun setOpenToOthers(context: Context, open: Boolean) {
+      val env = Layout(context).installEnv
+      if (!env.isFile) return
+      val text = env.readText()
+      val next = NetworkAccess.withAccess(text, open)
+      if (next == text) return
+      env.writeText(next)
+      if (ServerState.phase == ServerState.Phase.RUNNING || ServerState.phase == ServerState.Phase.STARTING) {
+        send(context, ACTION_RESTART)
+      }
+    }
 
     private fun send(context: Context, action: String) {
       val intent = Intent(context, ServerService::class.java).setAction(action)

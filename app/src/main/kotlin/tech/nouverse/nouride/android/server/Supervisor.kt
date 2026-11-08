@@ -39,6 +39,9 @@ class Supervisor(
   @Volatile
   private var stopping = false
 
+  @Volatile
+  private var restarting = false
+
   fun run() {
     while (!stopping) {
       val began = clock()
@@ -49,10 +52,21 @@ class Supervisor(
         onExited(code, null)
         break
       }
+      // An exit the app asked for: started again at once, and not counted as the daemon stopping on its own.
+      if (restarting) {
+        restarting = false
+        onExited(code, 0)
+        continue
+      }
       val delay = backoff.next(clock() - began)
       onExited(code, delay)
       stopped.await(delay, TimeUnit.MILLISECONDS)
     }
+  }
+
+  /** The next exit is asked for (the app changed what the daemon reads when it starts): start it again at once. */
+  fun restartNext() {
+    restarting = true
   }
 
   fun stop() {

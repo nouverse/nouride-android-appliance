@@ -19,6 +19,7 @@ import android.widget.Toast
 import tech.nouverse.nouride.android.Layout
 import tech.nouverse.nouride.android.Nouride
 import tech.nouverse.nouride.android.R
+import tech.nouverse.nouride.android.server.NetworkAccess
 import tech.nouverse.nouride.android.server.ServerState
 import tech.nouverse.nouride.android.update.Updates
 
@@ -110,7 +111,11 @@ class SupportActivity : Activity() {
       "state" to "${ServerState.phase.name.lowercase()} ${ServerState.detail}".trim(),
       "health" to (health?.summary() ?: "not asked yet"),
       "local" to Nouride.DASHBOARD_URL,
-      "lan" to (lan?.let { "http://$it:${Nouride.PORT}/dashboard/" } ?: "no Wi-Fi"),
+      "lan" to when {
+        layout.installEnv.isFile && !NetworkAccess.open(layout.installEnv.readText()) -> "off (this phone only)"
+        lan == null -> "no Wi-Fi"
+        else -> "http://$lan:${Nouride.PORT}/dashboard/"
+      },
       "app" to Updates.installedVersion(this),
       "android" to "${Build.VERSION.RELEASE} (${Build.MANUFACTURER} ${Build.MODEL})",
     ))

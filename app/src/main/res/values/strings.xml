@@ -92,6 +92,11 @@
   <string name="connect_off_title">Nouride isn\'t running yet</string>
   <string name="connect_off_body">Start it on Home, then come back here to open it on another device.</string>
   <string name="go_home">Go to Home</string>
+  <string name="access_title">Open from other devices</string>
+  <string name="access_body">Let a tablet, a computer or another phone on the same Wi-Fi open Nouride. Turn it off on a Wi-Fi you don\'t trust.</string>
+  <string name="access_restarting">Nouride starts again for a moment.</string>
+  <string name="this_phone_title">Only this phone can open Nouride</string>
+  <string name="this_phone_body">Turn on Open from other devices to use it on a tablet, a computer or another phone.</string>
 
   <string name="keep_running_title">Keep Nouride running</string>
   <string name="battery_ok">Your phone lets Nouride run with the screen off.</string>

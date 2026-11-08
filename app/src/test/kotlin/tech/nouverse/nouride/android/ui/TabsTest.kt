@@ -32,11 +32,13 @@ class TabsTest {
   }
 
   @Test
-  fun `Connect offers the address only when Nouride answers and the phone is on Wi-Fi`() {
-    assertEquals(Reach.READY, Tabs.reach(look(Phase.RUNNING), "192.168.1.23"))
-    assertEquals(Reach.NO_WIFI, Tabs.reach(look(Phase.RUNNING), null))
-    assertEquals(Reach.OFF, Tabs.reach(look(Phase.RUNNING, answering = false), "192.168.1.23"))
-    assertEquals(Reach.OFF, Tabs.reach(look(Phase.STOPPED), "192.168.1.23"))
-    assertEquals(Reach.OFF, Tabs.reach(look(Phase.INSTALLING), "192.168.1.23"))
+  fun `Connect offers the address only when Nouride answers, others may open it, and the phone is on Wi-Fi`() {
+    assertEquals(Reach.READY, Tabs.reach(look(Phase.RUNNING), "192.168.1.23", openToOthers = true))
+    assertEquals(Reach.NO_WIFI, Tabs.reach(look(Phase.RUNNING), null, openToOthers = true))
+    // Kept to this phone by the switch: no address, whatever the Wi-Fi.
+    assertEquals(Reach.THIS_PHONE, Tabs.reach(look(Phase.RUNNING), "192.168.1.23", openToOthers = false))
+    assertEquals(Reach.OFF, Tabs.reach(look(Phase.RUNNING, answering = false), "192.168.1.23", openToOthers = true))
+    assertEquals(Reach.OFF, Tabs.reach(look(Phase.STOPPED), "192.168.1.23", openToOthers = false))
+    assertEquals(Reach.OFF, Tabs.reach(look(Phase.INSTALLING), "192.168.1.23", openToOthers = true))
   }
 }

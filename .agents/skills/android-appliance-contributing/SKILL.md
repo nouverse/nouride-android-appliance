@@ -26,7 +26,10 @@ description: How to work on Nouride Home, the Android app that runs Nouride on t
 
 7. `ui/` is everything a person sees: `StatusActivity` holds the three tabs along the bottom (`HomeTab`, `ConnectTab`,
    `MoreTab`, `BottomBar`, the rules in `Tabs`), `DashboardActivity` the dashboard in a WebView, `SupportActivity`
-   Technical Logs. `QrCode` draws the Connect tab's code without a library; `QrCodeTest` checks it module by module
+   Technical Logs. Connect's switch is `server/NetworkAccess` (the `.env`'s `HOST=0.0.0.0` or `127.0.0.1`, which
+   `nouride start` reads and which wins over `config.toml`), then `ServerService.ACTION_RESTART`: the daemon stopped
+   cleanly and the `Supervisor` starting it again at once (`restartNext`), not counted as a crash in its backoff.
+   `QrCode` draws the Connect tab's code without a library; `QrCodeTest` checks it module by module
    against segno's output. `Appearance` is the More tab's Light or Dark: every activity starts from a context in it
    (`attachBaseContext`), as Android's per-app setting only exists from Android 12.
 

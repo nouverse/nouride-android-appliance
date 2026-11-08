@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
@@ -14,38 +15,73 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.Switch
 import android.widget.Toast
+import tech.nouverse.nouride.android.Layout
 import tech.nouverse.nouride.android.Nouride
 import tech.nouverse.nouride.android.R
+import tech.nouverse.nouride.android.server.NetworkAccess
+import tech.nouverse.nouride.android.server.ServerService
 
 /**
  * The Connect tab: Nouride on a tablet, a computer or another phone on the same Wi-Fi. A QR code its camera opens, the
  * address large to type or share, and how to sign in there. Before Nouride is running, or off Wi-Fi, the cat says so
- * instead: an address that leads nowhere is not shown.
+ * instead: an address that leads nowhere is not shown. A switch on top keeps Nouride to this phone (`NetworkAccess`),
+ * for a Wi-Fi the person does not trust; it is on, as installed.
  */
 internal class ConnectTab(private val activity: Activity, private val ui: Ui, private val onGoHome: () -> Unit) {
   private val column = LinearLayout(activity).apply {
     orientation = LinearLayout.VERTICAL
     setPadding(ui.dp(20), ui.dp(16), ui.dp(20), ui.dp(24))
   }
-  private var shown: Pair<Reach, String?>? = null
+  private val layout = Layout(activity)
+  private var shown: Triple<Reach, String?, Boolean?>? = null
 
   val view: ScrollView = ScrollView(activity).apply { addView(column) }
 
   /** Rebuilt only when what it offers changed: the Wi-Fi's address can change while the tab is open. */
   fun render(look: Look) {
     val lan = SupportText.lanAddress()
-    val reach = Tabs.reach(look, lan)
+    // Null before Nouride is installed: there is no `.env` to change yet, and no switch.
+    val open = if (layout.installEnv.isFile) NetworkAccess.open(layout.installEnv.readText()) else null
+    val reach = Tabs.reach(look, lan, openToOthers = open != false)
     val address = if (reach == Reach.READY) "http://$lan:${Nouride.PORT}" else null
-    if (shown == reach to address) return
-    shown = reach to address
+    if (shown == Triple(reach, address, open)) return
+    shown = Triple(reach, address, open)
     column.removeAllViews()
     column.addView(ui.header(R.string.tab_connect))
+    if (open != null) column.addView(access(open), ui.fullWidth(16))
     when (reach) {
       Reach.OFF -> column.addView(notYet(R.drawable.mascot_hello, R.string.connect_off_title, R.string.connect_off_body, home = true), ui.fullWidth(16))
+      Reach.THIS_PHONE -> column.addView(notYet(R.drawable.mascot_hello, R.string.this_phone_title, R.string.this_phone_body, home = false), ui.fullWidth(16))
       Reach.NO_WIFI -> column.addView(notYet(R.drawable.mascot_lean, R.string.no_wifi_title, R.string.no_wifi, home = false), ui.fullWidth(16))
       Reach.READY -> ready(address!!)
     }
+  }
+
+  /** Open from other devices: the `.env`'s `HOST`, and Nouride started again for a moment to read it. */
+  private fun access(open: Boolean): View = ui.card().apply {
+    orientation = LinearLayout.HORIZONTAL
+    gravity = Gravity.CENTER_VERTICAL
+    addView(LinearLayout(activity).apply {
+      orientation = LinearLayout.VERTICAL
+      addView(ui.text(17f, R.color.ink, bold = true).apply { setText(R.string.access_title) })
+      addView(ui.text(14f, R.color.muted).apply { setText(R.string.access_body) }, ui.fullWidth(4))
+    }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+    addView(Switch(activity).apply {
+      isChecked = open
+      contentDescription = activity.getString(R.string.access_title)
+      val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
+      // Off must read as off in both themes: a grey thumb on the line colour, not the card's own colour.
+      thumbTintList = ColorStateList(states, intArrayOf(ui.color(R.color.brand), ui.color(R.color.muted)))
+      trackTintList = ColorStateList(states, intArrayOf(ui.color(R.color.brand), ui.color(R.color.line)))
+      setOnCheckedChangeListener { _, on ->
+        ServerService.setOpenToOthers(activity, on)
+        Toast.makeText(activity, R.string.access_restarting, Toast.LENGTH_SHORT).show()
+      }
+    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+      leftMargin = ui.dp(12)
+    })
   }
 
   private fun notYet(image: Int, heading: Int, sentence: Int, home: Boolean): View =

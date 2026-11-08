@@ -65,7 +65,12 @@ Under the main state, only what a person acts on:
 
 ## Connect
 
-Only when Nouride answers and the phone is on Wi-Fi: "Open Nouride on another device", one sentence, a QR code a
+On top, once Nouride is installed, a switch: **Open from other devices**, "Let a tablet, a computer or another phone on
+the same Wi-Fi open Nouride. Turn it off on a Wi-Fi you don't trust." On as installed. Off, Nouride answers only this
+phone (the app's own dashboard keeps working) and the card under it says "Only this phone can open Nouride"; a change
+says "Nouride starts again for a moment", which it does, for about a second.
+
+Only when Nouride answers, others may open it, and the phone is on Wi-Fi: "Open Nouride on another device", one sentence, a QR code a
 tablet's or a phone's camera opens (`ui/QrCode.kt`, dark on white in both themes, as a camera reads contrast), the
 address large in a soft pill, Copy and Share address, and how to sign in there: "Use the username and password you
 chose when you set up Nouride." Before that, the cat and "Nouride isn't running yet" with Go to Home; off Wi-Fi, "This
