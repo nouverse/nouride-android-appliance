@@ -55,7 +55,7 @@ internal class BottomBar(context: Context, private val ui: Ui, onSelect: (Tab) -
         gravity = Gravity.CENTER_HORIZONTAL
         isClickable = true
         contentDescription = context.getString(label)
-        background = RippleDrawable(ColorStateList.valueOf(ui.color(R.color.brand_soft)), null, null)
+        background = RippleDrawable(ColorStateList.valueOf(ui.color(R.color.place_soft)), null, null)
         setOnClickListener { onSelect(tab) }
         addView(pill, LinearLayout.LayoutParams(ui.dp(64), ui.dp(32)))
         addView(text, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
@@ -70,8 +70,8 @@ internal class BottomBar(context: Context, private val ui: Ui, onSelect: (Tab) -
   fun select(tab: Tab) {
     for ((each, item) in items) {
       val open = each == tab
-      item.pill.background = if (open) ui.rounded(ui.color(R.color.brand_soft), 16) else null
-      item.icon.imageTintList = ColorStateList.valueOf(ui.color(if (open) R.color.brand else R.color.muted))
+      item.pill.background = if (open) ui.rounded(ui.color(R.color.place_soft), 16) else null
+      item.icon.imageTintList = ColorStateList.valueOf(ui.color(if (open) R.color.place else R.color.muted))
       item.label.setTextColor(ui.color(if (open) R.color.ink else R.color.muted))
       item.label.setTypeface(null, if (open) Typeface.BOLD else Typeface.NORMAL)
       item.root.isSelected = open

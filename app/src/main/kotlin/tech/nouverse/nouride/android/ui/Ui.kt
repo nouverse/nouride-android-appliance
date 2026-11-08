@@ -60,7 +60,7 @@ internal class Ui(private val context: Context) {
     setLineSpacing(0f, 1.15f)
   }
 
-  /** The one big button of a screen: round, brand blue, white words. */
+  /** The one big button of a screen: a pill in the peach pastel, ink words on it. */
   fun primary(onClick: () -> Unit): Button = Button(context).apply {
     isAllCaps = false
     textSize = 18f
@@ -72,11 +72,11 @@ internal class Ui(private val context: Context) {
     setOnClickListener { onClick() }
   }
 
-  /** A quiet button: soft fill, brand words. */
+  /** A quiet button: a soft peach fill, the peach deepened as words. */
   fun secondary(onClick: () -> Unit): Button = Button(context).apply {
     isAllCaps = false
     textSize = 16f
-    setTextColor(color(R.color.brand))
+    setTextColor(color(R.color.brand_text))
     background = rounded(color(R.color.brand_soft), 24)
     stateListAnimator = null
     minHeight = dp(48)
@@ -93,14 +93,14 @@ internal class Ui(private val context: Context) {
     setOnClickListener { onClick() }
   }
 
-  /** A thick, round progress bar in the brand blue, on a soft track. */
+  /** A thick, round progress bar in sage mint, what is moving, on a soft track. */
   fun progressBar(): ProgressBar = ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal).apply {
-    val fill = ClipDrawable(rounded(color(R.color.brand), 8), Gravity.START, ClipDrawable.HORIZONTAL)
+    val fill = ClipDrawable(rounded(color(R.color.progress), 8), Gravity.START, ClipDrawable.HORIZONTAL)
     progressDrawable = LayerDrawable(arrayOf(rounded(color(R.color.surface), 8, color(R.color.line)), fill)).apply {
       setId(0, android.R.id.background)
       setId(1, android.R.id.progress)
     }
-    indeterminateTintList = ColorStateList.valueOf(color(R.color.brand))
+    indeterminateTintList = ColorStateList.valueOf(color(R.color.progress))
     max = 100
     minimumHeight = dp(12)
   }
@@ -136,7 +136,8 @@ internal fun Mascot.drawable(): Int = when (this) {
 
 internal fun Tone.fill(): Int = when (this) {
   Tone.CALM -> R.color.surface
-  Tone.BUSY -> R.color.busy_soft
+  // What is moving is a plain card, as the dashboard's are; its mint is the progress bar.
+  Tone.BUSY -> R.color.surface
   Tone.GOOD -> R.color.good_soft
   Tone.WARN -> R.color.warn_soft
 }

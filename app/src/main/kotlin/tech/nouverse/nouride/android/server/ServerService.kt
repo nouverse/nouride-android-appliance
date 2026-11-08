@@ -390,7 +390,7 @@ class ServerService : Service() {
     if (progress != null && look.busy) builder.setProgress(100, progress.percent, false)
     val notification = builder
       .setSmallIcon(R.drawable.ic_notification)
-      .setColor(getColor(R.color.brand))
+      .setColor(getColor(R.color.brand_text))
       .setContentTitle(getString(look.words.title()))
       .setContentText(getString(if (Updates.waiting(this) != null) R.string.notification_update else R.string.notification_tap))
       .setContentIntent(open)

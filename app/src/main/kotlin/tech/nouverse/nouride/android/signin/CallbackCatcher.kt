@@ -96,10 +96,10 @@ object CallbackCatcher {
     val back = context.getString(R.string.signin_back)
     val esc = { text: String -> Html.escapeHtml(text) }
     return """<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(title)}</title><style>body{font-family:sans-serif;background:#F5F8FF;color:#1E2A3B;margin:0;padding:48px 24px;text-align:center}
-h1{font-size:24px}p{color:#5B6B82;font-size:17px}a{display:block;margin:32px auto 0;max-width:360px;padding:16px;border-radius:32px;
-background:#0084FC;color:#fff;font-weight:bold;font-size:18px;text-decoration:none}
-@media (prefers-color-scheme:dark){body{background:#0F1724;color:#E6ECF5}p{color:#9AA8BD}a{background:#3A9DFF}}</style></head>
+<title>${esc(title)}</title><style>body{font-family:sans-serif;background:#FAF7F2;color:#221E2E;margin:0;padding:48px 24px;text-align:center}
+h1{font-size:24px}p{color:#696671;font-size:17px}a{display:block;margin:32px auto 0;max-width:360px;padding:16px;border-radius:32px;
+background:#F08A6C;color:#221E2E;font-weight:bold;font-size:18px;text-decoration:none}
+@media (prefers-color-scheme:dark){body{background:#1B1A24;color:#EFEDF5}p{color:#A9A7B1}a{background:#F29A7E;color:#22202C}}</style></head>
 <body><h1>${esc(title)}</h1><p>${esc(body)}</p><a href="$BACK">${esc(back)}</a>
 <script>setTimeout(function(){location.href="$BACK"},600)</script></body></html>"""
   }

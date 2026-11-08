@@ -35,7 +35,7 @@ internal class HomeTab(
   private val stepBox = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
   private val stepText: TextView = ui.text(15f, R.color.ink, bold = true, center = true)
   private val stepCount: TextView = ui.text(13f, R.color.muted)
-  private val stepPercent: TextView = ui.text(13f, R.color.brand, bold = true)
+  private val stepPercent: TextView = ui.text(13f, R.color.good, bold = true)
   private val primary: Button = ui.primary { onPrimary() }
   private val battery: TextView = ui.text(15f, R.color.ink).apply {
     setText(R.string.home_battery_banner)

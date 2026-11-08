@@ -73,8 +73,8 @@ internal class ConnectTab(private val activity: Activity, private val ui: Ui, pr
       contentDescription = activity.getString(R.string.access_title)
       val states = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
       // Off must read as off in both themes: a grey thumb on the line colour, not the card's own colour.
-      thumbTintList = ColorStateList(states, intArrayOf(ui.color(R.color.brand), ui.color(R.color.muted)))
-      trackTintList = ColorStateList(states, intArrayOf(ui.color(R.color.brand), ui.color(R.color.line)))
+      thumbTintList = ColorStateList(states, intArrayOf(ui.color(R.color.brand_text), ui.color(R.color.muted)))
+      trackTintList = ColorStateList(states, intArrayOf(ui.color(R.color.brand_text), ui.color(R.color.line)))
       setOnCheckedChangeListener { _, on ->
         ServerService.setOpenToOthers(activity, on)
         Toast.makeText(activity, R.string.access_restarting, Toast.LENGTH_SHORT).show()
@@ -107,7 +107,7 @@ internal class ConnectTab(private val activity: Activity, private val ui: Ui, pr
       setPadding(ui.dp(12), ui.dp(12), ui.dp(12), ui.dp(12))
       contentDescription = activity.getString(R.string.connect_qr_description)
     }, LinearLayout.LayoutParams(ui.dp(232), ui.dp(232)).apply { topMargin = ui.dp(18) })
-    card.addView(ui.text(22f, R.color.brand, bold = true, center = true).apply {
+    card.addView(ui.text(22f, R.color.brand_text, bold = true, center = true).apply {
       text = address
       setTextIsSelectable(true)
       maxLines = 1

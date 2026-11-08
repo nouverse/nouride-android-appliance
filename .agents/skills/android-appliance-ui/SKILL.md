@@ -105,9 +105,14 @@ Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
   `packages/shared/assets/mascot/` (or `docs/design/mascot/` for one the dashboard does not draw yet) and trimmed to
   the cat, as the screens size it by height: `magick <pose>.webp -trim +repage -strip -quality 92 -define
   webp:alpha-quality=100 mascot_<name>.webp`.
-- **Soft colours** from `res/values/colors.xml`: a pale blue background, white cards, the brand blue `#0084FC` for the
-  one main button, and a soft fill behind the cat for the mood (blue busy, green ready, amber needs you). No pure
-  black, no saturated red. A dark palette in `values-night`, used when the phone is dark or Dark is chosen on More.
+- **Nouride's soft colours**, the dashboard's (its `main.css` and the design rules), in `res/values/colors.xml`: a
+  cream page and white cards; the peach pastel `#F08A6C` for the one main button, with ink words on it, never white;
+  lavender for where the person is (the open tab, the appearance chosen on More); sage mint for what is moving or done
+  (the progress bar, the card when Nouride is running); pink for what needs the person (the card when it failed, the
+  battery reminder and its dot). While Nouride starts, the card is plain white and the mint bar moves. Words in a colour
+  take its deepened shade (`brand_text`, `place`, `good`, `warn`), which reads at AA on the card and on its tint; a
+  new colour or a new pair is checked to 4.5:1 in both themes before it ships. No pure black, no saturated red. The
+  night palette (`values-night`, the dashboard's violet grey) is used when the phone is dark or Dark is chosen on More.
 - **Round**: cards 28dp, buttons pill-shaped, the main button 56dp tall and full width.
 - **The icon** is the cat's head on pastel lavender (`mipmap/ic_launcher`, `drawable-nodpi/icon_cat.webp`: the
   dashboard's head with its sparkles cut, and a margin so a round disc never cuts its ears); the notification's small

@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Soft on purpose: a phone that sits in a drawer as someone's assistant should look calm, not like a console. -->
+<!-- Nouride's soft look, as the dashboard draws it (the design rules in the nouride repository,
+     .agents/skills/nouride-contributing/references/design-rules.md, and the dashboard's main.css): a cream page and white
+     cards, peach for the one main action, lavender for where the person is, sage mint for what is moving or done, pink
+     for what needs the person. Each colour written as words reads at WCAG AA (4.5:1) on the card and on its own tint;
+     by day the pastels cannot, so words take the hue deepened (brand_text, good, warn, place) and the pastel itself is
+     only a fill, with ink on it, never white. -->
 <resources>
-  <color name="background">#F5F8FF</color>
+  <color name="background">#FAF7F2</color>
   <color name="surface">#FFFFFF</color>
-  <color name="line">#E3E8F2</color>
-  <color name="ink">#1E2A3B</color>
-  <color name="muted">#5B6B82</color>
-  <color name="brand">#0084FC</color>
-  <!-- Words on the brand blue: white in both themes. -->
-  <color name="on_brand">#FFFFFF</color>
-  <color name="brand_soft">#E3F0FF</color>
-  <color name="good">#1F9D57</color>
-  <color name="good_soft">#E6F7EE</color>
-  <color name="busy_soft">#EEF2FF</color>
-  <color name="warn">#B7791F</color>
-  <color name="warn_soft">#FFF3DC</color>
-  <!-- The icon's pastel lavender, the cat's hoodie and glasses, in Nouride's soft look. -->
+  <color name="line">#EDEDEE</color>
+  <color name="ink">#221E2E</color>
+  <color name="muted">#696671</color>
+  <!-- The main action: the peach pastel, ink words on it. -->
+  <color name="brand">#F08A6C</color>
+  <color name="on_brand">#221E2E</color>
+  <color name="brand_text">#993B1F</color>
+  <color name="brand_soft">#FDF1ED</color>
+  <!-- Where the person is: the open tab, the appearance they chose. -->
+  <color name="place">#5E48B0</color>
+  <color name="place_soft">#EDEAFB</color>
+  <!-- What is moving (a progress bar) and what is done. -->
+  <color name="progress">#7FCDB4</color>
+  <color name="good">#096550</color>
+  <color name="good_soft">#E5F5F0</color>
+  <!-- What needs the person, and nothing else. -->
+  <color name="warn">#9A3355</color>
+  <color name="warn_soft">#FDEDF1</color>
+  <!-- The icon's pastel lavender, the cat's hoodie and glasses. -->
   <color name="icon_background">#EFEAFB</color>
 </resources>

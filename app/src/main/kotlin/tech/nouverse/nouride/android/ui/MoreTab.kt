@@ -118,7 +118,7 @@ internal class MoreTab(
       Appearance.DARK to R.string.appearance_dark,
     )) {
       val on = each == chosen
-      row.addView(ui.text(15f, if (on) R.color.on_brand else R.color.ink, bold = on, center = true).apply {
+      row.addView(ui.text(15f, R.color.ink, bold = on, center = true).apply {
         setText(label)
         gravity = Gravity.CENTER
         maxLines = 1
@@ -126,7 +126,7 @@ internal class MoreTab(
         if (Build.VERSION.SDK_INT >= 26) setAutoSizeTextTypeUniformWithConfiguration(11, 15, 1, TypedValue.COMPLEX_UNIT_SP)
         else textSize = 13f
         setPadding(ui.dp(4), ui.dp(11), ui.dp(4), ui.dp(11))
-        if (on) background = ui.rounded(ui.color(R.color.brand), 20)
+        if (on) background = ui.rounded(ui.color(R.color.place_soft), 20)
         isClickable = true
         isSelected = on
         setOnClickListener {
