@@ -2,6 +2,7 @@ package tech.nouverse.nouride.android.ui
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -42,6 +43,9 @@ class StatusActivity : Activity() {
       handler.postDelayed(this, 2_000)
     }
   }
+
+  /** In the appearance chosen on the More tab (`Appearances`). */
+  override fun attachBaseContext(base: Context) = super.attachBaseContext(Appearances.wrap(base))
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

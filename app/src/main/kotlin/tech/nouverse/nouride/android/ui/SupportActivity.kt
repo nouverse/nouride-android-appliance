@@ -3,6 +3,7 @@ package tech.nouverse.nouride.android.ui
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Build
@@ -33,6 +34,9 @@ class SupportActivity : Activity() {
   private lateinit var log: TextView
   private lateinit var scroll: ScrollView
   private var report = ""
+
+  /** In the appearance chosen on the More tab (`Appearances`). */
+  override fun attachBaseContext(base: Context) = super.attachBaseContext(Appearances.wrap(base))
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

@@ -27,7 +27,8 @@ description: How to work on Nouride Home, the Android app that runs Nouride on t
 7. `ui/` is everything a person sees: `StatusActivity` holds the three tabs along the bottom (`HomeTab`, `ConnectTab`,
    `MoreTab`, `BottomBar`, the rules in `Tabs`), `DashboardActivity` the dashboard in a WebView, `SupportActivity`
    Technical Logs. `QrCode` draws the Connect tab's code without a library; `QrCodeTest` checks it module by module
-   against segno's output.
+   against segno's output. `Appearance` is the More tab's Light or Dark: every activity starts from a context in it
+   (`attachBaseContext`), as Android's per-app setting only exists from Android 12.
 
 Nouride listens on its default port, 18254 (`Nouride.PORT`), and the Router edition's LLM gateway on 18256
 (`Nouride.GATEWAY_PORT`). The debug build moves both (below).

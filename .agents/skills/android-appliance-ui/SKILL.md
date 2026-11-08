@@ -77,6 +77,8 @@ phone isn't on Wi-Fi". Never an address that leads nowhere, and never `http://10
   that, why ("Your phone may stop Nouride to save battery.") and Allow. On Xiaomi's phones (Xiaomi, Redmi, POCO), the
   steps in that brand's words, Autostart and Battery saver set to No restrictions, and Open settings
   (`PowerSettings.asksForAutostart`): without Autostart, Nouride does not come back after the phone restarts.
+- **Appearance**: Same as phone, Light or Dark, side by side; a choice applies at once, to every screen and to the
+  dashboard (`ui/Appearance.kt`).
 - **This app**: its name and version, "You have the newest version." or the version that is ready, and Check for
   updates, which asks at once; a release found goes to Home, where it is installed.
 - **Turn off Nouride**: amber words, not a button, so it is never pressed by mistake. It asks once: "Turn Nouride off?
@@ -92,7 +94,7 @@ Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
   thumbs up when running, leaning on the scooter when something failed, waving while turning off.
 - **Soft colours** from `res/values/colors.xml`: a pale blue background, white cards, the brand blue `#0084FC` for the
   one main button, and a soft fill behind the cat for the mood (blue busy, green ready, amber needs you). No pure
-  black, no saturated red.
+  black, no saturated red. A dark palette in `values-night`, used when the phone is dark or Dark is chosen on More.
 - **Round**: cards 28dp, buttons pill-shaped, the main button 56dp tall and full width.
 - **The icon** is the cat's head on the soft blue (`mipmap/ic_launcher`); the notification's small icon is a white
   paw (`drawable/ic_notification`), as Android draws small icons as a silhouette. The developer's build, "Nouride

@@ -3,6 +3,7 @@ package tech.nouverse.nouride.android.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -46,6 +47,9 @@ import kotlin.concurrent.thread
 class DashboardActivity : Activity() {
   private lateinit var web: WebView
   private lateinit var opening: View
+
+  /** In the appearance chosen on the More tab (`Appearances`). */
+  override fun attachBaseContext(base: Context) = super.attachBaseContext(Appearances.wrap(base))
 
   @SuppressLint("SetJavaScriptEnabled")
   override fun onCreate(savedInstanceState: Bundle?) {

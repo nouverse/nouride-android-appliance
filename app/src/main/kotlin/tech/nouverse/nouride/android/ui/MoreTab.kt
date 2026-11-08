@@ -3,6 +3,8 @@ package tech.nouverse.nouride.android.ui
 import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.os.Build
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
@@ -79,6 +81,11 @@ internal class MoreTab(
     column.addView(running, ui.fullWidth(16))
 
     column.addView(ui.card().apply {
+      addView(ui.text(17f, R.color.ink, bold = true).apply { setText(R.string.appearance_title) })
+      addView(appearance(), ui.fullWidth(12))
+    }, ui.fullWidth(12))
+
+    column.addView(ui.card().apply {
       addView(ui.text(17f, R.color.ink, bold = true).apply { setText(R.string.app_name) })
       addView(version, ui.fullWidth(2))
       addView(updateLine, ui.fullWidth(10))
@@ -92,6 +99,41 @@ internal class MoreTab(
       addView(ui.text(16f, R.color.ink).apply { setText(R.string.details) })
     }, ui.fullWidth(8))
     view = ScrollView(activity).apply { addView(column) }
+  }
+
+  /** Same as phone, Light or Dark, side by side; a choice applies at once, the screen drawn again in it. */
+  private fun appearance(): View {
+    val chosen = Appearances.get(activity)
+    val row = LinearLayout(activity).apply {
+      orientation = LinearLayout.HORIZONTAL
+      background = ui.rounded(ui.color(R.color.background), 24, ui.color(R.color.line))
+      setPadding(ui.dp(4), ui.dp(4), ui.dp(4), ui.dp(4))
+    }
+    for ((each, label) in listOf(
+      Appearance.PHONE to R.string.appearance_phone,
+      Appearance.LIGHT to R.string.appearance_light,
+      Appearance.DARK to R.string.appearance_dark,
+    )) {
+      val on = each == chosen
+      row.addView(ui.text(15f, if (on) R.color.on_brand else R.color.ink, bold = on, center = true).apply {
+        setText(label)
+        gravity = Gravity.CENTER
+        maxLines = 1
+        // "Same as phone" is the longest: smaller rather than cut off, on a narrow phone.
+        if (Build.VERSION.SDK_INT >= 26) setAutoSizeTextTypeUniformWithConfiguration(11, 15, 1, TypedValue.COMPLEX_UNIT_SP)
+        else textSize = 13f
+        setPadding(ui.dp(4), ui.dp(11), ui.dp(4), ui.dp(11))
+        if (on) background = ui.rounded(ui.color(R.color.brand), 20)
+        isClickable = true
+        isSelected = on
+        setOnClickListener {
+          if (each == Appearances.get(activity)) return@setOnClickListener
+          Appearances.set(activity, each)
+          activity.recreate()
+        }
+      }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+    }
+    return row
   }
 
   private fun divider(): View = View(activity).apply { setBackgroundColor(ui.color(R.color.line)) }
