@@ -5,7 +5,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
@@ -55,7 +54,7 @@ class SupportActivity : Activity() {
   private fun views(): View {
     val root = LinearLayout(this).apply {
       orientation = LinearLayout.VERTICAL
-      setBackgroundColor(ui.color(R.color.background))
+      background = ui.page()
     }
     root.addView(LinearLayout(this).apply {
       orientation = LinearLayout.HORIZONTAL
@@ -100,7 +99,7 @@ class SupportActivity : Activity() {
   }
 
   private fun mono(colorId: Int): TextView = ui.text(12f, colorId).apply {
-    typeface = Typeface.MONOSPACE
+    typeface = Fonts.typeface(context, Type.MONO)
     setTextIsSelectable(true)
   }
 

@@ -108,6 +108,8 @@ internal class ConnectTab(private val activity: Activity, private val ui: Ui, pr
       contentDescription = activity.getString(R.string.connect_qr_description)
     }, LinearLayout.LayoutParams(ui.dp(232), ui.dp(232)).apply { topMargin = ui.dp(18) })
     card.addView(ui.text(22f, R.color.brand_text, bold = true, center = true).apply {
+      // An address is an identifier: DM Mono, as the dashboard sets one.
+      typeface = Fonts.typeface(context, Type.MONO)
       text = address
       setTextIsSelectable(true)
       maxLines = 1

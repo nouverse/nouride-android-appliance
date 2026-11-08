@@ -82,7 +82,7 @@ internal class HomeTab(
       shownMascot = look.mascot
     }
     bobbing(look.busy)
-    hero.background = ui.rounded(ui.color(look.tone.fill()), 28, ui.color(R.color.line))
+    hero.background = ui.hero(ui.color(look.tone.light()))
     title.setText(look.words.title())
     body.setText(look.words.body())
     progress.visibility = if (look.busy) View.VISIBLE else View.GONE

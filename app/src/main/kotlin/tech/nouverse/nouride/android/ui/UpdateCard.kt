@@ -185,7 +185,7 @@ internal class UpdateCard(
   /** A round card over the screen, as "Use from another device" is: the cat, a title, a sentence, one button and Later. */
   private fun card(image: Int, heading: String, sentence: String, action: Int, onAction: () -> Unit): Dialog {
     val dialog = Dialog(activity)
-    val content = ui.card(padding = 24).apply { gravity = Gravity.CENTER_HORIZONTAL }
+    val content = ui.card(padding = 24, floating = false).apply { gravity = Gravity.CENTER_HORIZONTAL }
     content.addView(ImageView(activity).apply {
       setImageResource(image)
       adjustViewBounds = true

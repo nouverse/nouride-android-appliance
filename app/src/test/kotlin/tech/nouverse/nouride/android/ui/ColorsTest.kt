@@ -43,6 +43,7 @@ class ColorsTest {
     "place" to "surface", "ink" to "place_soft",
     "good" to "surface", "ink" to "good_soft", "muted" to "good_soft",
     "warn" to "surface", "ink" to "warn_soft", "muted" to "warn_soft",
+    "ink" to "hero_light", "muted" to "hero_light",
   )
 
   @Test

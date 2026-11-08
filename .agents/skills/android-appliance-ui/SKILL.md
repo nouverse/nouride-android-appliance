@@ -113,7 +113,14 @@ Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
   take its deepened shade (`brand_text`, `place`, `good`, `warn`), which reads at AA on the card and on its tint; a
   new colour or a new pair is checked to 4.5:1 in both themes before it ships. No pure black, no saturated red. The
   night palette (`values-night`, the dashboard's violet grey) is used when the phone is dark or Dark is chosen on More.
-- **Round**: cards 28dp, buttons pill-shaped, the main button 56dp tall and full width.
+- **Type**, the dashboard's (`ui/Fonts.kt`, the files in `assets/fonts` with their OFL licences): Fredoka 500 for
+  headings, a little tight; Manrope for everything else, semibold where words are bold; DM Mono for an address and the
+  logs. A screen says only a size and whether it is bold: bold from 17sp is a heading, smaller bold a label.
+- **Soft and floating**, as the dashboard's look: cards with 22dp corners, a hairline and a soft shadow in the theme's
+  shade (`ui.card`, `ui.float`; Android 9 and later, plain before); the card that says how Nouride is lit like the
+  dashboard's greeting, the mood's colour at its left and peach at its right (`ui.hero`); the page cream with a faint
+  lavender light at its top right (`ui.page`); the tab bar a floating card too. Buttons are pills; the main one is 56dp
+  tall, full width, and glows faintly in its own peach, which nothing else does. A card in a dialog does not float.
 - **The icon** is the cat's head on pastel lavender (`mipmap/ic_launcher`, `drawable-nodpi/icon_cat.webp`: the
   dashboard's head with its sparkles cut, and a margin so a round disc never cuts its ears); the notification's small
   icon is a white paw (`drawable/ic_notification`), as Android draws small icons as a silhouette. The developer's build, "Nouride

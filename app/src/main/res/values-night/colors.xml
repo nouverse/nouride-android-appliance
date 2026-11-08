@@ -18,6 +18,10 @@
   <color name="good_soft">#343E47</color>
   <color name="warn">#F08FAB</color>
   <color name="warn_soft">#3F3242</color>
+  <color name="hero_light">#39354E</color>
+  <color name="page_light">#17A99AF0</color>
+  <!-- Deeper at night, where a light shadow would not show. -->
+  <color name="shade">#FF000000</color>
   <!-- Light at night as well: the cat's helmet is black and would vanish on a dark disc. -->
   <color name="icon_background">#D4CCF0</color>
 </resources>

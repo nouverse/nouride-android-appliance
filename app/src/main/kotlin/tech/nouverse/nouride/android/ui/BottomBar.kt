@@ -2,7 +2,6 @@ package tech.nouverse.nouride.android.ui
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.view.Gravity
@@ -25,8 +24,10 @@ internal class BottomBar(context: Context, private val ui: Ui, onSelect: (Tab) -
 
   val view: LinearLayout = LinearLayout(context).apply {
     orientation = LinearLayout.HORIZONTAL
-    setBackgroundColor(ui.color(R.color.surface))
-    setPadding(ui.dp(8), ui.dp(10), ui.dp(8), ui.dp(12))
+    // It floats above the page as a card does, as the dashboard's tab bar on a phone.
+    background = ui.rounded(ui.color(R.color.surface), 28, ui.color(R.color.line))
+    ui.float(this, 6)
+    setPadding(ui.dp(6), ui.dp(8), ui.dp(6), ui.dp(8))
   }
 
   init {
@@ -73,7 +74,7 @@ internal class BottomBar(context: Context, private val ui: Ui, onSelect: (Tab) -
       item.pill.background = if (open) ui.rounded(ui.color(R.color.place_soft), 16) else null
       item.icon.imageTintList = ColorStateList.valueOf(ui.color(if (open) R.color.place else R.color.muted))
       item.label.setTextColor(ui.color(if (open) R.color.ink else R.color.muted))
-      item.label.setTypeface(null, if (open) Typeface.BOLD else Typeface.NORMAL)
+      item.label.typeface = Fonts.typeface(item.label.context, if (open) Type.STRONG else Type.BODY)
       item.root.isSelected = open
     }
   }

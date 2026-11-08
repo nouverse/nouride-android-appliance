@@ -26,6 +26,11 @@
   <!-- What needs the person, and nothing else. -->
   <color name="warn">#9A3355</color>
   <color name="warn_soft">#FDEDF1</color>
+  <!-- The soft look's lights: lavender at the left of the card that says how Nouride is (the dashboard's greeting),
+       and faintly at the top right of the page; the soft shadow's colour (its alpha is scaled again by Android). -->
+  <color name="hero_light">#EFECFC</color>
+  <color name="page_light">#178C7AE6</color>
+  <color name="shade">#803C2D1E</color>
   <!-- The icon's pastel lavender, the cat's hoodie and glasses. -->
   <color name="icon_background">#EFEAFB</color>
 </resources>

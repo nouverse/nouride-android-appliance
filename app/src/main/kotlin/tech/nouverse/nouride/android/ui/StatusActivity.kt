@@ -30,7 +30,6 @@ class StatusActivity : Activity() {
   private lateinit var connect: ConnectTab
   private lateinit var more: MoreTab
   private lateinit var bar: BottomBar
-  private lateinit var barLine: View
   private var tab = Tab.HOME
   private val handler = Handler(Looper.getMainLooper())
   private val listener: () -> Unit = {
@@ -117,13 +116,13 @@ class StatusActivity : Activity() {
       addView(connect.view)
       addView(more.view)
     }
-    barLine = View(this).apply { setBackgroundColor(ui.color(R.color.line)) }
     return LinearLayout(this).apply {
       orientation = LinearLayout.VERTICAL
-      setBackgroundColor(ui.color(R.color.background))
+      background = ui.page()
       addView(content, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
-      addView(barLine, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, ui.dp(1)))
-      addView(bar.view, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+      addView(bar.view, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+        setMargins(ui.dp(12), ui.dp(4), ui.dp(12), ui.dp(12))
+      })
     }
   }
 
@@ -142,7 +141,6 @@ class StatusActivity : Activity() {
     val barShown = Tabs.barShown(look, firstStart = ServerState.progress != null)
     if (!barShown && tab != Tab.HOME) return show(Tab.HOME)
     bar.view.visibility = if (barShown) View.VISIBLE else View.GONE
-    barLine.visibility = bar.view.visibility
     bar.attention(Tab.MORE, mayStop)
     home.render(look, mayStop)
     if (tab == Tab.CONNECT) connect.render(look)
