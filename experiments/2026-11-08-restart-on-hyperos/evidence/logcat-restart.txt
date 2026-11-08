@@ -1,0 +1,18 @@
+11-08 12:51:15.968 D/SystemServerTiming( 2560): broadcastIntent-0-android.intent.action.LOCKED_BOOT_COMPLETED
+11-08 12:51:15.972 I/uc_finish_user_unlocking( 2560): 0
+11-08 12:52:03.883 I/miui_keyguard_password( 3372): pattern unlock duration 142, user: 0
+11-08 12:52:03.991 I/uc_finish_user_unlocking( 2560): 0
+11-08 12:52:04.001 I/uc_finish_user_unlocking( 2560): 999
+11-08 12:52:05.175 I/uc_finish_user_unlocking( 2560): 999
+11-08 12:52:17.698 W/BroadcastQueueInjector( 2560): Unable to launch app com.miui.player/10150 for broadcast Intent { act=android.intent.action.MEDIA_MOUNTED dat=file:///... flg=0x5000010 (has extras) }: process is not permitted to  auto start
+11-08 12:52:18.252 W/BroadcastQueueInjector( 2560): Unable to launch app com.miui.player/10150 for broadcast Intent { act=android.intent.action.MEDIA_MOUNTED dat=file:///... flg=0x5000010 (has extras) }: process is not permitted to  auto start
+11-08 12:52:35.291 D/UidObserver( 7149): autoStart name=tech.nouverse.nouride.home uid=10312
+11-08 12:52:35.291 D/UidObserver( 7149): autoStart name=tech.nouverse.nouride.home.dev uid=10313
+11-08 12:52:44.161 I/am_proc_start( 2560): [0,11664,10312,tech.nouverse.nouride.home,broadcast,{tech.nouverse.nouride.home/tech.nouverse.nouride.android.boot.BootReceiver}]
+11-08 12:52:44.162 I/ActivityManager( 2560): Start proc 11664:tech.nouverse.nouride.home/u0a312 for broadcast {tech.nouverse.nouride.home/tech.nouverse.nouride.android.boot.BootReceiver} caller=null
+11-08 12:52:44.336 I/am_proc_start( 2560): [0,11701,10313,tech.nouverse.nouride.home.dev,broadcast,{tech.nouverse.nouride.home.dev/tech.nouverse.nouride.android.boot.BootReceiver}]
+11-08 12:52:44.337 I/ActivityManager( 2560): Start proc 11701:tech.nouverse.nouride.home.dev/u0a313 for broadcast {tech.nouverse.nouride.home.dev/tech.nouverse.nouride.android.boot.BootReceiver} caller=null
+11-08 12:52:44.403 I/ActivityManager( 2560): Background started FGS: Allowed [callingPackage: tech.nouverse.nouride.home; callingUid: 10312; uidState: RCVR; uidBFSL: n/a; intent: Intent { act=tech.nouverse.nouride.android.START cmp=tech.nouverse.nouride.home/tech.nouverse.nouride.android.server.ServerService }; code:SYSTEM_ALLOW_LISTED; tempAllowListReason:<,reasonCode:SYSTEM_ALLOW_LISTED,duration:9223372036854775807,callingUid:-1>; targetSdkVersion:28; callerTargetSdkVersion:28; startForegroundCount:0; bindFromPackage:null: isBindService:false]
+11-08 12:52:44.453 I/am_foreground_service_start( 2560): [0,tech.nouverse.nouride.home/tech.nouverse.nouride.android.server.ServerService,0,SYSTEM_ALLOW_LISTED,28,28,0,0,0,1,UNKNOWN,1073741824]
+11-08 12:52:44.834 I/ActivityManager( 2560): Background started FGS: Allowed [callingPackage: tech.nouverse.nouride.home.dev; callingUid: 10313; uidState: RCVR; uidBFSL: n/a; intent: Intent { act=tech.nouverse.nouride.android.START cmp=tech.nouverse.nouride.home.dev/tech.nouverse.nouride.android.server.ServerService }; code:SYSTEM_ALLOW_LISTED; tempAllowListReason:<,reasonCode:SYSTEM_ALLOW_LISTED,duration:9223372036854775807,callingUid:-1>; targetSdkVersion:28; callerTargetSdkVersion:28; startForegroundCount:0; bindFromPackage:null: isBindService:false]
+11-08 12:52:44.989 I/am_foreground_service_start( 2560): [0,tech.nouverse.nouride.home.dev/tech.nouverse.nouride.android.server.ServerService,0,SYSTEM_ALLOW_LISTED,28,28,0,0,0,1,UNKNOWN,1073741824]

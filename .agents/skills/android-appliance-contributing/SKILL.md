@@ -51,9 +51,16 @@ Nouride listens on its default port, 18254 (`Nouride.PORT`), and the Router edit
   into Nouride's `config.toml` before the wizard, as Nouride has no environment variable for it), and the link scheme
   `nouridehome-dev`. Anything that names the app's ports, its id or its link reads `BuildConfig`, never a literal, or
   the developer's copy reaches the person's Nouride.
-- **HyperOS (Xiaomi) blocks broadcasts to an app not allowed to autostart:** `BOOT_COMPLETED` and
-  `MY_PACKAGE_REPLACED` never arrive (logcat: "process is not permitted to auto start"). The installer's own report to
-  the app does, which is why `UpdateReceiver`, not `BootReceiver`, starts Nouride after an update.
+- **HyperOS (Xiaomi) can hold broadcasts back from an app not allowed to autostart**, and which ones differs: on the
+  owner's Redmi Note 12 (HyperOS 2.0.202 global) `MY_PACKAGE_REPLACED` was refused (logcat: "process is not permitted
+  to auto start"), while after a restart `BOOT_COMPLETED` reached both the release and the Dev build with Autostart off,
+  about 40 s after the first unlock, and Nouride answered 9 s later (2026-11-08,
+  `experiments/2026-11-08-restart-on-hyperos/`). The installer's own report to the app always arrives, which is why
+  `UpdateReceiver`, not `BootReceiver`, starts Nouride after an update. Autostart's switch is in Security's list
+  (`PowerSettings.AUTOSTART_LIST`), not on the app's page in Settings. To test a restart: `adb reboot`, unlock once
+  without opening the app, and watch `/health` from another machine (wireless debugging is off after a restart, and
+  the phone's address may change); then `adb logcat -d -b all | grep -i nouride` shows `Start proc ... for broadcast
+  {...BootReceiver}`.
 
 ## Build and test
 
