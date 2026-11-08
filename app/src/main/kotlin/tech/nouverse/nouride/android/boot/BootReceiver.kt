@@ -8,8 +8,8 @@ import tech.nouverse.nouride.android.server.ServerService
 /**
  * Starts the server again after the phone boots, and after this app is updated (Android stops an app to replace it),
  * if it was running then: an update of Nouride Home must not leave the person's agents off until they open the app.
- * HyperOS delivers neither to an app it does not let autostart; an update from the app itself is started again by
- * `UpdateReceiver` either way.
+ * HyperOS may hold either back from an app it does not let autostart (`PowerSettings.asksForAutostart` says which it did
+ * on one phone); an update from the app itself is started again by `UpdateReceiver` either way.
  */
 class BootReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent) {

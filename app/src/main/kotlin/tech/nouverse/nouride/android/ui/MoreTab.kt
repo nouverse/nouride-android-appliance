@@ -73,8 +73,11 @@ internal class MoreTab(
         topMargin = ui.dp(16)
       })
       running.addView(ui.text(15f, R.color.ink, bold = true).apply { setText(R.string.autostart_title) }, ui.fullWidth(14))
-      running.addView(ui.text(15f, R.color.muted).apply { setText(R.string.autostart_body) }, ui.fullWidth(4))
-      running.addView(ui.secondary { activity.startActivity(PowerSettings.appDetails(activity)) }.apply {
+      // The app's own name, as the list shows it: Nouride Home, or Nouride Home Dev beside it.
+      running.addView(ui.text(15f, R.color.muted).apply {
+        text = activity.getString(R.string.autostart_body, activity.getString(R.string.app_name))
+      }, ui.fullWidth(4))
+      running.addView(ui.secondary { openAutostart() }.apply {
         setText(R.string.open_settings)
       }, ui.fullWidth(12))
     }
@@ -134,6 +137,15 @@ internal class MoreTab(
       }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
     }
     return row
+  }
+
+  /** Xiaomi's Autostart list; the app's page when the list refuses to open after all (a permission, a newer HyperOS). */
+  private fun openAutostart() {
+    try {
+      activity.startActivity(PowerSettings.autostartSettings(activity))
+    } catch (e: RuntimeException) {
+      activity.startActivity(PowerSettings.appDetails(activity))
+    }
   }
 
   private fun divider(): View = View(activity).apply { setBackgroundColor(ui.color(R.color.line)) }

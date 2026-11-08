@@ -101,7 +101,7 @@
   <string name="keep_running_title">Keep Nouride running</string>
   <string name="battery_ok">Your phone lets Nouride run with the screen off.</string>
   <string name="autostart_title">Start again after a restart</string>
-  <string name="autostart_body">On this phone, open Nouride Home\'s settings, turn on Autostart, and set Battery saver to No restrictions.</string>
+  <string name="autostart_body">Some Xiaomi phones start Nouride again after a restart only if Autostart allows it. To be sure, tap Open settings, then turn on %1$s.</string>
   <string name="open_settings">Open settings</string>
   <string name="app_version">Version %1$s</string>
   <string name="up_to_date">You have the newest version.</string>

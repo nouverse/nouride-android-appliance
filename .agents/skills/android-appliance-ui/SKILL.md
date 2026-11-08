@@ -79,9 +79,11 @@ phone isn't on Wi-Fi". Never an address that leads nowhere, and never `http://10
 ## More
 
 - **Keep Nouride running**: a green check and one sentence once the phone lets Nouride run with the screen off; before
-  that, why ("Your phone may stop Nouride to save battery.") and Allow. On Xiaomi's phones (Xiaomi, Redmi, POCO), the
-  steps in that brand's words, Autostart and Battery saver set to No restrictions, and Open settings
-  (`PowerSettings.asksForAutostart`): without Autostart, Nouride does not come back after the phone restarts.
+  that, why ("Your phone may stop Nouride to save battery.") and Allow. On Xiaomi's phones (Xiaomi, Redmi, POCO), Start
+  again after a restart: some of them keep Nouride off after a restart without Autostart, so the card says so as a
+  maybe, and Open settings goes straight to Security's Autostart list, where the person turns on the app by the name
+  the list shows (`PowerSettings.asksForAutostart`, `PowerSettings.autostartSettings`). Allow already sets HyperOS's
+  battery saver to No restrictions (both builds showed it on the owner's phone), so the card does not ask for it.
 - **Appearance**: Same as phone, Light or Dark, side by side; a choice applies at once, to every screen and to the
   dashboard (`ui/Appearance.kt`).
 - **This app**: its name and version, "You have the newest version." or the version that is ready, and Check for
