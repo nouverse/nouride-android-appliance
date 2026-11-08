@@ -236,7 +236,11 @@ class DashboardActivity : Activity() {
       connection.setRequestProperty("content-type", "application/json")
       val body = JSONObject().put("username", FirstAdmin.USERNAME).put("password", password).toString()
       connection.outputStream.use { it.write(body.toByteArray()) }
-      if (connection.responseCode != 200) null
+      val code = connection.responseCode
+      if (FirstAdmin.forgets(code)) {
+        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit().remove(ServerService.PREF_ADMIN_PASSWORD).apply()
+      }
+      if (code != 200) null
       else FirstAdmin.sessionCookie(connection.headerFields.entries.filter { it.key.equals("set-cookie", true) }.flatMap { it.value })
     } catch (e: IOException) {
       null

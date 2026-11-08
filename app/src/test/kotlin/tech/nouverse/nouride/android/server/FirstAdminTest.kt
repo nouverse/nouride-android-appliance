@@ -1,6 +1,7 @@
 package tech.nouverse.nouride.android.server
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -41,6 +42,12 @@ class FirstAdminTest {
     val one = FirstAdmin.newPassword()
     assertTrue(one, Regex("[0-9a-f]{24}").matches(one))
     assertNotEquals(one, FirstAdmin.newPassword())
+  }
+
+  @Test
+  fun `the password is forgotten once the daemon refuses it, and kept through anything that may pass`() {
+    assertTrue(FirstAdmin.forgets(401))
+    for (code in listOf(200, 400, 403, 429, 500, 501, 503)) assertFalse("$code", FirstAdmin.forgets(code))
   }
 
   @Test
