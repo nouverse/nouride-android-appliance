@@ -17,6 +17,12 @@ object LinkPolicy {
   /** Added to the WebView's user agent, so the dashboard knows it is inside the app and shows that way back. */
   const val USER_AGENT_MARK = "NourideHome/1"
 
+  /**
+   * Whether a failed load is Nouride itself not answering (turned off, or not up yet), shown as the cat and Try again:
+   * the page the WebView was opening, on the phone's own Nouride. A picture or a script that failed is the page's.
+   */
+  fun unreachable(isForMainFrame: Boolean, url: String): Boolean = isForMainFrame && url != "about:blank" && inApp(url)
+
   fun inApp(url: String): Boolean {
     if (url == "about:blank") return true
     val uri = try {

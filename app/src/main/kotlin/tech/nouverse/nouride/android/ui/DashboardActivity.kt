@@ -12,6 +12,7 @@ import android.view.Gravity
 import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -47,6 +48,8 @@ import kotlin.concurrent.thread
 class DashboardActivity : Activity() {
   private lateinit var web: WebView
   private lateinit var opening: View
+  private lateinit var unreachable: View
+  private var failed: String? = null
 
   /** In the appearance chosen on the More tab (`Appearances`). */
   override fun attachBaseContext(base: Context) = super.attachBaseContext(Appearances.wrap(base))
@@ -77,9 +80,28 @@ class DashboardActivity : Activity() {
       addView(ui.text(17f, R.color.ink, bold = true, center = true).apply { setText(R.string.dashboard_opening) }, ui.fullWidth(16))
       addView(ui.progressBar().apply { isIndeterminate = true }, LinearLayout.LayoutParams(ui.dp(160), ui.dp(12)).apply { topMargin = ui.dp(16) })
     }
+    // Nouride turned off, or not up yet: the cat and Try again, never the WebView's own error page with its
+    // net::ERR_CONNECTION_REFUSED, which is all a person saw before.
+    unreachable = LinearLayout(this).apply {
+      orientation = LinearLayout.VERTICAL
+      gravity = Gravity.CENTER
+      setBackgroundColor(ui.color(R.color.background))
+      setPadding(ui.dp(32), 0, ui.dp(32), 0)
+      visibility = View.GONE
+      isClickable = true
+      addView(ImageView(context).apply {
+        setImageResource(R.drawable.mascot_lean)
+        adjustViewBounds = true
+      }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, ui.dp(160)))
+      addView(ui.text(20f, R.color.ink, bold = true, center = true).apply { setText(R.string.dashboard_unreachable_title) }, ui.fullWidth(16))
+      addView(ui.text(15f, R.color.muted, center = true).apply { setText(R.string.dashboard_unreachable_body) }, ui.fullWidth(6))
+      addView(ui.primary { retry() }.apply { setText(R.string.action_retry) }, ui.fullWidth(20))
+      addView(ui.quiet { goHome() }.apply { setText(R.string.signin_back) }, ui.fullWidth(4))
+    }
     setContentView(FrameLayout(this).apply {
       addView(web)
       addView(opening)
+      addView(unreachable)
     })
     ui.lightSystemBars(window)
     if (savedInstanceState != null) {
@@ -105,6 +127,12 @@ class DashboardActivity : Activity() {
     }
   }
 
+  private fun retry() {
+    unreachable.visibility = View.GONE
+    opening.visibility = View.VISIBLE
+    web.loadUrl(failed ?: Nouride.DASHBOARD_URL)
+  }
+
   /** The status screen, whether it is under this one or not: after a sign-in this screen may be the only one left. */
   private fun goHome() {
     startActivity(Intent(this, StatusActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
@@ -125,6 +153,13 @@ class DashboardActivity : Activity() {
   private inner class Guard : WebViewClient() {
     override fun onPageCommitVisible(view: WebView, url: String) {
       if (LinkPolicy.inApp(url) && url != "about:blank") opening.visibility = View.GONE
+    }
+
+    override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
+      if (!LinkPolicy.unreachable(request.isForMainFrame, request.url.toString())) return
+      failed = request.url.toString()
+      opening.visibility = View.GONE
+      unreachable.visibility = View.VISIBLE
     }
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {

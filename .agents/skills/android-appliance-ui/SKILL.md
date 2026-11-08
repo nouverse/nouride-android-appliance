@@ -123,7 +123,9 @@ app is waiting, its second line says "A new version is ready. Tap to update."
 
 A failure the person can fix says how in one sentence (no Wi-Fi, no space left, battery setting). A failure they
 cannot fix says so plainly and offers Try again and the "Technical Logs" link. Never
-a stack trace, never a raw message from Linux or Android.
+a stack trace, never a raw message from Linux or Android. When Nouride does not answer the dashboard, the leaning cat
+and "Nouride isn't answering" with Try again and Back to Nouride Home stand in for the WebView's own error page
+(`DashboardActivity`, `LinkPolicy.unreachable`).
 
 ## Checking a change
 

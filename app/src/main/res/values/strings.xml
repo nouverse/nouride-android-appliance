@@ -75,6 +75,8 @@
   <string name="update_allow_body">Android asks this once. On the next screen, turn on "Allow from this source", then come back.</string>
   <string name="update_allow">Open settings</string>
   <string name="dashboard_opening">Opening Nouride…</string>
+  <string name="dashboard_unreachable_title">Nouride isn\'t answering</string>
+  <string name="dashboard_unreachable_body">It may still be starting, or it is turned off. Check Home, then try again.</string>
 
   <!-- The bar along the bottom, and its three tabs. -->
   <string name="tab_home">Home</string>

@@ -73,4 +73,13 @@ class LoopbackSignInTest {
     assertTrue(LinkPolicy.USER_AGENT_MARK.startsWith("NourideHome/"))
     assertFalse(LinkPolicy.inApp(LinkPolicy.HOME))
   }
+
+  @Test
+  fun `the cat and Try again stand in for the WebView's error page only when Nouride itself does not answer`() {
+    // Seen on the phone: Nouride off, and the dashboard was Chromium's "net::ERR_CONNECTION_REFUSED".
+    assertTrue(LinkPolicy.unreachable(true, "http://127.0.0.1:${Nouride.PORT}/dashboard/"))
+    assertFalse(LinkPolicy.unreachable(false, "http://127.0.0.1:${Nouride.PORT}/dashboard/assets/app.js"))
+    assertFalse(LinkPolicy.unreachable(true, "https://accounts.google.com/"))
+    assertFalse(LinkPolicy.unreachable(true, "about:blank"))
+  }
 }
