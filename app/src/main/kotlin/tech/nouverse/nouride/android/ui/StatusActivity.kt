@@ -106,10 +106,7 @@ class StatusActivity : Activity() {
     update = UpdateCard(this, ui, onChecked = { more.resume() })
     home = HomeTab(this, ui, update, onPrimary = ::onPrimary, onKeepRunning = { show(Tab.MORE) })
     connect = ConnectTab(this, ui, onGoHome = { show(Tab.HOME) })
-    more = MoreTab(this, ui, onTurnOff = ::confirmTurnOff, onUpdateFound = {
-      show(Tab.HOME)
-      update.resume()
-    })
+    more = MoreTab(this, ui, onTurnOff = ::confirmTurnOff)
     bar = BottomBar(this, ui, onSelect = ::show)
     val content = FrameLayout(this).apply {
       addView(home.view)

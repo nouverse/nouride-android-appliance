@@ -21,7 +21,8 @@ import java.security.MessageDigest
  * here until it is installed. Downloading checks the APK against the release's sha256, and Android's installer asks the
  * person once, as it does for every app from outside a store. Every release is signed with the same key, so the update
  * keeps Debian, Nouride and its agents; `BootReceiver` starts Nouride again once the new version is in.
- * Nouride inside updates itself, from its own dashboard: this is only the app around it.
+ * Nouride inside updates itself, from its own dashboard or the Versions screen (`NourideUpdates`): this is only the app
+ * around it.
  */
 object Updates {
   private const val PREFS = "updates"
@@ -81,7 +82,7 @@ object Updates {
     return waiting(context)
   }
 
-  /** "Check for updates" on the More tab: the feed asked now, however fresh the last answer. Throws when it cannot. */
+  /** "Check for updates" on the Versions screen: the feed asked now, however fresh the last answer. Throws when it cannot. */
   fun checkNow(context: Context): Release? {
     fetch(context)
     return waiting(context)

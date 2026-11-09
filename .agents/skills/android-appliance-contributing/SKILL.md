@@ -22,7 +22,11 @@ description: How to work on Nouride Home, the Android app that runs Nouride on t
    (pure, tested), `Updates` checks it when the app opens (every 6 h at most, at once after the app changed version) and from the service twice a day,
    downloads the APK against its sha256 and hands it to `PackageInstaller`. `UpdateReceiver` hears the installer: the
    screen asking the person, then the result, and the new version starts Nouride again on success. `ui/UpdateCard`
-   is the card and the big card once a release; both wait while the first start sets Nouride up.
+   is the card and the big card once a release; both wait while the first start sets Nouride up. `ui/AppUpdater` is the
+   download and install both it and the Versions screen use. Nouride's own update is `update/NourideUpdates`: the
+   dashboard's routes (`/api/control/update`, `/update/download`, `/update/progress`, `/update/install`) on the
+   loopback, signed in with the install's control token (`NourideUpdate.TOKEN_PATH`, what `nouride` commands use), so it
+   needs no dashboard account. Nouride swaps its binary and exits, and `Supervisor` starts the new one.
 
 7. `ui/` is everything a person sees: `StatusActivity` holds the three tabs along the bottom (`HomeTab`, `ConnectTab`,
    `MoreTab`, `BottomBar`, the rules in `Tabs`), `DashboardActivity` the dashboard in a WebView, `SupportActivity`

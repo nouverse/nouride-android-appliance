@@ -49,6 +49,10 @@
       android:name=".ui.SupportActivity"
       android:exported="false" />
 
+    <activity
+      android:name=".ui.VersionsActivity"
+      android:exported="false" />
+
     <service
       android:name=".server.ServerService"
       android:exported="false"

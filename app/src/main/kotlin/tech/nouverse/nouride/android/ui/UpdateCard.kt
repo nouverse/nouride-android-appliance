@@ -2,13 +2,8 @@ package tech.nouverse.nouride.android.ui
 
 import android.app.Activity
 import android.app.Dialog
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -29,24 +24,23 @@ import kotlin.concurrent.thread
 internal class UpdateCard(
   private val activity: Activity,
   private val ui: Ui,
-  /** After each check of the feed: the More tab's line says what it found too, not what it knew before. */
+  /** After each check of the feed: the More tab's Versions line says what it found too, not what it knew before. */
   private val onChecked: () -> Unit = {},
 ) {
-  private enum class State { IDLE, DOWNLOADING, INSTALLING, FAILED }
-
   val view: LinearLayout = ui.card(fill = ui.color(R.color.brand_soft)).apply { visibility = View.GONE }
   private val title: TextView = ui.text(17f, R.color.ink, bold = true).apply { setText(R.string.update_title) }
   private val body: TextView = ui.text(15f, R.color.muted)
   private val bar: ProgressBar = ui.progressBar()
   private val button: Button = ui.primary { start() }
   private var release: Release? = null
-  private var state = State.IDLE
-  private var percent = 0
-  private var askedToAllow = false
   private val layout = Layout(activity)
   private var startPressed = false
   private var offerDialog: Dialog? = null
   private var settingUp = waits()
+  // Done, or waiting for the setup again: the card is shown or hidden for what is known now, as `show` decides.
+  private val updater: AppUpdater = AppUpdater(activity, ::waits, onChange = { if (updater.busy) render() else show(release) }) {
+    askToAllowInstalls(activity, ui) { updater.allowing() }
+  }
 
   init {
     view.addView(title)
@@ -59,10 +53,7 @@ internal class UpdateCard(
   fun resume() {
     // The state may have moved while the screen was away, when nothing told this card.
     settingUp = waits()
-    // Back from Android's installer and still this version: it was cancelled or failed, so Update is offered again.
-    if (state == State.INSTALLING) state = State.IDLE
-    if (askedToAllow && Updates.canInstall(activity)) {
-      askedToAllow = false
+    if (updater.resume()) {
       show(Updates.waiting(activity))
       start()
       return
@@ -98,7 +89,7 @@ internal class UpdateCard(
   private fun waits() = Updates.waitsFor(ServerState.phase, startPressed) { layout.installed }
 
   private fun show(found: Release?) {
-    if (state == State.DOWNLOADING || state == State.INSTALLING) return
+    if (updater.busy) return
     release = found
     view.visibility = if (found == null || settingUp) View.GONE else View.VISIBLE
     render()
@@ -114,15 +105,16 @@ internal class UpdateCard(
 
   private fun render() {
     val found = release ?: return
-    bar.visibility = if (state == State.DOWNLOADING) View.VISIBLE else View.GONE
-    bar.isIndeterminate = percent == 0
-    bar.progress = percent
-    button.visibility = if (state == State.IDLE || state == State.FAILED) View.VISIBLE else View.GONE
-    button.setText(if (state == State.FAILED || Updates.failed(activity)) R.string.update_retry else R.string.update_button)
+    val state = updater.state
+    bar.visibility = if (state == AppUpdater.State.DOWNLOADING) View.VISIBLE else View.GONE
+    bar.isIndeterminate = updater.percent == 0
+    bar.progress = updater.percent
+    button.visibility = if (updater.busy) View.GONE else View.VISIBLE
+    button.setText(if (state == AppUpdater.State.FAILED || Updates.failed(activity)) R.string.update_retry else R.string.update_button)
     body.text = when {
-      state == State.DOWNLOADING -> activity.getString(R.string.update_downloading, percent)
-      state == State.INSTALLING -> activity.getString(R.string.update_installing)
-      state == State.FAILED -> activity.getString(R.string.update_failed)
+      state == AppUpdater.State.DOWNLOADING -> activity.getString(R.string.update_downloading, updater.percent)
+      state == AppUpdater.State.INSTALLING -> activity.getString(R.string.update_installing)
+      state == AppUpdater.State.FAILED -> activity.getString(R.string.update_failed)
       Updates.failed(activity) -> activity.getString(R.string.update_install_failed)
       else -> activity.getString(R.string.update_body, found.version)
     }
@@ -131,78 +123,11 @@ internal class UpdateCard(
   private fun start() {
     val found = release ?: return
     if (settingUp) return
-    if (!Updates.canInstall(activity)) return askToAllow()
-    state = State.DOWNLOADING
-    percent = 0
-    render()
-    thread(name = "update-download", isDaemon = true) {
-      try {
-        val apk = Updates.download(activity, found) { done ->
-          activity.runOnUiThread {
-            percent = done
-            if (!activity.isDestroyed) render()
-          }
-        }
-        activity.runOnUiThread {
-          // Start pressed while it downloaded: the setup goes first, and Update is there again after it.
-          if (waits()) {
-            state = State.IDLE
-            show(release)
-            return@runOnUiThread
-          }
-          state = State.INSTALLING
-          render()
-          try {
-            Updates.install(activity, apk)
-          } catch (e: Exception) {
-            state = State.FAILED
-            render()
-          }
-        }
-      } catch (e: Exception) {
-        activity.runOnUiThread {
-          state = State.FAILED
-          if (!activity.isDestroyed) render()
-        }
-      }
-    }
-  }
-
-  /** Android 8 and later ask the person, once, to let this app install its own updates. */
-  private fun askToAllow() {
-    card(R.drawable.mascot_pointing, activity.getString(R.string.update_allow_title), activity.getString(R.string.update_allow_body),
-      R.string.update_allow) {
-      askedToAllow = true
-      activity.startActivity(Updates.allowInstallIntent(activity))
-    }
+    updater.start(found)
   }
 
   private fun offer(found: Release) {
-    offerDialog = card(R.drawable.mascot_update, activity.getString(R.string.update_dialog_title),
+    offerDialog = catDialog(activity, ui, R.drawable.mascot_update, activity.getString(R.string.update_dialog_title),
       activity.getString(R.string.update_dialog_body, found.version), R.string.update_now) { start() }
-  }
-
-  /** A round card over the screen, as "Use from another device" is: the cat, a title, a sentence, one button and Later. */
-  private fun card(image: Int, heading: String, sentence: String, action: Int, onAction: () -> Unit): Dialog {
-    val dialog = Dialog(activity)
-    val content = ui.card(padding = 24, floating = false).apply { gravity = Gravity.CENTER_HORIZONTAL }
-    content.addView(ImageView(activity).apply {
-      setImageResource(image)
-      adjustViewBounds = true
-    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, ui.dp(120)))
-    content.addView(ui.text(20f, R.color.ink, bold = true, center = true).apply { text = heading }, ui.fullWidth(12))
-    content.addView(ui.text(15f, R.color.muted, center = true).apply { text = sentence }, ui.fullWidth(6))
-    content.addView(ui.primary {
-      dialog.dismiss()
-      onAction()
-    }.apply { setText(action) }, ui.fullWidth(20))
-    content.addView(ui.quiet { dialog.dismiss() }.apply { setText(R.string.later) }, ui.fullWidth(4))
-    dialog.setContentView(content)
-    dialog.window?.apply {
-      setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-      setLayout(minOf(activity.resources.displayMetrics.widthPixels - ui.dp(32), ui.dp(420)), ViewGroup.LayoutParams.WRAP_CONTENT)
-    }
-    dialog.show()
-    return dialog
   }
 }

@@ -14,34 +14,30 @@ import android.widget.ScrollView
 import android.widget.TextView
 import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.power.PowerSettings
+import tech.nouverse.nouride.android.server.ServerState
 import tech.nouverse.nouride.android.update.Updates
-import java.io.IOException
-import kotlin.concurrent.thread
 
 /**
  * The More tab, for what is rarely needed: keeping Nouride running (the battery exemption, with a check once it is
- * given, and on Xiaomi's phones the Autostart switch), this app's version and a check for a newer one, turning Nouride
- * off, and Technical Logs for whoever helps. Turning off lives here so it is never pressed by mistake on Home.
+ * given, and on Xiaomi's phones the Autostart switch), the appearance, Versions and updates (this app's and Nouride's,
+ * on a screen of their own), turning Nouride off, and Technical Logs for whoever helps. Turning off lives here so it is
+ * never pressed by mistake on Home.
  */
 internal class MoreTab(
   private val activity: Activity,
   private val ui: Ui,
   private val onTurnOff: () -> Unit,
-  private val onUpdateFound: () -> Unit,
 ) {
   private val batteryOk = LinearLayout(activity).apply {
     orientation = LinearLayout.HORIZONTAL
     gravity = Gravity.CENTER_VERTICAL
   }
   private val batteryAsk = LinearLayout(activity).apply { orientation = LinearLayout.VERTICAL }
-  private val version: TextView = ui.text(15f, R.color.muted)
-  private val updateLine: TextView = ui.text(15f, R.color.ink)
-  private val check: Button = ui.secondary { checkNow() }.apply { setText(R.string.check_updates) }
+  private val versions: TextView = ui.text(15f, R.color.muted)
   private val turnOff: Button = ui.quiet { onTurnOff() }.apply {
     setText(R.string.turn_off_nouride)
     setTextColor(ui.color(R.color.warn))
   }
-  private var checking = false
 
   val view: ScrollView
 
@@ -88,11 +84,11 @@ internal class MoreTab(
       addView(appearance(), ui.fullWidth(12))
     }, ui.fullWidth(12))
 
-    column.addView(ui.card().apply {
-      addView(ui.text(17f, R.color.ink, bold = true).apply { setText(R.string.app_name) })
-      addView(version, ui.fullWidth(2))
-      addView(updateLine, ui.fullWidth(10))
-      addView(check, ui.fullWidth(12))
+    column.addView(ui.card(padding = 18).apply {
+      isClickable = true
+      setOnClickListener { activity.startActivity(Intent(activity, VersionsActivity::class.java)) }
+      addView(ui.text(16f, R.color.ink).apply { setText(R.string.versions_row) })
+      addView(versions, ui.fullWidth(2))
     }, ui.fullWidth(12))
 
     column.addView(turnOff, ui.fullWidth(16))
@@ -157,37 +153,14 @@ internal class MoreTab(
     turnOff.visibility = if (canTurnOff) View.VISIBLE else View.GONE
   }
 
-  /** On the screen's resume: the version, and what the last check found, without asking the feed. */
+  /** On the screen's resume: the two versions, as far as they are known without asking anyone. */
   fun resume() {
-    version.text = activity.getString(R.string.app_version, Updates.installedVersion(activity))
-    if (!checking) showFound(Updates.waiting(activity)?.version)
-  }
-
-  private fun showFound(newer: String?) {
-    updateLine.text = if (newer == null) activity.getString(R.string.up_to_date)
-    else activity.getString(R.string.update_ready_more, newer)
-  }
-
-  private fun checkNow() {
-    if (checking) return
-    checking = true
-    check.isEnabled = false
-    updateLine.setText(R.string.checking)
-    thread(name = "update-check-now", isDaemon = true) {
-      val result = try {
-        Result.success(Updates.checkNow(activity))
-      } catch (e: IOException) {
-        Result.failure(e)
-      }
-      activity.runOnUiThread {
-        checking = false
-        check.isEnabled = true
-        if (activity.isDestroyed) return@runOnUiThread
-        result.onSuccess { found ->
-          showFound(found?.version)
-          if (found != null) onUpdateFound()
-        }.onFailure { updateLine.setText(R.string.check_failed) }
-      }
+    val app = Updates.installedVersion(activity)
+    val nouride = ServerState.health?.version?.removePrefix("v")
+    versions.text = when {
+      Updates.waiting(activity) != null -> activity.getString(R.string.versions_row_update)
+      nouride == null -> activity.getString(R.string.versions_row_app, app)
+      else -> activity.getString(R.string.versions_row_both, app, nouride)
     }
   }
 }

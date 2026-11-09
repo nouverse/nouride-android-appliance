@@ -36,6 +36,7 @@ The APK of each release is on the [Releases](https://github.com/nouverse/nouride
 `nouride-home-X.Y.Z.apk`, with its sha256. Open it on the phone and allow installing from that app when Android asks.
 Every release is signed with the same key, so a new one installs over the old one and keeps Nouride's data. After
 the first install the app finds its own updates; the first one asks once to allow installing from Nouride Home.
+More, then Versions and updates, shows the app's version and Nouride's, and updates either from there.
 
 ## Releasing
 

@@ -86,8 +86,16 @@ phone isn't on Wi-Fi". Never an address that leads nowhere, and never `http://10
   battery saver to No restrictions (both builds showed it on the owner's phone), so the card does not ask for it.
 - **Appearance**: Same as phone, Light or Dark, side by side; a choice applies at once, to every screen and to the
   dashboard (`ui/Appearance.kt`).
-- **This app**: its name and version, "You have the newest version." or the version that is ready, and Check for
-  updates, which asks at once; a release found goes to Home, where it is installed.
+- **Versions and updates ›**: the two versions in one line ("Nouride Home 0.1.8, Nouride 0.8.25"), or that a new
+  Nouride Home is ready. It opens a screen of its own (`ui/VersionsActivity.kt`) with two cards, the same shape each:
+  what it is, its version, one sentence of where its update is, and one button.
+  - **Nouride Home**: Check for updates (asks the feed at once), then "Update to 0.1.9", the same download and
+    install as Home's card (`AppUpdater`).
+  - **Nouride**: Check for updates, then "Update to 0.8.26" in one press: the download with its percent, the install,
+    and "The update is in" with when Nouride starts again (now, once the agents are not busy, or once their background
+    work is done). The card follows Nouride back and says the new version. Off, it says to turn Nouride on; a download
+    started on the dashboard is followed, then offered as "Install the update".
+  The sentences and buttons are `ui/VersionLooks.kt`, pure and tested, as the status screen's are.
 - **Turn off Nouride**: amber words, not a button, so it is never pressed by mistake. It asks once: "Turn Nouride off?
   Your assistant will not answer until you start it again."
 - **Technical Logs ›**, last.
