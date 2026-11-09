@@ -42,11 +42,11 @@ import kotlin.concurrent.thread
  * a provider's sign-in page included (`LoopbackSignIn`). `nouridehome://dashboard`, where a finished sign-in sends the
  * browser, brings this screen back where it was, and the dashboard asks the gateway again for its accounts.
  *
- * Back, the button or the swipe, goes back a page inside the dashboard as a browser does (`LinkPolicy.back`); from the
- * first page it asks before it closes the dashboard. Never back onto the sign-in, the first password or the setup
- * wizard: walking the history onto those once took a person from the dashboard back to the wizard. The dashboard's header has
- * the way back to the app too (`LinkPolicy.HOME`), so there is one bar on screen, the dashboard's. The user agent says
- * it is the app.
+ * Back, the phone's button or swipe and the back button in the dashboard's header alike (`LinkPolicy.HOME`), goes back
+ * a page inside the dashboard as a browser does (`LinkPolicy.back`); from the first page it asks before it closes the
+ * dashboard. Never back onto the sign-in, the first password or the setup wizard: walking the history onto those once
+ * took a person from the dashboard back to the wizard. There is one bar on screen, the dashboard's; the user agent says
+ * it is the app, which is what draws that back button.
  */
 class DashboardActivity : Activity() {
   private lateinit var web: WebView
@@ -167,14 +167,17 @@ class DashboardActivity : Activity() {
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
       val url = request.url.toString()
-      if (url == LinkPolicy.HOME) {
-        goHome()
-        return true
+      return when (LinkPolicy.link(url, request.isForMainFrame)) {
+        LinkPolicy.Link.BACK -> {
+          back()
+          true
+        }
+        LinkPolicy.Link.HERE -> false
+        LinkPolicy.Link.OUTSIDE -> {
+          openOutside(url)
+          true
+        }
       }
-      // A frame inside a page is the page's business; only where the page itself goes is decided here.
-      if (!request.isForMainFrame || LinkPolicy.inApp(url)) return false
-      openOutside(url)
-      return true
     }
   }
 
@@ -258,20 +261,28 @@ class DashboardActivity : Activity() {
   }
 
   @Deprecated("Activity.onBackPressed")
-  override fun onBackPressed() {
+  override fun onBackPressed() = back()
+
+  /** The phone's Back, or the header's: a page back, or leaving, asked first when there is something to lose. */
+  private fun back() {
     val list = web.copyBackForwardList()
     val history = (0 until list.size).map { list.getItemAtIndex(it).url }
     val shown = unreachable.visibility != View.VISIBLE && opening.visibility != View.VISIBLE
     when (LinkPolicy.back(history, list.currentIndex, dashboardShown = shown)) {
       LinkPolicy.Back.PAGE -> web.goBack()
       LinkPolicy.Back.LEAVE -> goHome()
-      LinkPolicy.Back.ASK -> AlertDialog.Builder(this)
-        .setTitle(R.string.leave_dashboard_title)
-        .setMessage(R.string.leave_dashboard_body)
-        .setPositiveButton(R.string.leave_dashboard) { _, _ -> goHome() }
-        .setNegativeButton(R.string.stay, null)
-        .show()
+      LinkPolicy.Back.ASK -> askToLeave()
     }
+  }
+
+  /** Before the dashboard closes: a swipe from the edge, or a tap on the header's back, closed it by accident. */
+  private fun askToLeave() {
+    AlertDialog.Builder(this)
+      .setTitle(R.string.leave_dashboard_title)
+      .setMessage(R.string.leave_dashboard_body)
+      .setPositiveButton(R.string.leave_dashboard) { _, _ -> goHome() }
+      .setNegativeButton(R.string.stay, null)
+      .show()
   }
 
   override fun onDestroy() {

@@ -50,4 +50,17 @@ class LinkPolicyTest {
     assertEquals(LinkPolicy.Back.LEAVE, LinkPolicy.back(listOf(dashboard, page("agents")), current = 1, dashboardShown = false))
     assertEquals(LinkPolicy.Back.LEAVE, LinkPolicy.back(listOf(dashboard), current = 0, dashboardShown = false))
   }
+
+  @Test
+  fun `the header's back is the phone's Back, never a close at once`() {
+    assertEquals(LinkPolicy.Link.BACK, LinkPolicy.link(LinkPolicy.HOME, isForMainFrame = true))
+  }
+
+  @Test
+  fun `Nouride's pages open here, and anything else outside`() {
+    assertEquals(LinkPolicy.Link.HERE, LinkPolicy.link(page("agents"), isForMainFrame = true))
+    assertEquals(LinkPolicy.Link.OUTSIDE, LinkPolicy.link("https://accounts.google.com/o/oauth2", isForMainFrame = true))
+    // A frame inside a page is the page's business.
+    assertEquals(LinkPolicy.Link.HERE, LinkPolicy.link("https://www.youtube.com/embed/x", isForMainFrame = false))
+  }
 }

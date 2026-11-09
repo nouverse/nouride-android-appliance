@@ -11,8 +11,22 @@ import java.net.URI
 object LinkPolicy {
   private val local = URI(Nouride.ORIGIN)
 
-  /** The dashboard's "Back to Nouride Home" (`commons/lib/home-app.ts` in Nouride): closes the dashboard. */
+  /** The back button in the dashboard's header, drawn only inside this app (`commons/lib/home-app.ts` in Nouride). */
   const val HOME = "nouridehome://home"
+
+  /** Where a link the dashboard follows goes. */
+  enum class Link { BACK, HERE, OUTSIDE }
+
+  /**
+   * The header's back is the system's Back ([back]): a page back inside the dashboard, and from the first page it asks
+   * before it closes (the owner, 2026-11-09: one tap there closed Nouride from any page). Nouride's own pages open here,
+   * and a frame inside a page is the page's business; anything else leaves for the browser or the app that owns it.
+   */
+  fun link(url: String, isForMainFrame: Boolean): Link = when {
+    url == HOME -> Link.BACK
+    !isForMainFrame || inApp(url) -> Link.HERE
+    else -> Link.OUTSIDE
+  }
 
   /** Added to the WebView's user agent, so the dashboard knows it is inside the app and shows that way back. */
   const val USER_AGENT_MARK = "NourideHome/1"
