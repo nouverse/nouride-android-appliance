@@ -25,6 +25,11 @@ object NourideUpdates {
   fun progress(context: Context): NourideDownload =
     NourideUpdate.download(call(context, "GET", "/update/progress")) ?: throw IOException("no download in Nouride's answer")
 
+  /** Stops the download, keeping what it has: [download] then goes on from there, on a new connection. */
+  fun pause(context: Context) {
+    call(context, "POST", "/update/pause")
+  }
+
   /** Puts the downloaded version in. Nouride restarts on its own, when [Restart] says. */
   fun install(context: Context): Restart = NourideUpdate.restart(call(context, "POST", "/update/install"))
 

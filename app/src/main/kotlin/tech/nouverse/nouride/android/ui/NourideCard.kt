@@ -1,10 +1,12 @@
 package tech.nouverse.nouride.android.ui
 
 import android.app.Activity
+import android.os.SystemClock
 import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.server.ServerState
 import tech.nouverse.nouride.android.update.NourideDownload
 import tech.nouverse.nouride.android.update.NourideUpdates
+import tech.nouverse.nouride.android.update.StallWatch
 import java.io.IOException
 import kotlin.concurrent.thread
 
@@ -116,8 +118,12 @@ internal class NourideCard(private val activity: Activity, ui: Ui) {
     }
   }
 
-  /** Blocking. The download once a second to its end; then put in when [install], else offered with Install. */
+  /**
+   * Blocking. The download once a second to its end; then put in when [install], else offered with Install. One that
+   * stops moving is paused and resumed on a new connection (`StallWatch`).
+   */
   private fun follow(install: Boolean) {
+    val watch = StallWatch(STALL_MS, MAX_RESTARTS)
     while (!closed) {
       val download = NourideUpdates.progress(activity)
       ui {
@@ -126,10 +132,18 @@ internal class NourideCard(private val activity: Activity, ui: Ui) {
       }
       when (download.status) {
         NourideDownload.Status.READY -> break
-        NourideDownload.Status.DOWNLOADING -> Thread.sleep(PROGRESS_EVERY_MS)
+        NourideDownload.Status.DOWNLOADING -> when (watch.seen(download.received, SystemClock.elapsedRealtime())) {
+          StallWatch.Verdict.MOVING -> Unit
+          StallWatch.Verdict.RESTART -> {
+            NourideUpdates.pause(activity)
+            NourideUpdates.download(activity)
+          }
+          StallWatch.Verdict.GIVE_UP -> throw IOException("the download stopped moving")
+        }
         // Failed, or paused or thrown away on the dashboard: this download is over either way.
         else -> throw IOException("the download stopped: ${download.status}")
       }
+      Thread.sleep(PROGRESS_EVERY_MS)
     }
     if (closed) return
     if (install) install() else done(NourideStep.DOWNLOADED)
@@ -162,6 +176,10 @@ internal class NourideCard(private val activity: Activity, ui: Ui) {
 
   private companion object {
     const val PROGRESS_EVERY_MS = 1_000L
+
+    /** 57 MB on a phone's Wi-Fi took 16 seconds: half a minute without a byte is a connection that went quiet. */
+    const val STALL_MS = 30_000L
+    const val MAX_RESTARTS = 5
     val RESTARTING = setOf(NourideStep.RESTARTING_NOW, NourideStep.RESTARTING_IDLE, NourideStep.RESTARTING_JOBS)
   }
 }
