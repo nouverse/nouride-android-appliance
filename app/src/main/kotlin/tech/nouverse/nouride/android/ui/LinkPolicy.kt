@@ -35,6 +35,20 @@ object LinkPolicy {
     return previous != "about:blank" && inApp(previous) && !passedOnce(previous)
   }
 
+  /** What the system's Back does on the dashboard's screen. */
+  enum class Back { PAGE, ASK, LEAVE }
+
+  /**
+   * Back a page when there is one ([backInside]). Otherwise Back would close the dashboard, which a swipe from the edge
+   * does by accident, so it asks first (the owner, 2026-11-09). Over the cat that says Nouride is not answering, or
+   * while the dashboard is still opening, there is nothing to lose: it leaves without asking.
+   */
+  fun back(history: List<String>, current: Int, dashboardShown: Boolean): Back = when {
+    !dashboardShown -> Back.LEAVE
+    backInside(history, current) -> Back.PAGE
+    else -> Back.ASK
+  }
+
   /** A dashboard page a person goes through once (`redirectFor` in the dashboard's `session.ts` sends them there). */
   fun passedOnce(url: String): Boolean {
     val path = try {

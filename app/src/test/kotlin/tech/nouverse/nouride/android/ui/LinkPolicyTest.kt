@@ -1,5 +1,6 @@
 package tech.nouverse.nouride.android.ui
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -34,5 +35,19 @@ class LinkPolicyTest {
   @Test
   fun `never out of Nouride`() {
     assertFalse(LinkPolicy.backInside(listOf("https://accounts.google.com/o/oauth2", dashboard), current = 1))
+  }
+
+  @Test
+  fun `Back that would close the dashboard asks first, and one that goes back a page does not`() {
+    assertEquals(LinkPolicy.Back.PAGE, LinkPolicy.back(listOf(dashboard, page("agents")), current = 1, dashboardShown = true))
+    assertEquals(LinkPolicy.Back.ASK, LinkPolicy.back(listOf(dashboard), current = 0, dashboardShown = true))
+    // Coming back from the wizard's last step: Back would leave, so it asks too.
+    assertEquals(LinkPolicy.Back.ASK, LinkPolicy.back(listOf(page("setup"), dashboard), current = 1, dashboardShown = true))
+  }
+
+  @Test
+  fun `over the cat or while it opens, Back leaves without asking`() {
+    assertEquals(LinkPolicy.Back.LEAVE, LinkPolicy.back(listOf(dashboard, page("agents")), current = 1, dashboardShown = false))
+    assertEquals(LinkPolicy.Back.LEAVE, LinkPolicy.back(listOf(dashboard), current = 0, dashboardShown = false))
   }
 }

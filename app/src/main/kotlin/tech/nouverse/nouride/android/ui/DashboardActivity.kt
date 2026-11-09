@@ -2,6 +2,7 @@ package tech.nouverse.nouride.android.ui
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -41,9 +42,9 @@ import kotlin.concurrent.thread
  * a provider's sign-in page included (`LoopbackSignIn`). `nouridehome://dashboard`, where a finished sign-in sends the
  * browser, brings this screen back where it was, and the dashboard asks the gateway again for its accounts.
  *
- * Back, the button or the swipe, goes back a page inside the dashboard as a browser does, and to the app's own screen
- * from the first page (`LinkPolicy.backInside`). Never back onto the sign-in, the first password or the setup wizard:
- * walking the history onto those once took a person from the dashboard back to the wizard. The dashboard's header has
+ * Back, the button or the swipe, goes back a page inside the dashboard as a browser does (`LinkPolicy.back`); from the
+ * first page it asks before it closes the dashboard. Never back onto the sign-in, the first password or the setup
+ * wizard: walking the history onto those once took a person from the dashboard back to the wizard. The dashboard's header has
  * the way back to the app too (`LinkPolicy.HOME`), so there is one bar on screen, the dashboard's. The user agent says
  * it is the app.
  */
@@ -260,8 +261,17 @@ class DashboardActivity : Activity() {
   override fun onBackPressed() {
     val list = web.copyBackForwardList()
     val history = (0 until list.size).map { list.getItemAtIndex(it).url }
-    // Over the cat that says Nouride is not answering, Back leaves: the page under it is the one that failed.
-    if (unreachable.visibility != View.VISIBLE && LinkPolicy.backInside(history, list.currentIndex)) web.goBack() else goHome()
+    val shown = unreachable.visibility != View.VISIBLE && opening.visibility != View.VISIBLE
+    when (LinkPolicy.back(history, list.currentIndex, dashboardShown = shown)) {
+      LinkPolicy.Back.PAGE -> web.goBack()
+      LinkPolicy.Back.LEAVE -> goHome()
+      LinkPolicy.Back.ASK -> AlertDialog.Builder(this)
+        .setTitle(R.string.leave_dashboard_title)
+        .setMessage(R.string.leave_dashboard_body)
+        .setPositiveButton(R.string.leave_dashboard) { _, _ -> goHome() }
+        .setNegativeButton(R.string.stay, null)
+        .show()
+    }
   }
 
   override fun onDestroy() {
