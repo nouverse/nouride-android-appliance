@@ -41,9 +41,11 @@ import kotlin.concurrent.thread
  * a provider's sign-in page included (`LoopbackSignIn`). `nouridehome://dashboard`, where a finished sign-in sends the
  * browser, brings this screen back where it was, and the dashboard asks the gateway again for its accounts.
  *
- * Back always goes to the app's own screen, never through the dashboard's history: walking that like a browser took a
- * person from the dashboard back to the setup wizard. The dashboard's header has the same way back inside the app
- * (`LinkPolicy.HOME`), so there is one bar on screen, the dashboard's. The user agent says it is the app.
+ * Back, the button or the swipe, goes back a page inside the dashboard as a browser does, and to the app's own screen
+ * from the first page (`LinkPolicy.backInside`). Never back onto the sign-in, the first password or the setup wizard:
+ * walking the history onto those once took a person from the dashboard back to the wizard. The dashboard's header has
+ * the way back to the app too (`LinkPolicy.HOME`), so there is one bar on screen, the dashboard's. The user agent says
+ * it is the app.
  */
 class DashboardActivity : Activity() {
   private lateinit var web: WebView
@@ -256,7 +258,10 @@ class DashboardActivity : Activity() {
 
   @Deprecated("Activity.onBackPressed")
   override fun onBackPressed() {
-    goHome()
+    val list = web.copyBackForwardList()
+    val history = (0 until list.size).map { list.getItemAtIndex(it).url }
+    // Over the cat that says Nouride is not answering, Back leaves: the page under it is the one that failed.
+    if (unreachable.visibility != View.VISIBLE && LinkPolicy.backInside(history, list.currentIndex)) web.goBack() else goHome()
   }
 
   override fun onDestroy() {

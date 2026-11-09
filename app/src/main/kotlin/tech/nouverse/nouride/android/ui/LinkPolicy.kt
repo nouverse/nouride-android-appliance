@@ -23,6 +23,31 @@ object LinkPolicy {
    */
   fun unreachable(isForMainFrame: Boolean, url: String): Boolean = isForMainFrame && url != "about:blank" && inApp(url)
 
+  /**
+   * Whether the system's Back (the button, or the swipe from the edge) goes back a page inside the dashboard, as a
+   * browser does (the owner, 2026-11-09), rather than leaving it for the app's own screen. Only onto an ordinary page
+   * of Nouride's: never onto one a person passes once on the way in, the sign-in, choosing their first password or
+   * the setup wizard, which is where walking the history like a browser once took a person; never out of Nouride, and
+   * never past the first page. [history] is the WebView's, oldest first, and [current] the page on screen.
+   */
+  fun backInside(history: List<String>, current: Int): Boolean {
+    val previous = history.getOrNull(current - 1) ?: return false
+    return previous != "about:blank" && inApp(previous) && !passedOnce(previous)
+  }
+
+  /** A dashboard page a person goes through once (`redirectFor` in the dashboard's `session.ts` sends them there). */
+  fun passedOnce(url: String): Boolean {
+    val path = try {
+      URI(url).path ?: ""
+    } catch (e: Exception) {
+      return true
+    }
+    val page = path.removePrefix("/dashboard").trimEnd('/')
+    return ONCE.any { page == it || page.startsWith("$it/") }
+  }
+
+  private val ONCE = listOf("/login", "/welcome", "/setup", "/oauth")
+
   fun inApp(url: String): Boolean {
     if (url == "about:blank") return true
     val uri = try {
