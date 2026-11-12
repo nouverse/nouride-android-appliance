@@ -15,6 +15,7 @@ import android.widget.TextView
 import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.power.PowerSettings
 import tech.nouverse.nouride.android.server.ServerState
+import tech.nouverse.nouride.android.server.Where
 import tech.nouverse.nouride.android.update.Updates
 
 /**
@@ -34,6 +35,8 @@ internal class MoreTab(
   }
   private val batteryAsk = LinearLayout(activity).apply { orientation = LinearLayout.VERTICAL }
   private val versions: TextView = ui.text(15f, R.color.muted)
+  /** Keeping Nouride running is this phone's own server's business: hidden while Nouride lives elsewhere. */
+  private val running: LinearLayout = ui.card()
   private val turnOff: Button = ui.quiet { onTurnOff() }.apply {
     setText(R.string.turn_off_nouride)
     setTextColor(ui.color(R.color.warn))
@@ -48,7 +51,6 @@ internal class MoreTab(
     }
     column.addView(ui.header(R.string.tab_more))
 
-    val running = ui.card()
     running.addView(ui.text(17f, R.color.ink, bold = true).apply { setText(R.string.keep_running_title) })
     batteryOk.addView(ImageView(activity).apply {
       setImageResource(R.drawable.ic_check)
@@ -146,11 +148,16 @@ internal class MoreTab(
 
   private fun divider(): View = View(activity).apply { setBackgroundColor(ui.color(R.color.line)) }
 
-  /** [mayStop]: no battery exemption yet. [canTurnOff]: Nouride is on, or on its way. */
-  fun render(mayStop: Boolean, canTurnOff: Boolean) {
-    batteryOk.visibility = if (mayStop) View.GONE else View.VISIBLE
-    batteryAsk.visibility = if (mayStop) View.VISIBLE else View.GONE
-    turnOff.visibility = if (canTurnOff) View.VISIBLE else View.GONE
+  /**
+   * [mayStop]: no battery exemption yet. [canTurnOff]: Nouride is on, or on its way. [where]: keeping it running and
+   * turning it off are this phone's own server's business, so both go away while Nouride lives on another machine.
+   */
+  fun render(mayStop: Boolean, canTurnOff: Boolean, where: Where?) {
+    val here = where != Where.REMOTE
+    running.visibility = if (here) View.VISIBLE else View.GONE
+    batteryOk.visibility = if (mayStop || !here) View.GONE else View.VISIBLE
+    batteryAsk.visibility = if (mayStop && here) View.VISIBLE else View.GONE
+    turnOff.visibility = if (canTurnOff && here) View.VISIBLE else View.GONE
   }
 
   /** On the screen's resume: the two versions, as far as they are known without asking anyone. */

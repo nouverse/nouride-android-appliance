@@ -10,7 +10,9 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import tech.nouverse.nouride.android.Layout
 import tech.nouverse.nouride.android.R
+import tech.nouverse.nouride.android.server.Place
 import tech.nouverse.nouride.android.server.ServerState
+import tech.nouverse.nouride.android.server.Where
 import tech.nouverse.nouride.android.update.Release
 import tech.nouverse.nouride.android.update.Updates
 import java.io.IOException
@@ -28,6 +30,9 @@ class VersionsActivity : Activity() {
   private lateinit var nouride: NourideCard
   private lateinit var updater: AppUpdater
 
+  /** Nouride's version and its update are the phone's own server's: no card while it lives on another machine. */
+  private var remote = false
+
   /** What the last press of Check for updates found; the release itself is in `Updates`. */
   private var appStep = AppStep.UP_TO_DATE
   private val listener: () -> Unit = {
@@ -42,6 +47,7 @@ class VersionsActivity : Activity() {
     super.onCreate(savedInstanceState)
     ui = Ui(this)
     layout = Layout(this)
+    remote = Place(this).where() == Where.REMOTE
     ui.lightSystemBars(window)
     app = VersionCard(this, ui, R.string.app_name, ::appPressed)
     nouride = NourideCard(this, ui)
@@ -54,7 +60,7 @@ class VersionsActivity : Activity() {
     ServerState.listen(listener)
     if (updater.resume()) Updates.waiting(this)?.let(updater::start)
     showApp()
-    nouride.resume()
+    if (!remote) nouride.resume()
   }
 
   override fun onPause() {
@@ -63,7 +69,7 @@ class VersionsActivity : Activity() {
   }
 
   override fun onDestroy() {
-    nouride.close()
+    if (!remote) nouride.close()
     super.onDestroy()
   }
 
@@ -92,7 +98,7 @@ class VersionsActivity : Activity() {
       orientation = LinearLayout.VERTICAL
       setPadding(ui.dp(20), ui.dp(4), ui.dp(20), ui.dp(24))
       addView(app.view, ui.fullWidth())
-      addView(nouride.view, ui.fullWidth(12))
+      if (!remote) addView(nouride.view, ui.fullWidth(12))
     }
     root.addView(ScrollView(this).apply { addView(column) }, LinearLayout.LayoutParams(
       LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f,

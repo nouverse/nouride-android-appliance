@@ -57,6 +57,22 @@ class LinkPolicyTest {
   }
 
   @Test
+  fun `the other machine's pages open here, and the phone's own are outside`() {
+    val remote = "https://nouride.example.com"
+    assertEquals(LinkPolicy.Link.HERE, LinkPolicy.link("$remote/dashboard/agents", isForMainFrame = true, origin = remote))
+    assertEquals(LinkPolicy.Link.OUTSIDE, LinkPolicy.link(dashboard, isForMainFrame = true, origin = remote))
+    // A tunnel answers over https, and that is the scheme that machine is known by.
+    assertTrue(LinkPolicy.inApp("$remote/dashboard/", remote))
+    assertFalse(LinkPolicy.inApp("https://elsewhere.example.com/dashboard/", remote))
+    // The same name on another port is another server.
+    assertFalse(LinkPolicy.inApp("https://nouride.example.com:8443/dashboard/", remote))
+    // Back inside it goes back a page, and off its first page it asks, as on the phone's own.
+    assertTrue(LinkPolicy.backInside(listOf("$remote/dashboard/", "$remote/dashboard/agents"), current = 1, origin = remote))
+    assertFalse(LinkPolicy.backInside(listOf("$remote/dashboard/"), current = 0, origin = remote))
+    assertEquals(LinkPolicy.Back.ASK, LinkPolicy.back(listOf("$remote/dashboard/"), current = 0, dashboardShown = true, origin = remote))
+  }
+
+  @Test
   fun `Nouride's pages open here, and anything else outside`() {
     assertEquals(LinkPolicy.Link.HERE, LinkPolicy.link(page("agents"), isForMainFrame = true))
     assertEquals(LinkPolicy.Link.OUTSIDE, LinkPolicy.link("https://accounts.google.com/o/oauth2", isForMainFrame = true))

@@ -33,7 +33,18 @@ watch. Back from Connect or More goes Home; from Home it leaves the app (`ui/Tab
 
 ## Home
 
-One sentence of state, in plain words, and one main button. Each state has its own sentence and its own button:
+Before anything runs, the first screen asks the one thing the app cannot answer for the person: where Nouride should
+live (`server/Place`). Two answers, plain words, no jargon: **Run Nouride on this phone** (the app as it always was) and
+**Connect to another machine**, which asks for the address once, a dialog with one field, "It starts with https://, like
+https://nouride.example.com". An address it cannot use keeps the dialog open with "Nouride Home can't open that address.
+It has to start with https://. Check it and try again.": closing it would throw away what was typed. An answer of
+"another machine" starts nothing here, and its card on Home says where that machine is, the address in DM Mono in a soft
+pill, with **Open Nouride** and a quiet **Change** that asks the question again. The two answers live here, on Home
+rather than on a screen of its own: a person who has never used this app should not have to find a setting to make it
+work at all.
+
+Answered "this phone", one sentence of state, in plain words, and one main button. Each state has its own sentence and
+its own button:
 
 | State | What the person reads | Main button |
 | --- | --- | --- |
@@ -70,13 +81,21 @@ the same Wi-Fi open Nouride. Turn it off on a Wi-Fi you don't trust." On as inst
 phone (the app's own dashboard keeps working) and the card under it says "Only this phone can open Nouride"; a change
 says "Nouride starts again for a moment", which it does, for about a second.
 
-Only when Nouride answers, others may open it, and the phone is on Wi-Fi: "Open Nouride on another device", one sentence, a QR code a
+While Nouride lives on another machine the tab says where it is instead, with the same address pill, Copy and Share
+address, and no switch: this phone runs nothing for the switch to open. "Nouride on another machine", "Open it on a
+tablet or a computer at the same address."
+
+On this phone, only when Nouride answers, others may open it, and the phone is on Wi-Fi: "Open Nouride on another device", one sentence, a QR code a
 tablet's or a phone's camera opens (`ui/QrCode.kt`, dark on white in both themes, as a camera reads contrast), the
 address large in a soft pill, Copy and Share address, and how to sign in there: "Use the username and password you
 chose when you set up Nouride." Before that, the cat and "Nouride isn't running yet" with Go to Home; off Wi-Fi, "This
 phone isn't on Wi-Fi". Never an address that leads nowhere, and never `http://10.x.x.x:18254/...` in a sentence.
 
 ## More
+
+Neither of the first two is this phone's business while Nouride lives on another machine, so both go away with it:
+keeping it running, and turning it off. Versions and updates keeps this app's card only, as its own Nouride's version
+is that machine's.
 
 - **Keep Nouride running**: a green check and one sentence once the phone lets Nouride run with the screen off; before
   that, why ("Your phone may stop Nouride to save battery.") and Allow. On Xiaomi's phones (Xiaomi, Redmi, POCO), Start
