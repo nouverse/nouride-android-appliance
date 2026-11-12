@@ -102,6 +102,23 @@
   <string name="this_phone_title">Only this phone can open Nouride</string>
   <string name="this_phone_body">Turn on Open from other devices to use it on a tablet, a computer or another phone.</string>
 
+  <!-- Where Nouride lives: on this phone, or on a machine the person already runs. Asked once, on Home. -->
+  <string name="where_title">Where should Nouride live?</string>
+  <string name="where_body">Run it on this phone, or use a Nouride that is already running on another machine.</string>
+  <string name="where_phone">Run Nouride on this phone</string>
+  <string name="where_remote">Connect to another machine</string>
+  <string name="where_ask_title">Nouride on another machine</string>
+  <string name="where_ask_body">Type the address you were given for it. It starts with https://, like https://nouride.example.com</string>
+  <string name="where_address_hint">Address</string>
+  <string name="where_connect">Connect</string>
+  <string name="where_bad_address">Nouride Home can\'t open that address. It has to start with https://. Check it and try again.</string>
+  <string name="remote_title">Nouride is on another machine</string>
+  <string name="remote_body">Your assistant answers from that machine. This phone opens it.</string>
+  <string name="remote_change">Change</string>
+  <string name="remote_change_body">Ask again where Nouride lives?</string>
+  <string name="remote_connect_title">Nouride on another machine</string>
+  <string name="remote_connect_body">Open it on a tablet or a computer at the same address.</string>
+
   <string name="keep_running_title">Keep Nouride running</string>
   <string name="battery_ok">Your phone lets Nouride run with the screen off.</string>
   <string name="autostart_title">Start again after a restart</string>

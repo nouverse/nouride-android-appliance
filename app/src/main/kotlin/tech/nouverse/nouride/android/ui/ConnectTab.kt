@@ -22,6 +22,7 @@ import tech.nouverse.nouride.android.Nouride
 import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.server.NetworkAccess
 import tech.nouverse.nouride.android.server.ServerService
+import tech.nouverse.nouride.android.server.Where
 
 /**
  * The Connect tab: Nouride on a tablet, a computer or another phone on the same Wi-Fi. A QR code its camera opens, the
@@ -36,11 +37,18 @@ internal class ConnectTab(private val activity: Activity, private val ui: Ui, pr
   }
   private val layout = Layout(activity)
   private var shown: Triple<Reach, String?, Boolean?>? = null
+  private var shownRemote: String? = null
 
   val view: ScrollView = ScrollView(activity).apply { addView(column) }
 
   /** Rebuilt only when what it offers changed: the Wi-Fi's address can change while the tab is open. */
-  fun render(look: Look) {
+  fun render(look: Look, where: Where?, address: String?) {
+    if (where == Where.REMOTE) {
+      shown = null
+      renderRemote(address.orEmpty())
+      return
+    }
+    shownRemote = null
     val lan = SupportText.lanAddress()
     // Null before Nouride is installed: there is no `.env` to change yet, and no switch.
     val open = if (layout.installEnv.isFile) NetworkAccess.open(layout.installEnv.readText()) else null
@@ -57,6 +65,33 @@ internal class ConnectTab(private val activity: Activity, private val ui: Ui, pr
       Reach.NO_WIFI -> column.addView(notYet(R.drawable.mascot_unplugged, R.string.no_wifi_title, R.string.no_wifi, home = false), ui.fullWidth(16))
       Reach.READY -> ready(address!!)
     }
+  }
+
+  /** Nouride on another machine: its address, to copy or send on. No switch: this phone runs nothing to open. */
+  private fun renderRemote(address: String) {
+    if (shownRemote == address) return
+    shownRemote = address
+    column.removeAllViews()
+    column.addView(ui.header(R.string.tab_connect))
+    column.addView(ui.card(padding = 24).apply {
+      gravity = Gravity.CENTER_HORIZONTAL
+      addView(ui.text(20f, R.color.ink, bold = true, center = true).apply { setText(R.string.remote_connect_title) })
+      addView(ui.text(15f, R.color.muted, center = true).apply { setText(R.string.remote_connect_body) }, ui.fullWidth(6))
+      addView(ui.text(20f, R.color.brand_text, bold = true, center = true).apply {
+        typeface = Fonts.typeface(context, Type.MONO)
+        text = address
+        setTextIsSelectable(true)
+        maxLines = 2
+        background = ui.rounded(ui.color(R.color.brand_soft), 20)
+        setPadding(ui.dp(12), ui.dp(14), ui.dp(12), ui.dp(14))
+      }, ui.fullWidth(18))
+      addView(LinearLayout(activity).apply {
+        orientation = LinearLayout.HORIZONTAL
+        addView(ui.secondary { copy(address) }.apply { setText(R.string.copy) }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        addView(View(activity), LinearLayout.LayoutParams(ui.dp(12), 1))
+        addView(ui.primary { share(address) }.apply { setText(R.string.share_address) }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+      }, ui.fullWidth(16))
+    }, ui.fullWidth(16))
   }
 
   /** Open from other devices: the `.env`'s `HOST`, and Nouride started again for a moment to read it. */

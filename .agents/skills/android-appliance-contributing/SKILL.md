@@ -40,6 +40,14 @@ description: How to work on Nouride Home, the Android app that runs Nouride on t
 Nouride listens on its default port, 18254 (`Nouride.PORT`), and the Router edition's LLM gateway on 18256
 (`Nouride.GATEWAY_PORT`). The debug build moves both (below).
 
+8. `server/Place` is the person's answer to where Nouride lives: `PHONE`, or `REMOTE` at an address
+   (`server/RemoteHost`, which is pure and tested: what it takes and what it refuses, https only because the WebView may
+   not speak cleartext to anything but the loopback). It is unset until the first screen is answered, and while it is
+   `REMOTE` nothing of the phone's own server runs: `BootReceiver` and `UpdateReceiver` do not start it, Home, Connect,
+   More and Versions show that machine instead, and `DashboardActivity` loads `RemoteHost.dashboard` with `LinkPolicy`
+   told which origin is Nouride's, its own login page the way in. The install this phone already has stays on disk
+   untouched, so answering `PHONE` again picks it up as it was.
+
 ## Constraints, and why
 
 - **targetSdk 28.** From 29 on, Android refuses to run files from the app's data directory (W^X), and proot runs every

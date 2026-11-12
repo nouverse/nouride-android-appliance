@@ -4,8 +4,14 @@ An Android app that makes a phone the home of Nouride: the phone itself runs it.
 Nouride runs on the phone, reachable from the phone itself and from other devices on the same Wi-Fi. No Termux, no
 terminal.
 
-Not a client: an app that only connects to a Nouride running elsewhere would be a different app, named Nouride.
-This one is `tech.nouverse.nouride.home`.
+On its first screen it asks where Nouride should live, and there are two answers. **On this phone**, which is
+everything above. Or **on another machine** that already runs it, at the address that machine is reached at, an HTTPS
+address in front of a computer at home (a Cloudflare tunnel, say) being the usual one. Answered "another machine", the
+app starts nothing of its own: it opens that machine's dashboard, which is the same screen, and the Debian and Nouride
+this phone may already hold are left where they are, so answering "this phone" later picks the install up as it was.
+
+Still not a client-only app: it is `tech.nouverse.nouride.home`, the app that makes the phone the home of Nouride. A
+client app, if one comes, is `tech.nouverse.nouride`.
 
 **Who it is for:** people who are not technical. An old phone in a drawer becomes the home of their AI assistant. Everything
 a person sees in the app is written for them, not for a developer: see `AGENTS.md` and the `android-appliance-ui`
@@ -19,6 +25,9 @@ skill.
 - Keeps Nouride running from a foreground service, with the screen off, and starts it again if it stops on its own.
 - Shows whether Nouride is running and opens the dashboard inside the app; its Connect tab has a QR code and the
   address for opening Nouride on a tablet, a computer or another phone on the same Wi-Fi.
+- Opens a Nouride that runs on another machine instead, if that is what the person chooses on the first screen: its
+  dashboard, over the HTTPS address that machine is reached at, with that machine's own login page as the way in. The
+  address is asked for once and can be changed from Home.
 - Starts Nouride again after the phone restarts, once the phone has been unlocked (on some Xiaomi phones, once
   Autostart allows it).
 - Updates itself: when a newer release is on this repository's Releases page, the app says so (a card on its screen
@@ -28,7 +37,9 @@ skill.
 Nouride listens on its default port, `18254`. The dashboard is `http://<the phone's address>:18254/dashboard/`.
 
 Limits: arm64 phones only (Nouride has no 32-bit ARM build), sideloaded (not on Google Play: `targetSdk` is 28 on
-purpose, see `AGENTS.md`).
+purpose, see `AGENTS.md`). Another machine is reached over HTTPS only: the app speaks plain HTTP to its own daemon on
+the loopback and to nothing else (`res/xml/network_security_config.xml`), and a dashboard on the open internet is a
+login, so a password on the wire is not offered.
 
 ## Download
 
