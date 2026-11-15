@@ -36,11 +36,22 @@ object Nouride {
     curl -fsSL $INSTALL_URL | sh -s -- --variant router --host 0.0.0.0 --port $PORT
     """.trimIndent() + (if (gatewayPort == DEFAULT_GATEWAY_PORT) "" else "\n" + gatewayConfig(gatewayPort))
 
-  private const val CONFIG = "/srv/nouride/.nouride/config.toml"
+  private const val HOME = "/srv/nouride/.nouride"
+  private const val CONFIG = "$HOME/config.toml"
 
-  internal fun gatewayConfig(port: Int): String =
-    "[ -e $CONFIG ] || { printf '[nougate]\\nport = %s\\n' $port > $CONFIG; " +
-      "chown --reference=/srv/nouride/.nouride $CONFIG; chmod 640 $CONFIG; }"
+  /**
+   * The gateway's port in Nouride's `config.toml`, whatever the installer left there. The Router edition's installer
+   * writes that file itself (`[nougate]` with `in_process = true`), so writing it only when it is missing left the
+   * debug build on the release's port, where it lost to the release beside it and restarted for ever. Missing, the file
+   * is made, owned as Nouride's folder is; without `[nougate]`, the section is added; with it but no `port`, the port goes
+   * under its heading. A port already there is kept, so running it again changes nothing.
+   */
+  internal fun gatewayConfig(port: Int, config: String = CONFIG, home: String = HOME): String =
+    "if [ ! -e $config ]; then printf '[nougate]\\nport = %s\\n' $port > $config; " +
+      "chown --reference=$home $config; chmod 640 $config; " +
+      "elif ! grep -q '^\\[nougate\\]' $config; then printf '\\n[nougate]\\nport = %s\\n' $port >> $config; " +
+      "elif ! sed -n '/^\\[nougate\\]/,/^\\[/p' $config | grep -q '^port *='; then " +
+      "sed -i '/^\\[nougate\\]\$/a port = $port' $config; fi"
 
   /**
    * What the app tells Nouride about itself: that it starts Nouride again whenever it exits (`Supervisor`). Nouride's
