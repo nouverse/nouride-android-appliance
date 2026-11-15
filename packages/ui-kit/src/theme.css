@@ -1,0 +1,190 @@
+/* Nouride's soft look, the dashboard's own tokens (apps/dashboard/src/styles/main.css in nouride, and the design rules
+   in .agents/skills/nouride-contributing/references/design-rules.md there), for Nouride Home's screens. The two
+   daisyUI themes are copied as they are: `nouride-light` by day and `nouride` by night, picked by the system's (or the
+   app's chosen) appearance through `prefers-color-scheme`. Imported after `@plugin "daisyui" { themes: false; }`.
+   The fonts are the dashboard's, Latin only, SIL Open Font License 1.1 (the licences are in fonts/). */
+
+@font-face {
+  font-family: "Fredoka";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./fonts/fredoka-500-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("./fonts/manrope-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "DM Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/dm-mono-400-latin.woff2") format("woff2");
+}
+
+@theme {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: "Fredoka", "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --animate-fade: fade 200ms ease-out;
+  --animate-float: float 2.4s ease-in-out infinite;
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+  /* The riding cat floats gently while something is on its way, as on Android. */
+  @keyframes float {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -4px;
+    }
+  }
+}
+
+/* Nouride, night. */
+@plugin "daisyui/theme" {
+  name: "nouride";
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #272534;
+  --color-base-200: #17161f;
+  --color-base-300: #121119;
+  --color-base-content: #efedf5;
+
+  --color-primary: #f29a7e;
+  --color-primary-content: #22202c;
+  --color-secondary: #b0a2f8;
+  --color-secondary-content: #22202c;
+  --color-accent: #f08fab;
+  --color-accent-content: #22202c;
+  --color-neutral: #3a3649;
+  --color-neutral-content: #efedf5;
+
+  --color-info: #86d5bd;
+  --color-info-content: #1b2a25;
+  --color-success: #86d5bd;
+  --color-success-content: #1b2a25;
+  --color-warning: #f2c27b;
+  --color-warning-content: #2b1d08;
+  --color-error: #ff9d8c;
+  --color-error-content: #2e0f0a;
+
+  /* The pastels as fills, and the ink written on them: at night the same as the colours above. */
+  --fill-primary: #f29a7e;
+  --fill-secondary: #a99af0;
+  --fill-success: #86d5bd;
+  --fill-ink: #22202c;
+  /* The soft shadow's colour (`shadow-soft`): deeper at night, where a light one would not show. */
+  --shade: rgb(0 0 0 / 0.28);
+
+  /* Shape: the design rules' large radii. Inputs at 14px, cards and dialogs at 22px; a button is a pill
+     (`.btn` below), which daisyUI's field radius would also give every input. */
+  --radius-selector: 0.625rem;
+  --radius-field: 0.875rem;
+  --radius-box: 1.375rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* Nouride, day. */
+@plugin "daisyui/theme" {
+  name: "nouride-light";
+  default: true;
+  color-scheme: light;
+
+  --color-base-100: #ffffff;
+  --color-base-200: #f4efe8;
+  --color-base-300: #efe9e0;
+  --color-base-content: #221e2e;
+
+  /* Ink a shade under the design rules' #2b2838, so muted copy (`text-base-content/65`) still reads at AA on the
+     sidebar's cream. Each colour is its pastel's hue deepened in OKLCH lightness until text in it reads at AA on the
+     cream page and on its own tint, up to `/20`. */
+  --color-primary: #993b1f;
+  --color-primary-content: #ffffff;
+  --color-secondary: #5e48b0;
+  --color-secondary-content: #ffffff;
+  --color-accent: #9a3355;
+  --color-accent-content: #ffffff;
+  --color-neutral: #221e2e;
+  --color-neutral-content: #faf7f2;
+
+  --color-info: #096550;
+  --color-info-content: #ffffff;
+  --color-success: #096550;
+  --color-success-content: #ffffff;
+  --color-warning: #824a00;
+  --color-warning-content: #fff8ec;
+  --color-error: #ad001f;
+  --color-error-content: #ffffff;
+
+  --fill-primary: #f08a6c;
+  --fill-secondary: #8c7ae6;
+  --fill-success: #7fcdb4;
+  --fill-ink: #221e2e;
+  --shade: rgb(60 45 30 / 0.07);
+
+  --radius-selector: 0.625rem;
+  --radius-field: 0.875rem;
+  --radius-box: 1.375rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* A button is a pill, and the main one is the peach pastel with ink on it and a faint glow of its own colour. */
+.btn {
+  --radius-field: 9999px;
+}
+.btn-primary:not(.btn-outline, .btn-ghost, .btn-link, .btn-soft, .btn-dash) {
+  --btn-color: var(--fill-primary);
+  --btn-fg: var(--fill-ink);
+  --btn-shadow: 0 6px 16px color-mix(in srgb, var(--fill-primary) 30%, transparent);
+}
+/* A card floats: a hairline in the theme's line colour and a soft, wide shadow. */
+@utility shadow-soft {
+  box-shadow: 0 1px 2px var(--shade), 0 8px 24px var(--shade);
+}
+/* What is moving: a mint bar easing into lavender. */
+@utility bar-moving {
+  background: linear-gradient(90deg, var(--fill-success), color-mix(in oklab, var(--fill-success) 60%, var(--fill-secondary)));
+}
+/* The card that says how Nouride is: lit lavender at its left and peach at its right. */
+@utility hero-soft {
+  background: linear-gradient(
+    110deg,
+    color-mix(in oklab, var(--fill-secondary) 14%, var(--color-base-100)) 0%,
+    var(--color-base-100) 55%,
+    color-mix(in oklab, var(--fill-primary) 12%, var(--color-base-100)) 100%
+  );
+}
+/* The page: cream or violet grey, with a faint lavender light at the top right. */
+@utility bg-app {
+  background:
+    radial-gradient(40rem 20rem at 100% 0%, color-mix(in oklab, var(--fill-secondary) 9%, transparent), transparent 70%),
+    color-mix(in oklab, var(--color-base-200) 50%, var(--color-base-100));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
