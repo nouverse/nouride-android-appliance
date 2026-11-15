@@ -1,0 +1,7 @@
+target/
+node_modules/
+dist/
+apps/desktop/gen/
+.DS_Store
+*.key
+*.p12

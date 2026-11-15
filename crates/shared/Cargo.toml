@@ -1,0 +1,16 @@
+[package]
+name = "shared"
+description = "The build's names and ports, and the types the other crates share"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[features]
+# Nouride Home Dev: another app beside the release, with its own ports, ids and label.
+dev = []
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true

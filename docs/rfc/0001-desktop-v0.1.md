@@ -113,8 +113,9 @@ of their own there, and the Dev build must never touch the owner's. So the app r
 Then the app writes Nouride's gateway port into `config.toml` when it is not the default (the Dev build), the first
 account into `.env`, and its own LaunchAgent: the plist Nouride itself generates (`nouride service install --kind
 launchd`, which writes it into the install folder), with the app's own label. That is loaded with `launchctl bootstrap
-gui/<uid>`, turned off with `bootout`, and restarted (Connect's switch) with `kickstart -k`. The plist sets the same
-`HOME` for the daemon, so it reads its key where the installer put it.
+gui/<uid>`, turned off with `bootout`, and restarted (Connect's switch) with `kickstart -k`. Made with the same `HOME`,
+the plist names the key file the installer made there (`NOURIDE_ENCRYPTION_KEY_FILE`), never the key itself, and
+never the person's own `~/.config/nouride`.
 
 The first setup's progress has three steps, moved by the installer's own step lines (`▸ Fetching the release`, then
 the binary and what follows it) and by the app: downloading Nouride, installing it, and turning it on for the first

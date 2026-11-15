@@ -1,0 +1,16 @@
+[package]
+name = "daemon"
+description = "Nouride on this computer: health, the installer, its .env and config, the first account, the state"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+shared.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+ureq.workspace = true
+getrandom.workspace = true
+if-addrs = "0.15"

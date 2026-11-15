@@ -1,0 +1,12 @@
+[package]
+name = "service"
+description = "The app's LaunchAgent and launchctl"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+shared.workspace = true
+serde.workspace = true
