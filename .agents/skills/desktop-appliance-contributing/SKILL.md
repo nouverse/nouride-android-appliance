@@ -40,11 +40,16 @@ yellow icon. A literal port or id anywhere else is a bug: the Dev build would re
 
 ```sh
 cd apps/desktop
-bunx tauri build --debug --features dev --config tauri.dev.conf.json   # Nouride Home Dev
-bunx tauri build                                                        # Nouride Home
+bun run build:dev        # Nouride Home Dev (debug), target/debug/bundle/macos/Nouride Home Dev.app
+bun run build:release    # Nouride Home, target/release/bundle/macos/Nouride Home.app
 ```
 
-Builds are unsigned (ad-hoc): no Apple Developer account yet.
+Both build the UI first. The Tauri CLI runs under Bun (`bun --bun`): a Mac with no Node needs nothing more. Builds
+are unsigned (ad-hoc): no Apple Developer account yet.
+
+Nouride's `service install --kind launchd` writes its start command split on spaces (up to 0.8.38 at least), so an
+install under `~/Library/Application Support` got a plist launchd could not run (exit 126). `service::launchd::
+with_program` puts the binary's path back as one argument; keep it until Nouride writes the argv whole.
 
 ## Tests
 

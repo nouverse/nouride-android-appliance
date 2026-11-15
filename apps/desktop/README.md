@@ -41,9 +41,11 @@ bun install --frozen-lockfile
 for d in crates/*/; do (cd "$d" && cargo test -q); done     # the logic, on any OS
 (cd apps/ui && bun test && bun run build)                    # the screens
 cd apps/desktop
-bunx tauri build --debug --features dev --config tauri.dev.conf.json   # Nouride Home Dev
-bunx tauri build                                                        # Nouride Home
+bun run build:dev        # Nouride Home Dev: the UI, then tauri build --debug --features dev --config tauri.dev.conf.json
+bun run build:release    # Nouride Home
 ```
+
+The Tauri CLI runs under Bun (`bun --bun`), so Node is not needed.
 
 The app is `target/<debug|release>/bundle/macos/Nouride Home[ Dev].app`.
 

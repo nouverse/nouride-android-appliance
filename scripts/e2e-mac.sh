@@ -15,11 +15,14 @@ BIN="$APP/Contents/MacOS/nouride-home"
 e2e_open() {
   open "$APP"
   i=0
-  while [ $i -lt 30 ] && ! pgrep -f "$BIN" >/dev/null; do sleep 1; i=$((i + 1)); done
+  while [ $i -lt 30 ] && ! pgrep -fx "$BIN" >/dev/null; do sleep 1; i=$((i + 1)); done
   sleep 2
 }
 
 e2e() {
+  # Only to an app already running: with none, the binary would start as the app itself (single instance), and a
+  # build replaced since would go on answering from memory.
+  if ! pgrep -fx "$BIN" >/dev/null; then echo '{"ok":false,"error":"the app is not running"}'; return 1; fi
   rm -f "$DATA/e2e/last.json"
   "$BIN" --e2e "$@" >/dev/null 2>&1
   i=0
@@ -32,7 +35,7 @@ e2e() {
 e2e_wait() {
   pattern="$1"; seconds="${2:-180}"; i=0
   while [ $i -lt "$seconds" ]; do
-    e2e dump >/dev/null
+    e2e dump >/dev/null || return 1
     grep -q "$pattern" "$DATA/e2e/state.json" && return 0
     sleep 3; i=$((i + 3))
   done

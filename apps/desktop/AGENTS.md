@@ -48,7 +48,7 @@ daemon, launchd, LaunchAgent, plist, service. Those live on one screen, "Technic
 for d in crates/*/; do (cd "$d" && cargo test -q) || exit 1; done
 bun install --frozen-lockfile && (cd apps/ui && bun test && bun run build)
 # on a Mac:
-cd apps/desktop && bunx tauri build --debug --features dev --config tauri.dev.conf.json
+cd apps/desktop && bun run build:dev
 ```
 
 ## Writing
