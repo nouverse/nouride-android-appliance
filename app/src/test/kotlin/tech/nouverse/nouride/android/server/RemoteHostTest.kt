@@ -41,6 +41,29 @@ class RemoteHostTest {
   }
 
   @Test
+  fun `https's own port is dropped, so the origin matches the links the dashboard writes`() {
+    assertEquals("https://nouride.example.com", RemoteHost.base("https://nouride.example.com:443"))
+    assertEquals("https://nouride.example.com", RemoteHost.base("nouride.example.com:443/dashboard/"))
+    assertEquals("https://nouride.example.com", RemoteHost.base("https://Nouride.Example.com"))
+  }
+
+  @Test
+  fun `each refusal says why, so the screen can say what to do`() {
+    assertEquals(RemoteHost.Read.Empty, RemoteHost.read("  "))
+    assertEquals(RemoteHost.Read.PlainHttp, RemoteHost.read("http://nouride.example.com"))
+    assertEquals(RemoteHost.Read.PlainHttp, RemoteHost.read("HTTP://nouride.example.com"))
+    assertEquals(RemoteHost.Read.NotAnAddress, RemoteHost.read("nouride example.com"))
+    assertEquals(RemoteHost.Read.NotAnAddress, RemoteHost.read("ftp://nouride.example.com"))
+    assertEquals(RemoteHost.Read.Address("https://nouride.example.com"), RemoteHost.read("nouride.example.com"))
+  }
+
+  @Test
+  fun `an address is shown without its scheme`() {
+    assertEquals("nouride.example.com", RemoteHost.shown("https://nouride.example.com"))
+    assertEquals("nouride.example.com:8443", RemoteHost.shown("https://nouride.example.com:8443"))
+  }
+
+  @Test
   fun `the dashboard is the same path as the phone's own`() {
     assertEquals("https://nouride.example.com/dashboard/", RemoteHost.dashboard(RemoteHost.base("nouride.example.com")!!))
   }
