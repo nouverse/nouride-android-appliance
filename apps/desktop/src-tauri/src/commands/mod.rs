@@ -109,6 +109,8 @@ pub fn retry_now(handle: &AppHandle, app: &Arc<App>) {
     }
     _ if app.adopted() => {}
     _ if !app.ours() => setup::first(handle.clone(), app.clone(), None),
+    // launchd restarts Nouride on its own; the app adds a restart only when no update is proving itself.
+    _ if !app.layout.may_restart() => {}
     _ => {
       app.inner.lock().unwrap().tracker.restart();
       let _ = service::Supervisor::restart(&app.agent);
@@ -150,7 +152,8 @@ pub async fn open_dashboard(handle: AppHandle, app: AppState<'_>) -> Result<(), 
 
 /// Connect's switch: `HOST` in the install's `.env`, then Nouride started again, which reads it.
 pub fn access_now(handle: &AppHandle, app: &Arc<App>, open: bool) {
-  if !app.ours() {
+  // A restart now would count against an update still proving itself (`Layout::update_pending`).
+  if !app.ours() || !app.layout.may_restart() {
     return;
   }
   let changed = daemon::env_file::rewrite(&app.layout.env_file(), |env| daemon::network_access::with_access(env, open));

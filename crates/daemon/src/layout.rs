@@ -50,6 +50,19 @@ impl Layout {
     self.install().join(".nouride").join("data").join(".control-token")
   }
 
+  /// Nouride's mark of an update not confirmed yet (`modules/update/confirm.ts` in Nouride). While it is there, every
+  /// start is counted by the plist's guard, and the fourth puts the previous version back, which then refuses the data
+  /// the new one migrated: seen on a Mac, after Connect's switch was flipped twice and Nouride turned off and on within
+  /// two minutes of an update. Nouride removes it once it has run healthy for five minutes.
+  pub fn update_pending(&self) -> PathBuf {
+    self.install().join(".nouride-pending-update")
+  }
+
+  /// Whether the app may restart Nouride now: never while an update is still proving itself.
+  pub fn may_restart(&self) -> bool {
+    !self.update_pending().exists()
+  }
+
   /// Where launchd writes Nouride's output (the plist's `StandardOutPath`).
   pub fn nouride_log(&self) -> PathBuf {
     self.install().join(".nouride").join("data").join("nouride.log")
@@ -124,6 +137,17 @@ mod tests {
     ] {
       assert!(layout.is_inside(&path), "{}", path.display());
     }
+  }
+
+  #[test]
+  fn nouride_is_not_restarted_while_an_update_proves_itself() {
+    let dir = std::env::temp_dir().join(format!("daemon-layout-pending-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let layout = Layout::new(&dir);
+    std::fs::create_dir_all(layout.install()).unwrap();
+    assert!(layout.may_restart());
+    std::fs::write(layout.update_pending(), r#"{"from":"0.8.37","to":"0.8.38"}"#).unwrap();
+    assert!(!layout.may_restart());
   }
 
   #[test]

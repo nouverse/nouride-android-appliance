@@ -144,5 +144,6 @@
   "tray_quit": "Quit Nouride Home",
   "tray_update": "A new version of Nouride Home is ready",
   "tray_nouride_update": "A new Nouride is ready",
-  "tray_updates": "Updates are ready"
+  "tray_updates": "Updates are ready",
+  "access_waits": "Nouride is finishing an update. Try this again in a few minutes."
 }

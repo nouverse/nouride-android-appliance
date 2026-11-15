@@ -17,11 +17,13 @@ export function ConnectTab({ s, go }: { s: Snapshot; go: (screen: Screen) => voi
               <p className="font-semibold">{t("access_title")}</p>
               <p className="text-sm text-base-content/75">{t("access_body")}</p>
               {restarting && <p className="mt-2 text-sm text-secondary">{t("access_restarting")}</p>}
+              {s.accessWaits && <p className="mt-2 text-sm text-secondary">{t("access_waits")}</p>}
             </div>
             <input
               type="checkbox"
               className="toggle toggle-success mt-1"
               checked={s.openToOthers}
+              disabled={s.accessWaits}
               onChange={async (e) => {
                 setRestarting(true);
                 await ipc.setAccess(e.target.checked);

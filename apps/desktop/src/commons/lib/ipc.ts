@@ -65,6 +65,8 @@ export interface Snapshot {
   openToOthers: boolean;
   /** Connect's switch is offered: the app's own install, on this computer. */
   accessSwitch: boolean;
+  /** Nouride is finishing an update: the switch waits, as a restart now could undo it. */
+  accessWaits: boolean;
   /** The Nouride version running, when it answers. */
   nourideVersion: string | null;
   /** A newer Nouride waiting, for Home's card. */

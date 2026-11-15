@@ -237,6 +237,7 @@ impl App {
       share_url,
       open_to_others,
       access_switch: here && ours && !inner.installing,
+      access_waits: here && ours && !self.layout.may_restart(),
       nouride_version: running_version.clone(),
       nouride_update: nouride_update.clone(),
       app_update: app_update.clone(),
@@ -316,6 +317,8 @@ pub struct Snapshot {
   pub share_url: Option<String>,
   pub open_to_others: bool,
   pub access_switch: bool,
+  /// Nouride is finishing an update: the switch waits, as a restart now could undo the update.
+  pub access_waits: bool,
   pub nouride_version: Option<String>,
   pub nouride_update: Option<String>,
   pub app_update: Option<String>,
