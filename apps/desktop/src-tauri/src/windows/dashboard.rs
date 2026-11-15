@@ -29,13 +29,15 @@ fn own_page(url: &Url) -> bool {
 /// Opens the dashboard, or the cat and Try again when Nouride does not answer.
 pub fn open(handle: &AppHandle, app: &Arc<App>) {
   let (url, origin) = app.dashboard();
-  let reachable = match app.where_() {
-    Some(Where::Remote) => crate::poller::fetch(&place::remote_reply::health_url(&origin)).http_code != 0,
-    _ => crate::poller::fetch(&app.build.health_url()).nouride_answered(),
+  let remote = app.where_() == Some(Where::Remote);
+  let reachable = if remote {
+    crate::poller::fetch(&place::remote_reply::health_url(&origin)).http_code != 0
+  } else {
+    crate::poller::fetch(&app.build.health_url()).nouride_answered()
   };
   let window = match handle.get_webview_window(LABEL) {
     Some(w) => w,
-    None => match build(handle, app, &origin) {
+    None => match build(handle, app) {
       Ok(w) => w,
       Err(e) => {
         applog::write(&app.layout.app_log(), &format!("dashboard window: {e}"));
@@ -47,7 +49,7 @@ pub fn open(handle: &AppHandle, app: &Arc<App>) {
   if !reachable {
     let _ = window.navigate(Url::parse("tauri://localhost/index.html#/unreachable").expect("a fixed URL"));
   } else {
-    if app.where_() != Some(Where::Remote) && app.ours() {
+    if !remote && app.ours() {
       sign_in(app, &window);
     }
     if let Ok(target) = Url::parse(&url) {
@@ -58,11 +60,13 @@ pub fn open(handle: &AppHandle, app: &Arc<App>) {
   let _ = window.set_focus();
 }
 
-fn build(handle: &AppHandle, app: &Arc<App>, origin: &str) -> tauri::Result<WebviewWindow> {
+/// The window outlives a change of place (closing it hides it), so which Nouride is "here" is read at each navigation,
+/// never kept from when the window was made: kept, the other computer's dashboard went to the browser.
+fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
   let nav_handle = handle.clone();
-  let nav_origin = origin.to_owned();
+  let nav_app = app.clone();
   let new_handle = handle.clone();
-  let new_origin = origin.to_owned();
+  let new_app = app.clone();
   let log = app.layout.app_log();
   WebviewWindowBuilder::new(handle, LABEL, WebviewUrl::App("index.html#/opening".into()))
     .title(crate::words::t("dashboard_title"))
@@ -73,7 +77,7 @@ fn build(handle: &AppHandle, app: &Arc<App>, origin: &str) -> tauri::Result<Webv
       if own_page(url) || url.as_str() == "about:blank" {
         return true;
       }
-      match link_policy::link(url.as_str(), true, &nav_origin) {
+      match link_policy::link(url.as_str(), true, &nav_app.dashboard().1) {
         Link::Here => true,
         Link::Back => {
           let h = nav_handle.clone();
@@ -94,7 +98,7 @@ fn build(handle: &AppHandle, app: &Arc<App>, origin: &str) -> tauri::Result<Webv
     })
     // A link that asks for a new window: Nouride's own page opens here, anything else in the browser.
     .on_new_window(move |url, _features| {
-      if link_policy::in_app(url.as_str(), &new_origin) {
+      if link_policy::in_app(url.as_str(), &new_app.dashboard().1) {
         if let Some(w) = new_handle.get_webview_window(LABEL) {
           let _ = w.navigate(url);
         }

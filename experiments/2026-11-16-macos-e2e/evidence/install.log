@@ -1,0 +1,70 @@
+1794773680 downloading https://get.nouride.com/install.sh
+1794773680 installer PATH: 1266 links, without launchctl
+1794773680 
+1794773680 ▸ Checking this machine
+1794773680   architecture   arm64
+1794773680   C library      Mach-O
+1794773680   build          nouride-darwin-arm64
+1794773680   Router is part of Nouride Community now: this installs Community, with its LLM gateway switched on
+1794773680 ! no launchctl found, so the daemon will be installed but not supervised
+1794773680 
+1794773680 ▸ Fetching the release
+1794773680   downloading https://get.nouride.com/v0.8.37/nouride-darwin-arm64.tar.gz
+1794773688 ! no openssl 3 here to check the release's signature, so its checksum is checked against an unverified file
+1794773688   checked against its CHECKSUMS
+1794773689 
+1794773689 ▸ Service account and directory
+1794773689   running as user <user>
+1794773689   install directory ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride
+1794773689 
+1794773689 ▸ Installing the binary
+1794773689   installed ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride/nouride
+1794773690   version 0.8.37
+1794773690 
+1794773690 ▸ Environment file
+1794773690   created ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride/.env (0600)
+1794773690   set HOST=127.0.0.1
+1794773690   set PORT=18264
+1794773690 
+1794773690 ▸ Secret store key
+1794773690   made ~/Library/Application Support/tech.nouverse.nouride.home.dev/home/.config/nouride/nouride.env (0600): keep a copy somewhere safe, or set a backup passphrase (nouride secret seal --stdin)
+1794773690 
+1794773690 ▸ Home directory for the service
+1794773690   HOME is ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride/.nouride/home
+1794773690 
+1794773690 ▸ The LLM gateway
+1794773690   on: ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride/.nouride/config.toml says [nougate] in_process = true
+1794773690 
+1794773690 ▸ No service manager
+1794773690   start it by hand:
+1794773690     su -s /bin/sh <user> -c 'cd ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride && ./nouride start'
+1794773690 
+1794773690 ▸ Waiting for it to answer
+1794773722 ! it did not answer on 127.0.0.1:18264 within 30s
+1794773722 ! look at: tail -n 50 ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride/.nouride/data/nouride.log
+1794773722 
+1794773722 ✓ Nouride is installed.
+1794773722 
+1794773722   The dashboard is bound to loopback. On this Mac, open  http://127.0.0.1:18264/dashboard/
+1794773722   From another machine:  ssh -L 18264:127.0.0.1:18264 <you>@192.168.0.20  and open the same address there
+1794773722   
+1794773722   To expose it on the network instead, re-run with --host 0.0.0.0
+1794773722 
+1794773722   The first login is printed once, and only once, when the daemon first starts:
+1794773722     grep -A12 'Nouride is ready' ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride/.nouride/data/nouride.log
+1794773722   
+1794773722   The wizard there asks two things: your model endpoint and who the first
+1794773722   agent should be. Bot tokens go in the dashboard, which keeps them in the
+1794773722   secret store; ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride/.env works too, but its values sit in the daemon's
+1794773722   environment for as long as it runs.
+1794773722 
+1794773722 gateway port 18266 in ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride/.nouride/config.toml
+1794773722 ✓ wrote ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride/tech.nouverse.nouride.plist
+1794773722 
+1794773722 Review it, then install:
+1794773722   cp ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride/tech.nouverse.nouride.plist ~/Library/LaunchAgents/tech.nouverse.nouride.plist
+1794773722   launchctl load -w ~/Library/LaunchAgents/tech.nouverse.nouride.plist
+1794773722   tail -f ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride/.nouride/data/nouride.log
+1794773722 
+1794773722 the unit runs as <user>; make sure that account owns ~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride
+1794773723 Nouride answers; the first account's lines are out of .env
