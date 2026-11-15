@@ -1,10 +1,13 @@
 package tech.nouverse.nouride.android
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import tech.nouverse.nouride.android.server.SetupProgress
 import tech.nouverse.nouride.android.server.Step
+import java.io.File
+import java.nio.file.Files
 
 class NourideTest {
   private val script = Nouride.INSTALL.last()
@@ -33,15 +36,43 @@ class NourideTest {
   }
 
   @Test
-  fun `a gateway port of its own goes into Nouride's config before the wizard, for the account Nouride runs as`() {
-    val line = Nouride.gatewayConfig(18266)
-    assertTrue(line, line.startsWith("[ -e /srv/nouride/.nouride/config.toml ] ||"))
-    assertTrue(line, line.contains("printf '[nougate]\\nport = %s\\n' 18266 > /srv/nouride/.nouride/config.toml"))
-    assertTrue(line, line.contains("chown --reference=/srv/nouride/.nouride /srv/nouride/.nouride/config.toml"))
-    // After the installer, which makes /srv/nouride/.nouride and the account.
+  fun `a gateway port of its own goes into Nouride's config after the installer, and only for the debug build`() {
     val script = Nouride.installScript(18266)
-    assertTrue(script.indexOf(line) > script.indexOf(Nouride.INSTALL_URL))
-    // Nouride's own default needs no file: a release's first start is as on every other install.
+    // After the installer, which makes /srv/nouride/.nouride, the account, and its own config.toml.
+    assertTrue(script.indexOf(Nouride.gatewayConfig(18266)) > script.indexOf(Nouride.INSTALL_URL))
+    // Nouride's own default needs no edit: a release's first start is as on every other install.
     assertFalse(Nouride.installScript(Nouride.DEFAULT_GATEWAY_PORT).contains("config.toml"))
+  }
+
+  /** Runs the edit with the host's shell on [before] (null: no file yet), and returns the file after it. */
+  private fun edited(before: String?): String {
+    val home = Files.createTempDirectory("nouride-home").toFile()
+    val config = File(home, "config.toml")
+    if (before != null) config.writeText(before)
+    val run = ProcessBuilder("sh", "-c", Nouride.gatewayConfig(18266, config.path, home.path)).redirectErrorStream(true).start()
+    val output = run.inputStream.bufferedReader().readText()
+    assertEquals(output, 0, run.waitFor())
+    return config.readText().also { home.deleteRecursively() }
+  }
+
+  @Test
+  fun `the port goes under the installer's own nougate section`() {
+    // What the Router edition's installer writes: the debug build lost to the release on 18256 with this file.
+    assertEquals("[nougate]\nport = 18266\nin_process = true\n", edited("[nougate]\nin_process = true\n"))
+  }
+
+  @Test
+  fun `no file is made, and a file without the section gets it`() {
+    assertEquals("[nougate]\nport = 18266\n", edited(null))
+    assertEquals("[daemon]\nlog = \"info\"\n\n[nougate]\nport = 18266\n", edited("[daemon]\nlog = \"info\"\n"))
+  }
+
+  @Test
+  fun `a port already set is kept, and a port in another section is not the gateway's`() {
+    assertEquals("[nougate]\nport = 18300\n", edited("[nougate]\nport = 18300\n"))
+    assertEquals(
+      "[dashboard]\nport = 18264\n[nougate]\nport = 18266\nin_process = true\n",
+      edited("[dashboard]\nport = 18264\n[nougate]\nin_process = true\n"),
+    )
   }
 }
