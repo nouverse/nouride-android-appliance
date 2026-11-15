@@ -42,6 +42,15 @@ pub fn app(step: AppStep) -> VersionLook {
   }
 }
 
+/// The app's card in a build: the Dev build is never offered an update, as on Android, so its card says so instead.
+pub fn app_card(step: AppStep, dev: bool) -> VersionLook {
+  if dev {
+    v("versions_app_dev", Button::None, None, false)
+  } else {
+    app(step)
+  }
+}
+
 pub fn nouride(step: NourideStep) -> VersionLook {
   use Button as B;
   match step {
@@ -94,7 +103,7 @@ pub const NOURIDE_STEPS: [NourideStep; 15] = [
 
 /// Every look of both cards.
 pub fn all() -> Vec<VersionLook> {
-  APP_STEPS.iter().map(|s| app(*s)).chain(NOURIDE_STEPS.iter().map(|s| nouride(*s))).collect()
+  APP_STEPS.iter().map(|s| app(*s)).chain([app_card(AppStep::Ready, true)]).chain(NOURIDE_STEPS.iter().map(|s| nouride(*s))).collect()
 }
 
 #[cfg(test)]
@@ -126,6 +135,14 @@ mod tests {
   fn a_failed_download_tries_the_download_again_a_failed_install_the_install() {
     assert_eq!(nouride(NourideStep::DownloadFailed).button, Button::Update);
     assert_eq!(nouride(NourideStep::InstallFailed).button, Button::Install);
+  }
+
+  #[test]
+  fn the_dev_build_is_never_offered_an_update() {
+    for step in APP_STEPS {
+      assert_eq!(app_card(step, true).button, Button::None);
+    }
+    assert_eq!(app_card(AppStep::Ready, false).button, Button::Update);
   }
 
   #[test]

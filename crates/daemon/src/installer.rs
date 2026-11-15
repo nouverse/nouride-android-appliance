@@ -21,9 +21,11 @@ pub const SYSTEM_DIRS: &[&str] = &["/usr/bin", "/bin", "/usr/sbin", "/sbin"];
 pub const NEVER: &[&str] = &["launchctl", "systemctl", "sudo"];
 
 /// The installer's arguments: the app's folder, the build's port, the loopback (Connect's switch opens it), and the
-/// Router edition (the free one with its LLM gateway, as Nouride Home on Android installs).
-pub fn args(build: &Build, layout: &Layout) -> Vec<OsString> {
-  vec![
+/// Router edition (the free one with its LLM gateway, as Nouride Home on Android installs). `version` pins a release
+/// (`--version v0.8.37`): only the Dev build's e2e hook passes one, to have an older Nouride to update; otherwise the
+/// installer takes the latest, as every other install does.
+pub fn args(build: &Build, layout: &Layout, version: Option<&str>) -> Vec<OsString> {
+  let mut args: Vec<OsString> = vec![
     "--variant".into(),
     "router".into(),
     "--dir".into(),
@@ -32,7 +34,12 @@ pub fn args(build: &Build, layout: &Layout) -> Vec<OsString> {
     build.port.to_string().into(),
     "--host".into(),
     "127.0.0.1".into(),
-  ]
+  ];
+  if let Some(v) = version {
+    args.push("--version".into());
+    args.push(v.into());
+  }
+  args
 }
 
 /// The environment the installer runs in, whole: nothing of the app's own is passed on but `USER`, `LOGNAME`,
@@ -125,7 +132,7 @@ mod tests {
 
   #[test]
   fn the_installer_installs_into_the_apps_folder_on_the_builds_port_kept_to_this_computer() {
-    let args: Vec<String> = args(&Build::DEV, &layout()).into_iter().map(|a| a.into_string().unwrap()).collect();
+    let args: Vec<String> = args(&Build::DEV, &layout(), None).into_iter().map(|a| a.into_string().unwrap()).collect();
     assert_eq!(
       args,
       [
@@ -139,6 +146,14 @@ mod tests {
         "127.0.0.1"
       ]
     );
+  }
+
+  #[test]
+  fn a_pinned_release_is_passed_on_and_none_means_the_latest() {
+    let pinned: Vec<String> = args(&Build::DEV, &layout(), Some("v0.8.37")).into_iter().map(|a| a.into_string().unwrap()).collect();
+    assert_eq!(pinned[pinned.len() - 2..], ["--version", "v0.8.37"]);
+    let latest: Vec<String> = args(&Build::DEV, &layout(), None).into_iter().map(|a| a.into_string().unwrap()).collect();
+    assert!(!latest.iter().any(|a| a == "--version"));
   }
 
   #[test]

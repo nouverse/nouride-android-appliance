@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The app's own pages: the main window, and the page the dashboard's window shows when Nouride does not answer. Never the dashboard itself, which is a remote page and reaches nothing of the app.",
+  "windows": ["main", "dashboard"],
+  "permissions": ["core:default"]
+}
