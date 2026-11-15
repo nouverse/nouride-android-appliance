@@ -1,17 +1,13 @@
 # Nouride Home
 
-An Android app that makes a phone the home of Nouride: the phone itself runs it. Install it, press Start, and
-Nouride runs on the phone, reachable from the phone itself and from other devices on the same Wi-Fi. No Termux, no
-terminal.
+An Android app for Nouride, two ways. The phone runs Nouride itself: choose **Run it on this phone** and Nouride runs
+on the phone, reachable from the phone itself and from other devices on the same Wi-Fi. No Termux, no terminal. Or the
+phone opens a Nouride that already runs on another computer: choose **Use Nouride on another computer** and give its
+HTTPS address once, a computer at home behind a Cloudflare tunnel being the usual one.
 
-On a phone without Nouride, its first screen asks where Nouride should run, and there are two answers. **On this
-phone**, which is everything above. Or **on another computer** that already runs it, at the address that computer is reached at, an HTTPS
-address in front of a computer at home (a Cloudflare tunnel, say) being the usual one. Answered "another computer", the
-app starts nothing of its own: it opens that computer's dashboard, which is the same screen, and the Debian and Nouride
-this phone may already hold are left where they are, so answering "this phone" later picks the install up as it was.
-
-Still not a client-only app: it is `tech.nouverse.nouride.home`, the app that makes the phone the home of Nouride. A
-client app, if one comes, is `tech.nouverse.nouride`.
+The question is asked once, on the first screen of a phone without Nouride, and changed on More at any time. On another
+computer the app runs nothing of its own; the Debian and Nouride this phone may already hold stay where they are, so
+choosing this phone again picks the install up as it was.
 
 **Who it is for:** people who are not technical. An old phone in a drawer becomes the home of their AI assistant. Everything
 a person sees in the app is written for them, not for a developer: see `AGENTS.md` and the `android-appliance-ui`
@@ -91,9 +87,9 @@ to tap it, or the install is refused.
 
 | Path | What it is |
 | --- | --- |
-| `app/src/main/kotlin/.../server/` | The foreground service, the supervisor that restarts Nouride, the health check, proot's command line |
+| `app/src/main/kotlin/.../server/` | The foreground service, the supervisor that restarts Nouride, the health check, proot's command line, where Nouride runs (`Place`, `RemoteHost`, `RemoteReply`) |
 | `app/src/main/kotlin/.../install/` | Unpacking the Debian rootfs and running the installer on the first start |
-| `app/src/main/kotlin/.../ui/` | The two screens: status, and the dashboard in a WebView |
+| `app/src/main/kotlin/.../ui/` | The tabs (Home, Connect, More), the address card, the dashboard in a WebView, Technical Logs |
 | `app/src/main/kotlin/.../power/` | The battery exemption and the phone's own battery settings |
 | `app/src/main/kotlin/.../boot/` | Starting on boot |
 | `app/src/test/` | Unit tests, on the JVM |
