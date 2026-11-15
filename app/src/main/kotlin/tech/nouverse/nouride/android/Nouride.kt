@@ -17,11 +17,11 @@ object Nouride {
   const val INSTALL_URL = "https://get.nouride.com/install.sh"
 
   /**
-   * As root in Debian: the packages the minimal image lacks, then the official installer. Each part echoes its marker
-   * first, which moves the progress bar to that step (`SetupProgress`). The Router edition: the free build with the
-   * LLM gateway, so a person can sign in with an account they already pay for instead of finding an API key. A gateway
-   * port other than Nouride's default goes into its config before the setup wizard reads it, owned by the account
-   * Nouride runs as, which writes that file later.
+   * As root in Debian: the packages the minimal image lacks, the account Nouride runs as (`serviceAccount`), then the
+   * official installer. Each part echoes its marker first, which moves the progress bar to that step (`SetupProgress`).
+   * The Router edition: the free build with the LLM gateway, so a person can sign in with an account they already pay
+   * for instead of finding an API key. A gateway port other than Nouride's default goes into its config before the
+   * setup wizard reads it, owned by the account Nouride runs as, which writes that file later.
    */
   val INSTALL = listOf("/bin/sh", "-c", installScript(GATEWAY_PORT))
 
@@ -33,10 +33,30 @@ object Nouride {
     echo '${SetupProgress.marker(Step.TOOLS)}'
     apt-get install -y curl ca-certificates procps
     echo '${SetupProgress.marker(Step.NOURIDE)}'
+    ${serviceAccount()}
     curl -fsSL $INSTALL_URL | sh -s -- --variant router --host 0.0.0.0 --port $PORT
     """.trimIndent() + (if (gatewayPort == DEFAULT_GATEWAY_PORT) "" else "\n" + gatewayConfig(gatewayPort))
 
   private const val HOME = "/srv/nouride/.nouride"
+
+  /**
+   * The account Nouride runs as, made here before the installer, which then skips its own `useradd` ("user nouride
+   * already exists"). shadow's `useradd` locks `/etc/passwd` with a hard link, which proot only emulates
+   * (`--link2symlink`); on a Realme with Android 9 it stopped the first start ("cannot lock /etc/passwd", issue #3),
+   * likely that emulation failing on its kernel, not proven. So the four lines are appended as plain text: what
+   * `useradd --system --no-create-home --home-dir <home> --shell /usr/sbin/nologin nouride` makes on Debian, a system
+   * id free as a user's and as a group's (the highest from 999 down to 101, login.defs' defaults), a locked password
+   * with no aging, and a group of its own with no members. An account already there is left as it is.
+   */
+  internal fun serviceAccount(etc: String = "/etc"): String =
+    "if ! grep -q '^nouride:' $etc/passwd; then id=999; " +
+      "while cut -d: -f3 $etc/passwd $etc/group | grep -qx \"\$id\"; do id=\$((id - 1)); done; " +
+      "if [ \$id -lt 101 ]; then echo 'no free system id for the nouride account' >&2; exit 1; fi; " +
+      "echo \"nouride:x:\$id:\" >> $etc/group; " +
+      "echo 'nouride:!::' >> $etc/gshadow; " +
+      "echo \"nouride:!:\$((\$(date +%s) / 86400))::::::\" >> $etc/shadow; " +
+      "echo \"nouride:x:\$id:\$id::$HOME/home:/usr/sbin/nologin\" >> $etc/passwd; fi"
+
   private const val CONFIG = "$HOME/config.toml"
 
   /**

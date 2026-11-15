@@ -75,4 +75,70 @@ class NourideTest {
       edited("[dashboard]\nport = 18264\n[nougate]\nin_process = true\n"),
     )
   }
+
+  @Test
+  fun `the account is made by the setup script, after the packages and before the installer`() {
+    val account = script.indexOf(Nouride.serviceAccount())
+    assertTrue(account > script.indexOf(SetupProgress.marker(Step.NOURIDE)))
+    assertTrue(account < script.indexOf(Nouride.INSTALL_URL))
+  }
+
+  /** The four files as Debian's rootfs has them, a system account at [taken] (a uid and a gid) if given. */
+  private fun etc(vararg taken: Int): File {
+    val etc = Files.createTempDirectory("nouride-etc").toFile()
+    File(etc, "passwd").writeText(
+      "root:x:0:0:root:/root:/bin/bash\n_apt:x:42:65534::/nonexistent:/usr/sbin/nologin\n" +
+        "nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin\n" +
+        taken.joinToString("") { "svc$it:x:$it:$it::/nonexistent:/usr/sbin/nologin\n" },
+    )
+    File(etc, "group").writeText("root:x:0:\nusers:x:100:\nnogroup:x:65534:\n")
+    File(etc, "shadow").writeText("root:*:20761:0:99999:7:::\n")
+    File(etc, "gshadow").writeText("root:*::\n")
+    return etc
+  }
+
+  private fun runAccount(etc: File) {
+    val run = ProcessBuilder("sh", "-c", "set -e; " + Nouride.serviceAccount(etc.path)).redirectErrorStream(true).start()
+    val output = run.inputStream.bufferedReader().readText()
+    assertEquals(output, 0, run.waitFor())
+  }
+
+  private fun File.line(name: String) = File(this, name).readLines().filter { it.startsWith("nouride:") }
+
+  @Test
+  fun `a phone without the account gets it in all four files, as useradd --system makes it`() {
+    val etc = etc()
+    runAccount(etc)
+    assertEquals(listOf("nouride:x:999:999::/srv/nouride/.nouride/home:/usr/sbin/nologin"), etc.line("passwd"))
+    assertEquals(listOf("nouride:x:999:"), etc.line("group"))
+    assertEquals(listOf("nouride:!::"), etc.line("gshadow"))
+    // Locked, changed today, no aging: what shadow's useradd writes for a system account.
+    val shadow = etc.line("shadow").single().split(":")
+    assertEquals(listOf("nouride", "!"), shadow.take(2))
+    assertEquals(System.currentTimeMillis() / 86_400_000, shadow[2].toLong())
+    assertEquals(List(6) { "" }, shadow.drop(3))
+    // What was there stays first, untouched.
+    assertEquals("root:x:0:0:root:/root:/bin/bash", File(etc, "passwd").readLines().first())
+    etc.deleteRecursively()
+  }
+
+  @Test
+  fun `an id taken as a user's or as a group's is skipped`() {
+    val etc = etc(999)
+    File(etc, "group").appendText("svc998:x:998:\n")
+    runAccount(etc)
+    assertEquals(listOf("nouride:x:997:997::/srv/nouride/.nouride/home:/usr/sbin/nologin"), etc.line("passwd"))
+    assertEquals(listOf("nouride:x:997:"), etc.line("group"))
+    etc.deleteRecursively()
+  }
+
+  @Test
+  fun `an account already there is left as it is, so running it again changes nothing`() {
+    val etc = etc()
+    runAccount(etc)
+    val after = listOf("passwd", "group", "shadow", "gshadow").associateWith { File(etc, it).readText() }
+    runAccount(etc)
+    assertEquals(after, listOf("passwd", "group", "shadow", "gshadow").associateWith { File(etc, it).readText() })
+    etc.deleteRecursively()
+  }
 }
