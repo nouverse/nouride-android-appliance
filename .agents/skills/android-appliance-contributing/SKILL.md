@@ -42,10 +42,12 @@ Nouride listens on its default port, 18254 (`Nouride.PORT`), and the Router edit
 
 8. `server/Place` is the person's answer to where Nouride lives: `PHONE`, or `REMOTE` at an address
    (`server/RemoteHost`, which is pure and tested: what it takes and what it refuses, https only because the WebView may
-   not speak cleartext to anything but the loopback). It is unset until the first screen is answered, and while it is
+   not speak cleartext to anything but the loopback). It is unset until the first screen is answered (a phone with Nouride on disk counts as
+   `PHONE` without asking: `Place.answer`), it is changed on More either way, and while it is
    `REMOTE` nothing of the phone's own server runs: `BootReceiver` and `UpdateReceiver` do not start it, Home, Connect,
-   More and Versions show that machine instead, and `DashboardActivity` loads `RemoteHost.dashboard` with `LinkPolicy`
-   told which origin is Nouride's, its own login page the way in. The install this phone already has stays on disk
+   More and Versions show that computer instead, and `DashboardActivity` loads `RemoteHost.dashboard` with `LinkPolicy`
+   told which origin is Nouride's, its own login page the way in. Home asks that
+   computer's `/health` when it opens (`server/RemoteReply`, pure and tested) to say whether it answers. The install this phone already has stays on disk
    untouched, so answering `PHONE` again picks it up as it was.
 
 ## Constraints, and why

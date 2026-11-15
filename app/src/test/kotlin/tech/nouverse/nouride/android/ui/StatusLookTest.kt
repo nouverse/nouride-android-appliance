@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import tech.nouverse.nouride.android.server.Reply
 import tech.nouverse.nouride.android.server.ServerState.Phase
 
 class StatusLookTest {
@@ -75,5 +76,23 @@ class StatusLookTest {
     assertTrue(StatusLook.canTurnOff(Phase.INSTALLING))
     assertTrue(StatusLook.canShare(StatusLook.of(Phase.RUNNING, answering = true)))
     assertFalse(StatusLook.canShare(StatusLook.of(Phase.RUNNING, answering = false)))
+  }
+
+  @Test
+  fun `another computer's Nouride is open while it may work, and Try again only when it does not answer`() {
+    val checking = StatusLook.remote(null)
+    assertEquals(Words.REMOTE_CHECKING, checking.words)
+    assertEquals(Action.OPEN, checking.action)
+    val running = StatusLook.remote(Reply.ANSWERS)
+    assertEquals(Mascot.THUMBS, running.mascot)
+    assertEquals(Action.OPEN, running.action)
+    val down = StatusLook.remote(Reply.DOWN)
+    assertEquals(Mascot.UNPLUGGED, down.mascot)
+    assertEquals(Tone.WARN, down.tone)
+    assertEquals(Action.RETRY, down.action)
+    // A sign-in in front of it: the thumbs up would claim more than the phone knows.
+    val unsure = StatusLook.remote(Reply.UNSURE)
+    assertEquals(Mascot.HELLO, unsure.mascot)
+    assertEquals(Action.OPEN, unsure.action)
   }
 }

@@ -1,5 +1,6 @@
 package tech.nouverse.nouride.android.ui
 
+import tech.nouverse.nouride.android.server.Reply
 import tech.nouverse.nouride.android.server.ServerState.Phase
 
 /**
@@ -16,7 +17,10 @@ enum class Tone { CALM, BUSY, GOOD, WARN }
 enum class Action { START, OPEN, RETRY, NONE }
 
 /** Which sentence the screen says. Each has a title and a body in `strings.xml`. */
-enum class Words { OFF, SETTING_UP, STARTING, WAKING, RUNNING, RESTARTING, STOPPING, FAILED }
+enum class Words {
+  OFF, SETTING_UP, STARTING, WAKING, RUNNING, RESTARTING, STOPPING, FAILED,
+  REMOTE_CHECKING, REMOTE_RUNNING, REMOTE_DOWN, REMOTE_UNSURE,
+}
 
 data class Look(val mascot: Mascot, val tone: Tone, val words: Words, val action: Action, val busy: Boolean)
 
@@ -37,6 +41,17 @@ object StatusLook {
     Phase.RESTARTING -> Look(Mascot.RIDE, Tone.BUSY, Words.RESTARTING, Action.NONE, busy = true)
     Phase.STOPPING -> Look(Mascot.HELLO, Tone.CALM, Words.STOPPING, Action.NONE, busy = true)
     Phase.FAILED -> Look(Mascot.UNPLUGGED, Tone.WARN, Words.FAILED, Action.RETRY, busy = false)
+  }
+
+  /**
+   * Nouride on another computer, by what its `/health` said ([reply], null while the phone is still asking). Open is
+   * offered whenever it may work, and only a computer that does not answer at all asks for Try again.
+   */
+  fun remote(reply: Reply?): Look = when (reply) {
+    null -> Look(Mascot.HELLO, Tone.CALM, Words.REMOTE_CHECKING, Action.OPEN, busy = false)
+    Reply.ANSWERS -> Look(Mascot.THUMBS, Tone.GOOD, Words.REMOTE_RUNNING, Action.OPEN, busy = false)
+    Reply.DOWN -> Look(Mascot.UNPLUGGED, Tone.WARN, Words.REMOTE_DOWN, Action.RETRY, busy = false)
+    Reply.UNSURE -> Look(Mascot.HELLO, Tone.CALM, Words.REMOTE_UNSURE, Action.OPEN, busy = false)
   }
 
   /** Whether "Turn off" is offered: whenever Nouride is on or on its way, never when it is off already. */

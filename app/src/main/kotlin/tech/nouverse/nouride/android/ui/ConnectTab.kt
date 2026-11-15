@@ -21,6 +21,7 @@ import tech.nouverse.nouride.android.Layout
 import tech.nouverse.nouride.android.Nouride
 import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.server.NetworkAccess
+import tech.nouverse.nouride.android.server.RemoteHost
 import tech.nouverse.nouride.android.server.ServerService
 import tech.nouverse.nouride.android.server.Where
 
@@ -67,31 +68,16 @@ internal class ConnectTab(private val activity: Activity, private val ui: Ui, pr
     }
   }
 
-  /** Nouride on another machine: its address, to copy or send on. No switch: this phone runs nothing to open. */
+  /**
+   * Nouride on another computer: the same code and address as this phone's own, for that computer's address. No
+   * switch, and no Wi-Fi needed: this phone runs nothing to open, and the address works from anywhere.
+   */
   private fun renderRemote(address: String) {
     if (shownRemote == address) return
     shownRemote = address
     column.removeAllViews()
     column.addView(ui.header(R.string.tab_connect))
-    column.addView(ui.card(padding = 24).apply {
-      gravity = Gravity.CENTER_HORIZONTAL
-      addView(ui.text(20f, R.color.ink, bold = true, center = true).apply { setText(R.string.remote_connect_title) })
-      addView(ui.text(15f, R.color.muted, center = true).apply { setText(R.string.remote_connect_body) }, ui.fullWidth(6))
-      addView(ui.text(20f, R.color.brand_text, bold = true, center = true).apply {
-        typeface = Fonts.typeface(context, Type.MONO)
-        text = address
-        setTextIsSelectable(true)
-        maxLines = 2
-        background = ui.rounded(ui.color(R.color.brand_soft), 20)
-        setPadding(ui.dp(12), ui.dp(14), ui.dp(12), ui.dp(14))
-      }, ui.fullWidth(18))
-      addView(LinearLayout(activity).apply {
-        orientation = LinearLayout.HORIZONTAL
-        addView(ui.secondary { copy(address) }.apply { setText(R.string.copy) }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-        addView(View(activity), LinearLayout.LayoutParams(ui.dp(12), 1))
-        addView(ui.primary { share(address) }.apply { setText(R.string.share_address) }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-      }, ui.fullWidth(16))
-    }, ui.fullWidth(16))
+    ready(address, RemoteHost.shown(address), R.string.remote_connect_title, R.string.remote_connect_body, R.string.remote_connect_sign_in)
   }
 
   /** Open from other devices: the `.env`'s `HOST`, and Nouride started again for a moment to read it. */
@@ -131,10 +117,17 @@ internal class ConnectTab(private val activity: Activity, private val ui: Ui, pr
       if (home) addView(ui.primary { onGoHome() }.apply { setText(R.string.go_home) }, ui.fullWidth(20))
     }
 
-  private fun ready(address: String) {
+  /** The code, the address as a person reads it ([shown]), Copy and Share, and how to sign in there. */
+  private fun ready(
+    address: String,
+    shown: String = address,
+    heading: Int = R.string.connect_ready_title,
+    sentence: Int = R.string.connect_ready_body,
+    signIn: Int = R.string.connect_sign_in_body,
+  ) {
     val card = ui.card(padding = 24).apply { gravity = Gravity.CENTER_HORIZONTAL }
-    card.addView(ui.text(20f, R.color.ink, bold = true, center = true).apply { setText(R.string.connect_ready_title) })
-    card.addView(ui.text(15f, R.color.muted, center = true).apply { setText(R.string.connect_ready_body) }, ui.fullWidth(6))
+    card.addView(ui.text(20f, R.color.ink, bold = true, center = true).apply { setText(heading) })
+    card.addView(ui.text(15f, R.color.muted, center = true).apply { setText(sentence) }, ui.fullWidth(6))
     // Dark on white in the dark theme too: a camera reads a code by its contrast.
     card.addView(ImageView(activity).apply {
       setImageDrawable(BitmapDrawable(activity.resources, qr(address)).apply { isFilterBitmap = false })
@@ -145,9 +138,10 @@ internal class ConnectTab(private val activity: Activity, private val ui: Ui, pr
     card.addView(ui.text(22f, R.color.brand_text, bold = true, center = true).apply {
       // An address is an identifier: DM Mono, as the dashboard sets one.
       typeface = Fonts.typeface(context, Type.MONO)
-      text = address
+      text = shown
       setTextIsSelectable(true)
-      maxLines = 1
+      // One line for the phone's own address; a tunnel's long name takes a second line rather than lose its end.
+      maxLines = 2
       if (Build.VERSION.SDK_INT >= 26) setAutoSizeTextTypeUniformWithConfiguration(14, 22, 1, TypedValue.COMPLEX_UNIT_SP)
       background = ui.rounded(ui.color(R.color.brand_soft), 20)
       setPadding(ui.dp(12), ui.dp(14), ui.dp(12), ui.dp(14))
@@ -162,7 +156,7 @@ internal class ConnectTab(private val activity: Activity, private val ui: Ui, pr
 
     column.addView(ui.card().apply {
       addView(ui.text(17f, R.color.ink, bold = true).apply { setText(R.string.connect_sign_in_title) })
-      addView(ui.text(15f, R.color.muted).apply { setText(R.string.connect_sign_in_body) }, ui.fullWidth(6))
+      addView(ui.text(15f, R.color.muted).apply { setText(signIn) }, ui.fullWidth(6))
     }, ui.fullWidth(12))
   }
 

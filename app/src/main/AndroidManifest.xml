@@ -23,7 +23,8 @@
     <activity
       android:name=".ui.StatusActivity"
       android:exported="true"
-      android:launchMode="singleTop">
+      android:launchMode="singleTop"
+      android:windowSoftInputMode="adjustNothing">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

@@ -12,6 +12,7 @@ import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
 import tech.nouverse.nouride.android.R
+import tech.nouverse.nouride.android.server.RemoteHost
 import tech.nouverse.nouride.android.server.ServerState
 import tech.nouverse.nouride.android.server.Step
 import tech.nouverse.nouride.android.server.Where
@@ -21,9 +22,10 @@ import tech.nouverse.nouride.android.server.Where
  * a new version of the app when there is one (`UpdateCard`); under it, only while the phone may stop Nouride, one line
  * that leads to More, where that is fixed.
  *
- * On the very first screen it asks the one thing the app cannot answer for the person: whether this phone should run
- * Nouride, or open a Nouride that already runs on another machine (`server/Place`). Answered "another machine", the tab
- * carries that machine's card instead of the state of a server this phone does not run.
+ * On the very first screen of a phone without Nouride it asks the one thing the app cannot answer for the person:
+ * whether this phone should run Nouride, or open a Nouride that already runs on another computer (`server/Place`).
+ * Answered "another computer", the same card says how that computer's Nouride is (`StatusLook.remote`) and where it is,
+ * with the same one button. Changing the answer is on More, as it is rarely done.
  */
 internal class HomeTab(
   private val context: Context,
@@ -33,7 +35,6 @@ internal class HomeTab(
   private val onKeepRunning: () -> Unit,
   private val onRunHere: () -> Unit,
   private val onConnectRemote: () -> Unit,
-  private val onChangePlace: () -> Unit,
 ) {
   private val hero: LinearLayout = ui.card(padding = 24).apply { gravity = Gravity.CENTER_HORIZONTAL }
   private val mascot = ImageView(context).apply { adjustViewBounds = true; scaleType = ImageView.ScaleType.FIT_CENTER }
@@ -66,30 +67,13 @@ internal class HomeTab(
     addView(ui.secondary { onConnectRemote() }.apply { setText(R.string.where_remote) }, ui.fullWidth(8))
   }
 
-  private val remoteAddress: TextView = ui.text(16f, R.color.brand_text, bold = true, center = true).apply {
+  /** Where the other computer is, under the sentence, only while Nouride lives there. */
+  private val remoteAddress: TextView = ui.text(15f, R.color.brand_text, bold = true, center = true).apply {
     // An address is an identifier: DM Mono, as the dashboard and the Connect tab set one.
     typeface = Fonts.typeface(context, Type.MONO)
     setTextIsSelectable(true)
-    maxLines = 2
     background = ui.rounded(ui.color(R.color.brand_soft), 18)
-    setPadding(ui.dp(12), ui.dp(12), ui.dp(12), ui.dp(12))
-  }
-
-  /** Nouride on another machine: where it is, and the one button this phone is for. */
-  private val remote: LinearLayout = ui.card(padding = 24).apply {
-    gravity = Gravity.CENTER_HORIZONTAL
-    addView(ImageView(context).apply {
-      setImageResource(R.drawable.mascot_thumbs)
-      adjustViewBounds = true
-    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, ui.dp(180)))
-    addView(ui.text(24f, R.color.ink, bold = true, center = true).apply { setText(R.string.remote_title) }, ui.fullWidth(16))
-    addView(ui.text(16f, R.color.muted, center = true).apply { setText(R.string.remote_body) }, ui.fullWidth(8))
-    addView(remoteAddress, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-      topMargin = ui.dp(18)
-      bottomMargin = ui.dp(2)
-    })
-    addView(ui.primary { onPrimary() }.apply { setText(R.string.action_open) }, ui.fullWidth(20))
-    addView(ui.quiet { onChangePlace() }.apply { setText(R.string.remote_change) }, ui.fullWidth(4))
+    setPadding(ui.dp(14), ui.dp(10), ui.dp(14), ui.dp(10))
   }
 
   private var bob: ObjectAnimator? = null
@@ -107,6 +91,9 @@ internal class HomeTab(
     hero.addView(mascot, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, ui.dp(220)))
     hero.addView(title, ui.fullWidth(16))
     hero.addView(body, ui.fullWidth(8))
+    hero.addView(remoteAddress, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+      topMargin = ui.dp(14)
+    })
     hero.addView(progress, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, ui.dp(12)).apply {
       topMargin = ui.dp(20)
     })
@@ -120,7 +107,6 @@ internal class HomeTab(
     hero.addView(primary, ui.fullWidth(20))
     column.addView(choose, ui.fullWidth(12))
     column.addView(hero, ui.fullWidth(12))
-    column.addView(remote, ui.fullWidth(12))
     column.addView(battery, ui.fullWidth(12))
     view = ScrollView(context).apply { addView(column) }
   }
@@ -131,14 +117,13 @@ internal class HomeTab(
    */
   fun render(look: Look, mayStop: Boolean, where: Where?, address: String?) {
     choose.visibility = if (where == null) View.VISIBLE else View.GONE
-    remote.visibility = if (where == Where.REMOTE) View.VISIBLE else View.GONE
-    hero.visibility = if (where == Where.PHONE) View.VISIBLE else View.GONE
+    hero.visibility = if (where == null) View.GONE else View.VISIBLE
     // A server this phone does not run has nothing to say about its battery.
     battery.visibility = if (where == Where.PHONE && mayStop && ServerState.progress == null) View.VISIBLE else View.GONE
-    if (where != Where.PHONE) {
+    remoteAddress.visibility = if (address == null) View.GONE else View.VISIBLE
+    remoteAddress.text = address?.let(RemoteHost::shown)
+    if (where == null) {
       bobbing(false)
-      shownMascot = null
-      remoteAddress.text = address.orEmpty()
       return
     }
     if (look.mascot != shownMascot) {

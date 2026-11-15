@@ -103,21 +103,37 @@
   <string name="this_phone_body">Turn on Open from other devices to use it on a tablet, a computer or another phone.</string>
 
   <!-- Where Nouride lives: on this phone, or on a machine the person already runs. Asked once, on Home. -->
-  <string name="where_title">Where should Nouride live?</string>
-  <string name="where_body">Run it on this phone, or use a Nouride that is already running on another machine.</string>
-  <string name="where_phone">Run Nouride on this phone</string>
-  <string name="where_remote">Connect to another machine</string>
-  <string name="where_ask_title">Nouride on another machine</string>
-  <string name="where_ask_body">Type the address you were given for it. It starts with https://, like https://nouride.example.com</string>
-  <string name="where_address_hint">Address</string>
+  <string name="where_title">Where should Nouride run?</string>
+  <string name="where_body">Run it on this phone, or open a Nouride you already have on another computer, at home or in the cloud.</string>
+  <string name="where_phone">Run it on this phone</string>
+  <string name="where_remote">Use Nouride on another computer</string>
+  <string name="where_ask_title">Nouride on another computer</string>
+  <string name="where_ask_body">Type the address you open it at.</string>
+  <string name="where_address_hint">nouride.example.com</string>
   <string name="where_connect">Connect</string>
-  <string name="where_bad_address">Nouride Home can\'t open that address. It has to start with https://. Check it and try again.</string>
-  <string name="remote_title">Nouride is on another machine</string>
-  <string name="remote_body">Your assistant answers from that machine. This phone opens it.</string>
-  <string name="remote_change">Change</string>
-  <string name="remote_change_body">Ask again where Nouride lives?</string>
-  <string name="remote_connect_title">Nouride on another machine</string>
-  <string name="remote_connect_body">Open it on a tablet or a computer at the same address.</string>
+  <string name="where_checking">Checking…</string>
+  <string name="where_stops_here">Nouride on this phone turns off. Its agents stop answering until you switch back to this phone in More.</string>
+  <string name="where_empty">Type the address first.</string>
+  <string name="where_plain_http">Nouride Home only opens addresses that start with https://. Try it with https://.</string>
+  <string name="where_not_an_address">That doesn\'t look like an address. It looks like nouride.example.com.</string>
+  <string name="where_unreachable">Nouride Home can\'t reach that address. Check it, and that the other computer is on, then try again.</string>
+  <string name="remote_title">Nouride is on another computer</string>
+  <string name="remote_checking_body">Checking that it answers.</string>
+  <string name="remote_running_body">It runs on another computer. This phone opens it.</string>
+  <string name="remote_unsure_body">Open it to sign in.</string>
+  <string name="remote_down_title">Nouride isn\'t answering</string>
+  <string name="remote_down_body">Check that the other computer is on and online, then try again.</string>
+  <string name="remote_connect_title">Open Nouride on another device</string>
+  <string name="remote_connect_body">Scan the code with a tablet\'s or a computer\'s camera, or send them the address.</string>
+  <string name="remote_connect_sign_in">Sign in with that Nouride\'s username and password.</string>
+
+  <!-- More: where Nouride runs, changed at any time. -->
+  <string name="place_title">Where Nouride runs</string>
+  <string name="place_phone">This phone</string>
+  <string name="place_remote">Another computer</string>
+  <string name="place_phone_body">Nouride runs here, on this phone.</string>
+  <string name="place_remote_body">This phone opens the Nouride at this address.</string>
+  <string name="place_change_address">Change address</string>
 
   <string name="keep_running_title">Keep Nouride running</string>
   <string name="battery_ok">Your phone lets Nouride run with the screen off.</string>
