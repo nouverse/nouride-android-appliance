@@ -53,7 +53,15 @@ pub fn handle(handle: &AppHandle, app: &Arc<App>, argv: &[String]) {
       }
       "update-nouride" => crate::versions::update_nouride(h.clone(), a.clone()),
       "shot" => return shot(&h, &a, &arg),
-      "quit" => h.exit(0),
+      // The answer is written first; the app goes a moment later.
+      "quit" => {
+        let h = h.clone();
+        std::thread::spawn(move || {
+          std::thread::sleep(std::time::Duration::from_millis(500));
+          h.exit(0);
+        });
+        return Ok(json!("quitting"));
+      }
       other => return Err(format!("no such action: {other}")),
     }
     poller::tick(&h, &a, &mut 0);

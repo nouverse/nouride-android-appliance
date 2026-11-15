@@ -68,7 +68,8 @@ const APPEARANCE: &str = "appearance";
 
 impl App {
   pub fn new(build: Build, layout: Layout, uid: u32, home: &std::path::Path) -> App {
-    let agent = LaunchAgent::new(System, uid, build.agent_label, home);
+    let program = vec![layout.binary().display().to_string(), "start".to_owned()];
+    let agent = LaunchAgent::new(System, uid, build.agent_label, home, program);
     App {
       build,
       layout,

@@ -13,6 +13,34 @@ pub const NOURIDE_OWN_LABEL: &str = "tech.nouverse.nouride";
 /// What `launchctl print` exits with for a service it does not know.
 const NOT_LOADED: i32 = 113;
 
+fn escape(text: &str) -> String {
+  text.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;").replace('"', "&quot;")
+}
+
+/// The plist's `ProgramArguments` with `program` as the command it runs. Nouride writes its start command split on
+/// spaces (`service install`, up to 0.8.38 at least), so an install folder with a space in it, as every folder under
+/// `~/Library/Application Support` has, became two arguments and launchd could not start it (exit 126). Its own update
+/// guard, the `/bin/sh -c` script before the command, is kept as it is; a plist without one runs `program` alone.
+pub fn with_program(plist: &str, program: &[String]) -> Result<String, String> {
+  let key = "<key>ProgramArguments</key>";
+  let at = plist.find(key).ok_or("no ProgramArguments in Nouride's plist")?;
+  let open = at + plist[at..].find("<array>").ok_or("ProgramArguments is not an array")? + "<array>".len();
+  let close = open + plist[open..].find("</array>").ok_or("an unclosed ProgramArguments")?;
+  let entries: Vec<&str> = plist[open..close]
+    .split("<string>")
+    .skip(1)
+    .map(|e| e.split("</string>").next().unwrap_or(""))
+    .collect();
+  let mut keep: Vec<String> = vec![];
+  if entries.len() >= 3 && entries[0] == "/bin/sh" && entries[1] == "-c" {
+    keep = entries[..3].iter().map(|e| (*e).to_owned()).collect();
+  }
+  keep.extend(program.iter().map(|p| escape(p)));
+  let indent = "    ";
+  let body: String = keep.iter().map(|e| format!("\n{indent}<string>{e}</string>")).collect();
+  Ok(format!("{}{}\n  {}", &plist[..open], body, &plist[close..]))
+}
+
 /// Nouride's generated plist with `label` in place of its own. Refused, rather than written, when it is not the plist
 /// expected: no `Label`, no `ProgramArguments`, or its own label anywhere else in it.
 pub fn relabel(plist: &str, label: &str) -> Result<String, String> {
@@ -80,16 +108,19 @@ pub struct LaunchAgent<E: Exec> {
   pub exec: E,
   pub uid: u32,
   pub label: String,
+  /// What the job runs: Nouride's binary and `start`, each one argument whatever spaces are in its path.
+  pub program: Vec<String>,
   /// `~/Library/LaunchAgents/<label>.plist`.
   pub path: PathBuf,
 }
 
 impl<E: Exec> LaunchAgent<E> {
-  pub fn new(exec: E, uid: u32, label: &str, home: &Path) -> LaunchAgent<E> {
+  pub fn new(exec: E, uid: u32, label: &str, home: &Path, program: Vec<String>) -> LaunchAgent<E> {
     LaunchAgent {
       exec,
       uid,
       label: label.to_owned(),
+      program,
       path: home.join("Library").join("LaunchAgents").join(format!("{label}.plist")),
     }
   }
@@ -105,7 +136,7 @@ impl<E: Exec> LaunchAgent<E> {
 
 impl<E: Exec> Supervisor for LaunchAgent<E> {
   fn install_and_start(&self, generated: &str) -> io::Result<()> {
-    let plist = relabel(generated, &self.label).map_err(io::Error::other)?;
+    let plist = with_program(&relabel(generated, &self.label).map_err(io::Error::other)?, &self.program).map_err(io::Error::other)?;
     if self.loaded()? {
       self.run(bootout(self.uid, &self.label))?;
     }
@@ -253,7 +284,44 @@ mod tests {
   fn agent<'a>(fake: &'a Fake, name: &str) -> LaunchAgent<&'a Fake> {
     let home = std::env::temp_dir().join(format!("service-launchd-{}-{name}", std::process::id()));
     let _ = fs::remove_dir_all(&home);
-    LaunchAgent::new(fake, 501, LABEL, &home)
+    LaunchAgent::new(fake, 501, LABEL, &home, vec!["/Users/x/Library/Application Support/a b/nouride".into(), "start".into()])
+  }
+
+  const SPLIT: &str = r#"<plist><dict><key>Label</key><string>tech.nouverse.nouride</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>-c</string>
+    <string>(d=&quot;/Users/x/Library/Application Support/n&quot;; true); exec &quot;$0&quot; &quot;$@&quot;</string>
+    <string>/Users/x/Library/Application</string>
+    <string>Support/n/nouride</string>
+    <string>start</string>
+  </array>
+</dict></plist>"#;
+
+  #[test]
+  fn a_start_command_split_on_its_spaces_is_put_back_as_one_path_and_the_guard_kept() {
+    // The label is the first string; then /bin/sh, -c, the guard, the command.
+    let program = vec!["/Users/x/Library/Application Support/n/nouride".to_owned(), "start".to_owned()];
+    let out = with_program(SPLIT, &program).unwrap();
+    let args: Vec<&str> = out.split("<string>").skip(1).map(|e| e.split("</string>").next().unwrap()).collect();
+    assert_eq!(
+      args[3..],
+      [
+        "(d=&quot;/Users/x/Library/Application Support/n&quot;; true); exec &quot;$0&quot; &quot;$@&quot;",
+        "/Users/x/Library/Application Support/n/nouride",
+        "start"
+      ]
+    );
+    assert!(out.ends_with("</array>\n</dict></plist>"));
+  }
+
+  #[test]
+  fn a_plist_without_the_guard_runs_the_program_alone_with_its_characters_escaped() {
+    let plain = "<key>ProgramArguments</key><array><string>/x/nouride</string><string>start</string></array>";
+    let out = with_program(plain, &["/a & b/nouride".to_owned(), "start".to_owned()]).unwrap();
+    assert!(out.contains("<string>/a &amp; b/nouride</string>\n    <string>start</string>"));
+    assert!(!out.contains("/x/nouride"));
   }
 
   #[test]
