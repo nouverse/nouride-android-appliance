@@ -14,6 +14,13 @@ class BootReceiverTest {
   }
 
   @Test
+  fun `never while Nouride lives on another machine`() {
+    // This phone runs no server then: starting one would be a Nouride nobody asked for.
+    assertFalse(BootReceiver.startsAgain(Intent.ACTION_BOOT_COMPLETED, wasRunning = true, remote = true))
+    assertFalse(BootReceiver.startsAgain(Intent.ACTION_MY_PACKAGE_REPLACED, wasRunning = true, remote = true))
+  }
+
+  @Test
   fun `never when it was off, and never for another broadcast`() {
     assertFalse(BootReceiver.startsAgain(Intent.ACTION_MY_PACKAGE_REPLACED, wasRunning = false))
     assertFalse(BootReceiver.startsAgain(Intent.ACTION_BOOT_COMPLETED, wasRunning = false))

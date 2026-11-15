@@ -4,7 +4,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInstaller
+import tech.nouverse.nouride.android.server.Place
 import tech.nouverse.nouride.android.server.ServerService
+import tech.nouverse.nouride.android.server.Where
 
 /**
  * Android's installer reporting on an update `Updates.install` handed it: first that it needs the person's yes, with the
@@ -24,13 +26,18 @@ class UpdateReceiver : BroadcastReceiver() {
     }
     Updates.setFailed(context, status != PackageInstaller.STATUS_SUCCESS)
     val run = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE).getBoolean(ServerService.PREF_RUN, false)
-    if (startsAgain(status, run)) ServerService.start(context)
+    val remote = Place(context).where() == Where.REMOTE
+    if (startsAgain(status, run, remote)) ServerService.start(context)
   }
 
   companion object {
     const val ACTION = "tech.nouverse.nouride.android.UPDATE_STATUS"
 
-    /** Pure, so when it starts Nouride is tested: after an update that went in, if Nouride was running. */
-    fun startsAgain(status: Int, wasRunning: Boolean): Boolean = wasRunning && status == PackageInstaller.STATUS_SUCCESS
+    /**
+     * Pure, so when it starts Nouride is tested: after an update that went in, if Nouride was running, and never while
+     * it lives on another machine (`Place`), where this app updating says nothing about that machine's Nouride.
+     */
+    fun startsAgain(status: Int, wasRunning: Boolean, remote: Boolean = false): Boolean =
+      !remote && wasRunning && status == PackageInstaller.STATUS_SUCCESS
   }
 }

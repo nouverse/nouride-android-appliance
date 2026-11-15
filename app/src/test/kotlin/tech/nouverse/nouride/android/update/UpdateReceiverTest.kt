@@ -14,6 +14,12 @@ class UpdateReceiverTest {
   }
 
   @Test
+  fun `never while Nouride lives on another machine`() {
+    // An update of this app says nothing about that machine's Nouride: there is nothing here to start again.
+    assertFalse(UpdateReceiver.startsAgain(PackageInstaller.STATUS_SUCCESS, wasRunning = true, remote = true))
+  }
+
+  @Test
   fun `never when Nouride was off, and never after an update that did not go in`() {
     assertFalse(UpdateReceiver.startsAgain(PackageInstaller.STATUS_SUCCESS, wasRunning = false))
     assertFalse(UpdateReceiver.startsAgain(PackageInstaller.STATUS_FAILURE_ABORTED, wasRunning = true))

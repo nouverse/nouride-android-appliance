@@ -33,7 +33,28 @@ watch. Back from Connect or More goes Home; from Home it leaves the app (`ui/Tab
 
 ## Home
 
-One sentence of state, in plain words, and one main button. Each state has its own sentence and its own button:
+On a phone without Nouride, before anything runs, the first screen asks the one thing the app cannot answer for the
+person: where Nouride should run (`server/Place`). Two answers, plain words: **Run it on this phone**, which starts the
+first setup at once (the press is the person asking for it), and **Use Nouride on another computer**, which opens the
+address card. A phone that already has Nouride on it (an update over an install older than the question) is never
+asked: it is "this phone".
+
+The address card (`ui/AddressSheet.kt`) is a round card in the app's own look, never Android's plain dialog: "Nouride on
+another computer", "Type the address you open it at.", one field in DM Mono with a web-address keyboard and
+`nouride.example.com` as its hint, then Connect and Cancel. What is wrong is said under the field, in its own sentence:
+nothing typed, an `http://` address ("Nouride Home only opens addresses that start with https://. Try it with
+https://."), something that is not an address, and an address nothing answers at, which Connect checks once before
+taking it ("Checking…"), as a typo is the likeliest cause. While Nouride runs on this phone, the card says first, on
+pink, that it turns off and its agents stop answering until the person switches back in More.
+
+Answered "another computer", Home keeps its one card and one button, for that computer's Nouride: its `/health` is
+asked when the screen opens and on Try again (`server/RemoteReply`), and the card says "Nouride is running" with the
+thumbs up, "Nouride isn't answering" with the unplugged cat and Try again (no answer, or a tunnel whose computer is
+off), or "Nouride is on another computer", "Open it to sign in." with the waving cat when a page stands in front of it
+(Cloudflare Access). Under the sentence, the address without `https://`, in DM Mono in a soft pill.
+
+Answered "this phone", one sentence of state, in plain words, and one main button. Each state has its own sentence and
+its own button:
 
 | State | What the person reads | Main button |
 | --- | --- | --- |
@@ -70,13 +91,25 @@ the same Wi-Fi open Nouride. Turn it off on a Wi-Fi you don't trust." On as inst
 phone (the app's own dashboard keeps working) and the card under it says "Only this phone can open Nouride"; a change
 says "Nouride starts again for a moment", which it does, for about a second.
 
-Only when Nouride answers, others may open it, and the phone is on Wi-Fi: "Open Nouride on another device", one sentence, a QR code a
+While Nouride runs on another computer the tab shows that computer instead, the same card as below for its address
+(the code, the address without `https://`, Copy and Share address), with no switch and no Wi-Fi needed: this phone
+runs nothing for the switch to open, and the address works from anywhere.
+
+On this phone, only when Nouride answers, others may open it, and the phone is on Wi-Fi: "Open Nouride on another device", one sentence, a QR code a
 tablet's or a phone's camera opens (`ui/QrCode.kt`, dark on white in both themes, as a camera reads contrast), the
 address large in a soft pill, Copy and Share address, and how to sign in there: "Use the username and password you
 chose when you set up Nouride." Before that, the cat and "Nouride isn't running yet" with Go to Home; off Wi-Fi, "This
 phone isn't on Wi-Fi". Never an address that leads nowhere, and never `http://10.x.x.x:18254/...` in a sentence.
 
 ## More
+
+- **Where Nouride runs**, first: **This phone** or **Another computer**, side by side as Appearance's choices are.
+  This phone switches at once and starts Nouride here; Another computer opens the address card, filled with the last
+  address given. Under the choice, one sentence, and while it is another computer its address and Change address.
+
+Keeping it running and turning it off are not this phone's business while Nouride runs on another computer, so both
+go away with it. Versions and updates keeps this app's card only, as its own Nouride's version
+is that computer's.
 
 - **Keep Nouride running**: a green check and one sentence once the phone lets Nouride run with the screen off; before
   that, why ("Your phone may stop Nouride to save battery.") and Allow. On Xiaomi's phones (Xiaomi, Redmi, POCO), Start

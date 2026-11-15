@@ -25,6 +25,8 @@ import org.json.JSONObject
 import tech.nouverse.nouride.android.Nouride
 import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.server.FirstAdmin
+import tech.nouverse.nouride.android.server.Place
+import tech.nouverse.nouride.android.server.RemoteHost
 import tech.nouverse.nouride.android.server.ServerService
 import tech.nouverse.nouride.android.signin.CallbackCatcher
 import tech.nouverse.nouride.android.signin.LoopbackSignIn
@@ -35,7 +37,9 @@ import kotlin.concurrent.thread
 
 /**
  * The daemon's own dashboard, from the loopback address, already signed in: the app signs in with the account it made
- * on the first start (`FirstAdmin`) and hands the session cookie to the WebView. When that fails (the person changed
+ * on the first start (`FirstAdmin`) and hands the session cookie to the WebView. While Nouride lives on another
+ * machine (`server/Place`), the same screen shows that machine's dashboard instead, over https, with its own login page
+ * as the way in: a session there is the person's, not this app's to make. When that fails (the person changed
  * the password, or the install is older than the account) the dashboard shows its own login page, as anywhere else.
  *
  * Only Nouride's own pages open here (`LinkPolicy`); every other link leaves for the browser or the app that owns it,
@@ -54,12 +58,21 @@ class DashboardActivity : Activity() {
   private lateinit var unreachable: View
   private var failed: String? = null
 
+  /** The Nouride this screen shows: this phone's own, or the machine a person pointed the app at (`server/Place`). */
+  private lateinit var origin: String
+  private lateinit var start: String
+
   /** In the appearance chosen on the More tab (`Appearances`). */
   override fun attachBaseContext(base: Context) = super.attachBaseContext(Appearances.wrap(base))
 
   @SuppressLint("SetJavaScriptEnabled")
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    // Nouride on another machine: that machine's session is its own, so the app signs in with nothing and the
+    // dashboard's own login page takes over, as it does on any other device.
+    val remote = Place(this).address()
+    start = remote?.let(RemoteHost::dashboard) ?: Nouride.DASHBOARD_URL
+    origin = remote ?: Nouride.ORIGIN
     web = WebView(this)
     web.settings.javaScriptEnabled = true
     web.settings.domStorageEnabled = true
@@ -112,9 +125,11 @@ class DashboardActivity : Activity() {
       web.restoreState(savedInstanceState)
       return
     }
-    val password = getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).getString(ServerService.PREF_ADMIN_PASSWORD, null)
+    // A machine of the person's own: nothing to sign in with here, and its login page is the way in.
+    val password = if (remote != null) null
+    else getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).getString(ServerService.PREF_ADMIN_PASSWORD, null)
     if (password == null) {
-      web.loadUrl(Nouride.DASHBOARD_URL)
+      web.loadUrl(start)
       return
     }
     thread(name = "dashboard-sign-in") {
@@ -125,7 +140,7 @@ class DashboardActivity : Activity() {
           CookieManager.getInstance().setCookie(Nouride.ORIGIN, cookie)
           CookieManager.getInstance().flush()
         }
-        web.loadUrl(Nouride.DASHBOARD_URL)
+        web.loadUrl(start)
       }
     }
   }
@@ -133,7 +148,7 @@ class DashboardActivity : Activity() {
   private fun retry() {
     unreachable.visibility = View.GONE
     opening.visibility = View.VISIBLE
-    web.loadUrl(failed ?: Nouride.DASHBOARD_URL)
+    web.loadUrl(failed ?: start)
   }
 
   /** The status screen, whether it is under this one or not: after a sign-in this screen may be the only one left. */
@@ -155,11 +170,11 @@ class DashboardActivity : Activity() {
   /** Nouride's pages stay; anything else goes out, redirects too: `/oauth/start` answers with Google's page. */
   private inner class Guard : WebViewClient() {
     override fun onPageCommitVisible(view: WebView, url: String) {
-      if (LinkPolicy.inApp(url) && url != "about:blank") opening.visibility = View.GONE
+      if (LinkPolicy.inApp(url, origin) && url != "about:blank") opening.visibility = View.GONE
     }
 
     override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
-      if (!LinkPolicy.unreachable(request.isForMainFrame, request.url.toString())) return
+      if (!LinkPolicy.unreachable(request.isForMainFrame, request.url.toString(), origin)) return
       failed = request.url.toString()
       opening.visibility = View.GONE
       unreachable.visibility = View.VISIBLE
@@ -167,7 +182,7 @@ class DashboardActivity : Activity() {
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
       val url = request.url.toString()
-      return when (LinkPolicy.link(url, request.isForMainFrame)) {
+      return when (LinkPolicy.link(url, request.isForMainFrame, origin)) {
         LinkPolicy.Link.BACK -> {
           back()
           true
@@ -191,14 +206,14 @@ class DashboardActivity : Activity() {
       popup.webViewClient = object : WebViewClient() {
         override fun shouldOverrideUrlLoading(v: WebView, request: WebResourceRequest): Boolean {
           val url = request.url.toString()
-          if (LinkPolicy.inApp(url)) return false
+          if (LinkPolicy.inApp(url, origin)) return false
           openOutside(url)
           v.destroy()
           return true
         }
 
         override fun onPageFinished(v: WebView, url: String) {
-          if (url == "about:blank" || !LinkPolicy.inApp(url)) return
+          if (url == "about:blank" || !LinkPolicy.inApp(url, origin)) return
           web.loadUrl(url)
           v.destroy()
         }
@@ -268,7 +283,7 @@ class DashboardActivity : Activity() {
     val list = web.copyBackForwardList()
     val history = (0 until list.size).map { list.getItemAtIndex(it).url }
     val shown = unreachable.visibility != View.VISIBLE && opening.visibility != View.VISIBLE
-    when (LinkPolicy.back(history, list.currentIndex, dashboardShown = shown)) {
+    when (LinkPolicy.back(history, list.currentIndex, dashboardShown = shown, origin = origin)) {
       LinkPolicy.Back.PAGE -> web.goBack()
       LinkPolicy.Back.LEAVE -> goHome()
       LinkPolicy.Back.ASK -> askToLeave()

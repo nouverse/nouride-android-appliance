@@ -3,7 +3,9 @@ package tech.nouverse.nouride.android.boot
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import tech.nouverse.nouride.android.server.Place
 import tech.nouverse.nouride.android.server.ServerService
+import tech.nouverse.nouride.android.server.Where
 
 /**
  * Starts the server again after the phone boots, and after this app is updated (Android stops an app to replace it),
@@ -14,12 +16,16 @@ import tech.nouverse.nouride.android.server.ServerService
 class BootReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent) {
     val run = context.getSharedPreferences(ServerService.PREFS, Context.MODE_PRIVATE).getBoolean(ServerService.PREF_RUN, false)
-    if (startsAgain(intent.action, run)) ServerService.start(context)
+    val remote = Place(context).where() == Where.REMOTE
+    if (startsAgain(intent.action, run, remote)) ServerService.start(context)
   }
 
   companion object {
-    /** Pure, so which broadcasts start it is tested. */
-    fun startsAgain(action: String?, wasRunning: Boolean): Boolean =
-      wasRunning && (action == Intent.ACTION_BOOT_COMPLETED || action == Intent.ACTION_MY_PACKAGE_REPLACED)
+    /**
+     * Pure, so which broadcasts start it is tested. Never while Nouride lives on another machine: this phone runs no
+     * server, and starting one would be a Nouride nobody asked for, on a phone that was told to open someone else's.
+     */
+    fun startsAgain(action: String?, wasRunning: Boolean, remote: Boolean = false): Boolean =
+      !remote && wasRunning && (action == Intent.ACTION_BOOT_COMPLETED || action == Intent.ACTION_MY_PACKAGE_REPLACED)
   }
 }

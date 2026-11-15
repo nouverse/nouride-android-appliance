@@ -12,14 +12,25 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.power.PowerSettings
+import tech.nouverse.nouride.android.server.Place
+import tech.nouverse.nouride.android.server.HealthPoller
+import tech.nouverse.nouride.android.server.RemoteReply
+import tech.nouverse.nouride.android.server.Reply
 import tech.nouverse.nouride.android.server.ServerService
 import tech.nouverse.nouride.android.server.ServerState
+import tech.nouverse.nouride.android.server.Where
+import kotlin.concurrent.thread
 
 /**
  * The app's screen, three tabs along a bar at the bottom: Home (the cat, how Nouride is, one big button), Connect
  * (Nouride on another device) and More (keeping it running, this app's version, turning it off, Technical Logs). The
  * users are not technical, so the server's phases, addresses and log stay behind Technical Logs (`SupportActivity`,
  * `StatusLook`, and the android-appliance-ui skill). The bar is hidden while the first start sets Nouride up.
+ *
+ * A phone without Nouride first asks where it runs (`Place`): on this phone, started when that is pressed, or on another
+ * computer at an address the person gives. Nothing of the phone's own server starts until it is answered, and answered
+ * "another computer" this screen never starts one at all. More changes the answer either way.
+ *
  * The extras `start`, `stop` and `dashboard` (booleans) do what the buttons do, and `tab` (home, connect, more) opens a
  * tab, for `adb shell am start --ez <name> true` and `--es tab connect`.
  */
@@ -30,6 +41,7 @@ class StatusActivity : Activity() {
   private lateinit var connect: ConnectTab
   private lateinit var more: MoreTab
   private lateinit var bar: BottomBar
+  private lateinit var place: Place
   private var tab = Tab.HOME
   private val handler = Handler(Looper.getMainLooper())
   private val listener: () -> Unit = {
@@ -48,6 +60,7 @@ class StatusActivity : Activity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    place = Place(this)
     ui = Ui(this)
     ui.lightSystemBars(window)
     setContentView(views())
@@ -78,6 +91,8 @@ class StatusActivity : Activity() {
     handler.post(refresh)
     update.resume()
     more.resume()
+    render()
+    checkRemote()
   }
 
   override fun onPause() {
@@ -93,7 +108,9 @@ class StatusActivity : Activity() {
     if (to == null) super.onBackPressed() else show(to)
   }
 
+  /** Never while Nouride lives elsewhere: there is no server of this phone's to start. */
   private fun startServer() {
+    if (place.where() == Where.REMOTE) return openDashboard()
     update.starting()
     ServerService.start(this)
     if (!PowerSettings.isExempt(this)) startActivity(PowerSettings.exemptionRequest(this))
@@ -104,9 +121,15 @@ class StatusActivity : Activity() {
   private fun views(): View {
     // More said "You have the newest version" behind the dialog offering one: its line was read before the check.
     update = UpdateCard(this, ui, onChecked = { more.resume() })
-    home = HomeTab(this, ui, update, onPrimary = ::onPrimary, onKeepRunning = { show(Tab.MORE) })
+    home = HomeTab(
+      this, ui, update,
+      onPrimary = ::onPrimary,
+      onKeepRunning = { show(Tab.MORE) },
+      onRunHere = ::runOnThisPhone,
+      onConnectRemote = ::askForAddress,
+    )
     connect = ConnectTab(this, ui, onGoHome = { show(Tab.HOME) })
-    more = MoreTab(this, ui, onTurnOff = ::confirmTurnOff)
+    more = MoreTab(this, ui, onTurnOff = ::confirmTurnOff, onChoose = ::choose, onChangeAddress = ::askForAddress)
     bar = BottomBar(this, ui, onSelect = ::show)
     val content = FrameLayout(this).apply {
       addView(home.view)
@@ -133,21 +156,89 @@ class StatusActivity : Activity() {
   }
 
   private fun render() {
-    val look = StatusLook.of(ServerState.phase, answering = ServerState.health?.ok == true)
-    val mayStop = !PowerSettings.isExempt(this)
+    val where = place.where()
+    val address = place.address()
+    val look = if (where == Where.REMOTE) StatusLook.remote(reply)
+    else StatusLook.of(ServerState.phase, answering = ServerState.health?.ok == true)
+    val mayStop = where == Where.PHONE && !PowerSettings.isExempt(this)
     val barShown = Tabs.barShown(look, firstStart = ServerState.progress != null)
     if (!barShown && tab != Tab.HOME) return show(Tab.HOME)
     bar.view.visibility = if (barShown) View.VISIBLE else View.GONE
     bar.attention(Tab.MORE, mayStop)
-    home.render(look, mayStop)
-    if (tab == Tab.CONNECT) connect.render(look)
-    more.render(mayStop, StatusLook.canTurnOff(ServerState.phase))
+    home.render(look, mayStop, where, address)
+    if (tab == Tab.CONNECT) connect.render(look, where, address)
+    more.render(mayStop, where != Where.REMOTE && StatusLook.canTurnOff(ServerState.phase), where, address)
   }
 
-  private fun onPrimary() = when (StatusLook.of(ServerState.phase, ServerState.health?.ok == true).action) {
-    Action.START, Action.RETRY -> startServer()
-    Action.OPEN -> openDashboard()
-    Action.NONE -> Unit
+  private fun onPrimary() {
+    if (place.where() == Where.REMOTE) {
+      // Open while that computer may answer; Try again when it did not.
+      return if (StatusLook.remote(reply).action == Action.RETRY) checkRemote(again = true) else openDashboard()
+    }
+    when (StatusLook.of(ServerState.phase, ServerState.health?.ok == true).action) {
+      Action.START, Action.RETRY -> startServer()
+      Action.OPEN -> openDashboard()
+      Action.NONE -> Unit
+    }
+  }
+
+  /**
+   * "Run it on this phone", on the first screen or on More: the app as it always was, started at once, as the choice
+   * is the person asking for it. The install already here is picked up as it was.
+   */
+  private fun runOnThisPhone() {
+    place.onThisPhone()
+    reply = null
+    show(Tab.HOME)
+    if (ServerState.phase == ServerState.Phase.STOPPED || ServerState.phase == ServerState.Phase.FAILED) startServer()
+  }
+
+  /** More's choice: this phone at once; another computer only once its address is given and answers. */
+  private fun choose(where: Where) {
+    if (where == place.where()) return
+    if (where == Where.PHONE) runOnThisPhone() else askForAddress()
+  }
+
+  /**
+   * The address of a Nouride on another computer (`AddressSheet`). Anything this phone was running is turned off once
+   * it is given, so a phone that has moved on does not keep two, and the sheet says so before.
+   */
+  private fun askForAddress() {
+    val runningHere = place.where() != Where.REMOTE && StatusLook.canTurnOff(ServerState.phase)
+    addressSheet(this, ui, prefill = place.lastAddress(), stopsHere = runningHere) { base ->
+      place.onMachine(base)
+      if (ServerState.phase != ServerState.Phase.STOPPED) ServerService.stop(this)
+      show(Tab.HOME)
+      checkRemote(again = true)
+    }
+  }
+
+  /** What the other computer's Nouride says (`RemoteReply`), asked when the screen comes back and on Try again. */
+  private var reply: Reply? = null
+  private var replyFor: String? = null
+  private var asking = 0
+
+  /**
+   * [again]: the person asked (Try again, a new address), so the card says it is checking. Coming back to the screen
+   * keeps the last answer up until the new one is in, rather than flicker through "checking" each time.
+   */
+  private fun checkRemote(again: Boolean = false) {
+    val base = place.address() ?: return
+    val ask = ++asking
+    if (again || replyFor != base) {
+      reply = null
+      render()
+    }
+    thread(name = "remote-health") {
+      val answer = RemoteReply.of(HealthPoller(RemoteReply.healthUrl(base), 0) {}.check())
+      handler.post {
+        // A later question, or another address, owns the screen now.
+        if (ask != asking || place.address() != base) return@post
+        reply = answer
+        replyFor = base
+        render()
+      }
+    }
   }
 
   private fun confirmTurnOff() {

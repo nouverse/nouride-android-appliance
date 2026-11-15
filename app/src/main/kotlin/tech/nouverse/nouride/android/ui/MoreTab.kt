@@ -14,11 +14,14 @@ import android.widget.ScrollView
 import android.widget.TextView
 import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.power.PowerSettings
+import tech.nouverse.nouride.android.server.RemoteHost
 import tech.nouverse.nouride.android.server.ServerState
+import tech.nouverse.nouride.android.server.Where
 import tech.nouverse.nouride.android.update.Updates
 
 /**
- * The More tab, for what is rarely needed: keeping Nouride running (the battery exemption, with a check once it is
+ * The More tab, for what is rarely needed: where Nouride runs (this phone or another computer, `server/Place`), keeping
+ * Nouride running (the battery exemption, with a check once it is
  * given, and on Xiaomi's phones the Autostart switch), the appearance, Versions and updates (this app's and Nouride's,
  * on a screen of their own), turning Nouride off, and Technical Logs for whoever helps. Turning off lives here so it is
  * never pressed by mistake on Home.
@@ -27,13 +30,26 @@ internal class MoreTab(
   private val activity: Activity,
   private val ui: Ui,
   private val onTurnOff: () -> Unit,
+  private val onChoose: (Where) -> Unit,
+  private val onChangeAddress: () -> Unit,
 ) {
+  /** This phone or another computer, side by side as Appearance's choices are; drawn again on every render. */
+  private val placeChoices = mapOf(Where.PHONE to R.string.place_phone, Where.REMOTE to R.string.place_remote)
+    .mapValues { (where, label) -> choice(label) { onChoose(where) } }
+  private val placeBody: TextView = ui.text(15f, R.color.muted)
+  private val placeAddress: TextView = ui.text(15f, R.color.brand_text, bold = true).apply {
+    typeface = Fonts.typeface(activity, Type.MONO)
+    setTextIsSelectable(true)
+  }
+  private val changeAddress: Button = ui.secondary { onChangeAddress() }.apply { setText(R.string.place_change_address) }
   private val batteryOk = LinearLayout(activity).apply {
     orientation = LinearLayout.HORIZONTAL
     gravity = Gravity.CENTER_VERTICAL
   }
   private val batteryAsk = LinearLayout(activity).apply { orientation = LinearLayout.VERTICAL }
   private val versions: TextView = ui.text(15f, R.color.muted)
+  /** Keeping Nouride running is this phone's own server's business: hidden while Nouride lives elsewhere. */
+  private val running: LinearLayout = ui.card()
   private val turnOff: Button = ui.quiet { onTurnOff() }.apply {
     setText(R.string.turn_off_nouride)
     setTextColor(ui.color(R.color.warn))
@@ -48,7 +64,14 @@ internal class MoreTab(
     }
     column.addView(ui.header(R.string.tab_more))
 
-    val running = ui.card()
+    column.addView(ui.card().apply {
+      addView(ui.text(17f, R.color.ink, bold = true).apply { setText(R.string.place_title) })
+      addView(segments(placeChoices.values.toList()), ui.fullWidth(12))
+      addView(placeBody, ui.fullWidth(12))
+      addView(placeAddress, ui.fullWidth(4))
+      addView(changeAddress, ui.fullWidth(12))
+    }, ui.fullWidth(16))
+
     running.addView(ui.text(17f, R.color.ink, bold = true).apply { setText(R.string.keep_running_title) })
     batteryOk.addView(ImageView(activity).apply {
       setImageResource(R.drawable.ic_check)
@@ -77,7 +100,7 @@ internal class MoreTab(
         setText(R.string.open_settings)
       }, ui.fullWidth(12))
     }
-    column.addView(running, ui.fullWidth(16))
+    column.addView(running, ui.fullWidth(12))
 
     column.addView(ui.card().apply {
       addView(ui.text(17f, R.color.ink, bold = true).apply { setText(R.string.appearance_title) })
@@ -98,6 +121,30 @@ internal class MoreTab(
       addView(ui.text(16f, R.color.ink).apply { setText(R.string.details) })
     }, ui.fullWidth(8))
     view = ScrollView(activity).apply { addView(column) }
+  }
+
+  /** A row of choices on one soft track, as Appearance draws its own. */
+  private fun segments(choices: List<TextView>): View = LinearLayout(activity).apply {
+    orientation = LinearLayout.HORIZONTAL
+    background = ui.rounded(ui.color(R.color.background), 24, ui.color(R.color.line))
+    setPadding(ui.dp(4), ui.dp(4), ui.dp(4), ui.dp(4))
+    for (each in choices) addView(each, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+  }
+
+  private fun choice(label: Int, onClick: () -> Unit): TextView = ui.text(15f, R.color.ink, center = true).apply {
+    setText(label)
+    gravity = Gravity.CENTER
+    maxLines = 1
+    setPadding(ui.dp(4), ui.dp(11), ui.dp(4), ui.dp(11))
+    isClickable = true
+    setOnClickListener { onClick() }
+  }
+
+  /** The chosen one on lavender, where the person is, as the open tab and Appearance show it. */
+  private fun chosen(view: TextView, on: Boolean) {
+    view.isSelected = on
+    view.background = if (on) ui.rounded(ui.color(R.color.place_soft), 20) else null
+    view.typeface = Fonts.typeface(activity, if (on) Type.STRONG else Type.BODY)
   }
 
   /** Same as phone, Light or Dark, side by side; a choice applies at once, the screen drawn again in it. */
@@ -146,11 +193,23 @@ internal class MoreTab(
 
   private fun divider(): View = View(activity).apply { setBackgroundColor(ui.color(R.color.line)) }
 
-  /** [mayStop]: no battery exemption yet. [canTurnOff]: Nouride is on, or on its way. */
-  fun render(mayStop: Boolean, canTurnOff: Boolean) {
-    batteryOk.visibility = if (mayStop) View.GONE else View.VISIBLE
-    batteryAsk.visibility = if (mayStop) View.VISIBLE else View.GONE
-    turnOff.visibility = if (canTurnOff) View.VISIBLE else View.GONE
+  /**
+   * [mayStop]: no battery exemption yet. [canTurnOff]: Nouride is on, or on its way. [where]: keeping it running and
+   * turning it off are this phone's own server's business, so both go away while Nouride lives on another machine.
+   */
+  fun render(mayStop: Boolean, canTurnOff: Boolean, where: Where?, address: String?) {
+    for ((each, view) in placeChoices) chosen(view, each == where)
+    placeBody.setText(if (where == Where.REMOTE) R.string.place_remote_body else R.string.place_phone_body)
+    // Before the first screen is answered, the choice is there with neither side lit, and no sentence claims either.
+    placeBody.visibility = if (where == null) View.GONE else View.VISIBLE
+    placeAddress.visibility = if (address == null) View.GONE else View.VISIBLE
+    placeAddress.text = address?.let(RemoteHost::shown)
+    changeAddress.visibility = placeAddress.visibility
+    val here = where != Where.REMOTE
+    running.visibility = if (here) View.VISIBLE else View.GONE
+    batteryOk.visibility = if (mayStop || !here) View.GONE else View.VISIBLE
+    batteryAsk.visibility = if (mayStop && here) View.VISIBLE else View.GONE
+    turnOff.visibility = if (canTurnOff && here) View.VISIBLE else View.GONE
   }
 
   /** On the screen's resume: the two versions, as far as they are known without asking anyone. */
