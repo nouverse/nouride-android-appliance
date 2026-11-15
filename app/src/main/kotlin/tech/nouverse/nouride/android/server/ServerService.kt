@@ -23,7 +23,9 @@ import tech.nouverse.nouride.android.install.RootfsExtractor
 import tech.nouverse.nouride.android.install.RootfsSetup
 import tech.nouverse.nouride.android.ui.StatusActivity
 import tech.nouverse.nouride.android.ui.StatusLook
+import tech.nouverse.nouride.android.ui.UpdateNotices
 import tech.nouverse.nouride.android.ui.title
+import tech.nouverse.nouride.android.update.NourideNotice
 import tech.nouverse.nouride.android.update.Updates
 import tech.nouverse.nouride.android.R
 import java.io.File
@@ -34,6 +36,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.Executors
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -114,6 +117,7 @@ class ServerService : Service() {
         it.scheduleWithFixedDelay({
           try {
             Updates.check(this, UPDATE_CHECK_HOURS * 3_600_000L)
+            NourideNotice.check(this, UPDATE_CHECK_HOURS * 3_600_000L)
             showNotification()
           } catch (e: Exception) {
             event("update check failed: $e")
@@ -351,6 +355,18 @@ class ServerService : Service() {
       setup = null
       ServerState.set(ServerState.phase, ServerState.detail, progress = null)
     }
+    // Nouride's own update, asked once it answers rather than only at the loop's next turn, which may be 12 hours away
+    // when Nouride was not up yet at its first. A no-op within the last answer's 12 hours (`NourideNotice.check`).
+    if (health.ok) {
+      try {
+        updateChecks?.execute {
+          NourideNotice.check(this, UPDATE_CHECK_HOURS * 3_600_000L)
+          showNotification()
+        }
+      } catch (e: RejectedExecutionException) {
+        // The service is stopping: nothing to say.
+      }
+    }
     showNotification()
   }
 
@@ -392,7 +408,7 @@ class ServerService : Service() {
       .setSmallIcon(R.drawable.ic_notification)
       .setColor(getColor(R.color.brand_text))
       .setContentTitle(getString(look.words.title()))
-      .setContentText(getString(if (Updates.waiting(this) != null) R.string.notification_update else R.string.notification_tap))
+      .setContentText(getString(UpdateNotices.notification(app = Updates.waiting(this) != null, nouride = NourideNotice.waiting(this) != null)))
       .setContentIntent(open)
       .setOngoing(true)
       .build()

@@ -59,6 +59,10 @@
   <string name="signin_back">Back to Nouride Home</string>
   <string name="no_app_for_link">No app on this phone can open this link.</string>
   <string name="notification_update">A new version is ready. Tap to update.</string>
+  <string name="notification_nouride_update">A new Nouride is ready. Tap to update.</string>
+  <string name="notification_updates">Updates are ready. Tap to update.</string>
+  <string name="nouride_update_title">A new Nouride is ready</string>
+  <string name="nouride_update_body">Nouride %1$s is ready. Your agents, chats and settings stay as they are.</string>
   <string name="update_title">A new version is ready</string>
   <string name="update_body">Nouride Home %1$s is ready. Nouride and your agents stay as they are.</string>
   <string name="update_button">Update</string>
@@ -146,6 +150,8 @@
   <string name="versions_row_app">Nouride Home %1$s</string>
   <string name="versions_row_both">Nouride Home %1$s, Nouride %2$s</string>
   <string name="versions_row_update">A new version of Nouride Home is ready.</string>
+  <string name="versions_row_nouride_update">A new version of Nouride is ready.</string>
+  <string name="versions_row_updates">New versions of Nouride Home and Nouride are ready.</string>
   <string name="versions_title">Versions and updates</string>
   <string name="versions_nouride">Nouride</string>
   <string name="versions_app_ready">Version %1$s is ready. Nouride and your agents stay as they are.</string>

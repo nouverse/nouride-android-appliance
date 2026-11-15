@@ -17,6 +17,7 @@ import tech.nouverse.nouride.android.power.PowerSettings
 import tech.nouverse.nouride.android.server.RemoteHost
 import tech.nouverse.nouride.android.server.ServerState
 import tech.nouverse.nouride.android.server.Where
+import tech.nouverse.nouride.android.update.NourideNotice
 import tech.nouverse.nouride.android.update.Updates
 
 /**
@@ -216,8 +217,9 @@ internal class MoreTab(
   fun resume() {
     val app = Updates.installedVersion(activity)
     val nouride = ServerState.health?.version?.removePrefix("v")
+    val waiting = UpdateNotices.versionsRow(app = Updates.waiting(activity) != null, nouride = NourideNotice.waiting(activity) != null)
     versions.text = when {
-      Updates.waiting(activity) != null -> activity.getString(R.string.versions_row_update)
+      waiting != null -> activity.getString(waiting)
       nouride == null -> activity.getString(R.string.versions_row_app, app)
       else -> activity.getString(R.string.versions_row_both, app, nouride)
     }

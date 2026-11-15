@@ -5,6 +5,7 @@ import android.os.SystemClock
 import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.server.ServerState
 import tech.nouverse.nouride.android.update.NourideDownload
+import tech.nouverse.nouride.android.update.NourideNotice
 import tech.nouverse.nouride.android.update.NourideUpdates
 import tech.nouverse.nouride.android.update.StallWatch
 import java.io.IOException
@@ -31,6 +32,13 @@ internal class NourideCard(private val activity: Activity, ui: Ui) {
 
   @Volatile
   private var closed = false
+
+  /** Opened from Home's card: the update starts as soon as the check finds it, without a second press. */
+  private var updateWhenFound = false
+
+  fun updateWhenFound() {
+    updateWhenFound = true
+  }
 
   /** On the screen's resume: Nouride asked again, without reaching past its cache of the release channel. */
   fun resume() = check(force = false)
@@ -76,12 +84,20 @@ internal class NourideCard(private val activity: Activity, ui: Ui) {
       } catch (e: Exception) {
         return@thread done(NourideStep.CHECK_FAILED)
       }
+      // Home's card and the notification follow what this screen learns: an update put in here takes them away.
+      NourideNotice.remember(activity, status)
       ui {
         installed = status.current ?: installed
         next = status.ready
         percent = status.download.percent
         val now = VersionLooks.nourideStep(status)
         show(now)
+        if (updateWhenFound && (now == NourideStep.READY || now == NourideStep.DOWNLOADED)) {
+          updateWhenFound = false
+          working = false
+          return@ui update(download = now == NourideStep.READY)
+        }
+        updateWhenFound = false
         if (now != NourideStep.DOWNLOADING) {
           working = false
           return@ui

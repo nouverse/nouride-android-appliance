@@ -12,13 +12,15 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.power.PowerSettings
-import tech.nouverse.nouride.android.server.Place
 import tech.nouverse.nouride.android.server.HealthPoller
+import tech.nouverse.nouride.android.server.Place
 import tech.nouverse.nouride.android.server.RemoteReply
 import tech.nouverse.nouride.android.server.Reply
 import tech.nouverse.nouride.android.server.ServerService
 import tech.nouverse.nouride.android.server.ServerState
 import tech.nouverse.nouride.android.server.Where
+import tech.nouverse.nouride.android.update.NourideNotice
+import tech.nouverse.nouride.android.update.Updates
 import kotlin.concurrent.thread
 
 /**
@@ -37,6 +39,7 @@ import kotlin.concurrent.thread
 class StatusActivity : Activity() {
   private lateinit var ui: Ui
   private lateinit var update: UpdateCard
+  private lateinit var nourideUpdate: NourideUpdateCard
   private lateinit var home: HomeTab
   private lateinit var connect: ConnectTab
   private lateinit var more: MoreTab
@@ -47,6 +50,7 @@ class StatusActivity : Activity() {
   private val listener: () -> Unit = {
     render()
     update.serverChanged()
+    askNouride()
   }
   private val refresh = object : Runnable {
     override fun run() {
@@ -93,6 +97,8 @@ class StatusActivity : Activity() {
     more.resume()
     render()
     checkRemote()
+    nourideAsked = false
+    askNouride()
   }
 
   override fun onPause() {
@@ -121,8 +127,11 @@ class StatusActivity : Activity() {
   private fun views(): View {
     // More said "You have the newest version" behind the dialog offering one: its line was read before the check.
     update = UpdateCard(this, ui, onChecked = { more.resume() })
+    nourideUpdate = NourideUpdateCard(this, ui) {
+      startActivity(Intent(this, VersionsActivity::class.java).putExtra(VersionsActivity.EXTRA_UPDATE_NOURIDE, true))
+    }
     home = HomeTab(
-      this, ui, update,
+      this, ui, update, nourideUpdate,
       onPrimary = ::onPrimary,
       onKeepRunning = { show(Tab.MORE) },
       onRunHere = ::runOnThisPhone,
@@ -164,7 +173,11 @@ class StatusActivity : Activity() {
     val barShown = Tabs.barShown(look, firstStart = ServerState.progress != null)
     if (!barShown && tab != Tab.HOME) return show(Tab.HOME)
     bar.view.visibility = if (barShown) View.VISIBLE else View.GONE
-    bar.attention(Tab.MORE, mayStop)
+    // Nouride's own update, once it answers and the first start is over: the card's Update needs it running.
+    val nourideReady = NourideNotice.waiting(this)
+      ?.takeIf { where == Where.PHONE && ServerState.health?.ok == true && ServerState.progress == null }
+    nourideUpdate.render(nourideReady)
+    bar.attention(Tab.MORE, UpdateNotices.moreDot(mayStop, app = Updates.waiting(this) != null, nouride = nourideReady != null))
     home.render(look, mayStop, where, address)
     if (tab == Tab.CONNECT) connect.render(look, where, address)
     more.render(mayStop, where != Where.REMOTE && StatusLook.canTurnOff(ServerState.phase), where, address)
@@ -210,6 +223,21 @@ class StatusActivity : Activity() {
       if (ServerState.phase != ServerState.Phase.STOPPED) ServerService.stop(this)
       show(Tab.HOME)
       checkRemote(again = true)
+    }
+  }
+
+  /** Asked once each time the screen comes back, as soon as Nouride answers (`NourideNotice.check` keeps it to 15 minutes). */
+  private var nourideAsked = false
+
+  private fun askNouride() {
+    if (nourideAsked || place.where() != Where.PHONE || ServerState.health?.ok != true) return
+    nourideAsked = true
+    thread(name = "nouride-update-notice") {
+      NourideNotice.check(this, Updates.ON_OPEN_MS)
+      handler.post {
+        render()
+        more.resume()
+      }
     }
   }
 

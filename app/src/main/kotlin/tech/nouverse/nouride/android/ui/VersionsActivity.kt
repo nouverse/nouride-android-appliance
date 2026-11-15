@@ -53,6 +53,8 @@ class VersionsActivity : Activity() {
     nouride = NourideCard(this, ui)
     updater = AppUpdater(this, ::waits, onChange = ::showApp) { askToAllowInstalls(this, ui) { updater.allowing() } }
     setContentView(views())
+    // Home's card for a new Nouride: the update starts here, where its progress is followed, once the check finds it.
+    if (savedInstanceState == null && !remote && intent.getBooleanExtra(EXTRA_UPDATE_NOURIDE, false)) nouride.updateWhenFound()
   }
 
   override fun onResume() {
@@ -152,5 +154,10 @@ class VersionsActivity : Activity() {
     }
     val look = VersionLooks.app(step)
     app.render(look, Updates.installedVersion(this), waiting?.version, updater.percent)
+  }
+
+  companion object {
+    /** Opened from Home's card for a new Nouride: start its update. */
+    const val EXTRA_UPDATE_NOURIDE = "update_nouride"
   }
 }
