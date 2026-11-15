@@ -74,6 +74,12 @@ Under the main state, only what a person acts on:
 - **Open Nouride**: the dashboard inside the app, already signed in. Not a URL to copy, and never a login page on
   the phone: the app makes the dashboard account on the first start and signs in with it (`server/FirstAdmin.kt`).
   The password is never shown; a person who wants the dashboard elsewhere sets their own in the dashboard.
+- **A new version of Nouride** (`ui/NourideUpdateCard.kt`, `update/NourideNotice.kt`): while this phone's Nouride
+  answers and its update route says a newer one can go in, a small card at the top, "A new Nouride is ready", the
+  version and that the agents, chats and settings stay as they are, and Update, which opens Versions and updates and
+  starts the update there, where its progress and restart are followed. Asked when the app opens (15 minutes apart at
+  most) and twice a day from the service; gone by itself once Nouride runs that version. Never while Nouride runs on
+  another computer. More carries the dot and its Versions line says it too (`ui/UpdateNotices.kt`).
 - **Keep running with the screen off**: only while the phone may stop the app, one amber line, "Nouride may stop when
   the screen is off. Fix it in More ›", which opens More, where it is fixed.
 - **A new version of the app** (`ui/UpdateCard.kt`): the first time a release is found, a round card over the screen
@@ -184,7 +190,8 @@ Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
 
 The foreground service must show one. It says the state in the same words as the screen ("Nouride is running") and
 nothing technical. Tapping it opens the status screen. It has no log line and no address. When a new version of the
-app is waiting, its second line says "A new version is ready. Tap to update."
+app is waiting, its second line says "A new version is ready. Tap to update."; of Nouride, "A new Nouride is ready. Tap to
+update."; of both, "Updates are ready. Tap to update." (`UpdateNotices`).
 
 ## Errors
 

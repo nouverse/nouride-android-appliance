@@ -19,7 +19,7 @@ import tech.nouverse.nouride.android.server.Where
 
 /**
  * The Home tab, the one a person needs: the cat, one sentence of how Nouride is, and at most one big button. Above it
- * a new version of the app when there is one (`UpdateCard`); under it, only while the phone may stop Nouride, one line
+ * a new version of the app when there is one (`UpdateCard`), and of Nouride (`NourideUpdateCard`); under it, only while the phone may stop Nouride, one line
  * that leads to More, where that is fixed.
  *
  * On the very first screen of a phone without Nouride it asks the one thing the app cannot answer for the person:
@@ -31,6 +31,7 @@ internal class HomeTab(
   private val context: Context,
   private val ui: Ui,
   update: UpdateCard,
+  nourideUpdate: NourideUpdateCard,
   private val onPrimary: () -> Unit,
   private val onKeepRunning: () -> Unit,
   private val onRunHere: () -> Unit,
@@ -88,6 +89,7 @@ internal class HomeTab(
     }
     column.addView(ui.header(R.string.app_name))
     column.addView(update.view, ui.fullWidth(12))
+    column.addView(nourideUpdate.view, ui.fullWidth(12))
     hero.addView(mascot, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, ui.dp(220)))
     hero.addView(title, ui.fullWidth(16))
     hero.addView(body, ui.fullWidth(8))
