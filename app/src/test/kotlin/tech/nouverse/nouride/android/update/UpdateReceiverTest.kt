@@ -31,7 +31,7 @@ class UpdateReceiverTest {
   fun `an update waits from the press of Start until Nouride is set up`() {
     val notYet = { false }
     val done = { true }
-    // Pressed, and the service has not reported yet: the big card came here once, over the first setup.
+    // Pressed, and the service has not reported yet: an update was offered here once, over the first setup.
     assertTrue(Updates.waitsFor(Phase.STOPPED, startPressed = true, installed = notYet))
     assertTrue(Updates.waitsFor(Phase.EXTRACTING, startPressed = false, installed = notYet))
     assertTrue(Updates.waitsFor(Phase.INSTALLING, startPressed = false, installed = notYet))

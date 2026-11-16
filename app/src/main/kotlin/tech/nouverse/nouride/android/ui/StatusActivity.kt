@@ -125,7 +125,7 @@ class StatusActivity : Activity() {
   private fun openDashboard() = startActivity(Intent(this, DashboardActivity::class.java))
 
   private fun views(): View {
-    // More said "You have the newest version" behind the dialog offering one: its line was read before the check.
+    // More's Versions line says what the check found, not what was known before it.
     update = UpdateCard(this, ui, onChecked = { more.resume() })
     nourideUpdate = NourideUpdateCard(this, ui) {
       startActivity(Intent(this, VersionsActivity::class.java).putExtra(VersionsActivity.EXTRA_UPDATE_NOURIDE, true))
@@ -212,18 +212,24 @@ class StatusActivity : Activity() {
     if (where == Where.PHONE) runOnThisPhone() else askForAddress()
   }
 
-  /**
-   * The address of a Nouride on another computer (`AddressSheet`). Anything this phone was running is turned off once
-   * it is given, so a phone that has moved on does not keep two, and the sheet says so before.
-   */
+  /** The address of a Nouride on another computer, on its own screen (`AddressActivity`); back here, [onActivityResult]. */
   private fun askForAddress() {
-    val runningHere = place.where() != Where.REMOTE && StatusLook.canTurnOff(ServerState.phase)
-    addressSheet(this, ui, prefill = place.lastAddress(), stopsHere = runningHere) { base ->
-      place.onMachine(base)
-      if (ServerState.phase != ServerState.Phase.STOPPED) ServerService.stop(this)
-      show(Tab.HOME)
-      checkRemote(again = true)
-    }
+    startActivityForResult(Intent(this, AddressActivity::class.java), REQUEST_ADDRESS)
+  }
+
+  /**
+   * An address given and answering: Nouride lives there now, and Home says how it is. Anything this phone was running
+   * is turned off, so a phone that has moved on does not keep two; the address screen said so before. Cancel or back
+   * leaves the screen as it was, on the first screen or on More.
+   */
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    val base = data?.getStringExtra(AddressActivity.EXTRA_BASE)
+    if (requestCode != REQUEST_ADDRESS || resultCode != RESULT_OK || base == null) return
+    place.onMachine(base)
+    if (ServerState.phase != ServerState.Phase.STOPPED) ServerService.stop(this)
+    show(Tab.HOME)
+    checkRemote(again = true)
   }
 
   /** Asked once each time the screen comes back, as soon as Nouride answers (`NourideNotice.check` keeps it to 15 minutes). */
@@ -284,5 +290,6 @@ class StatusActivity : Activity() {
     const val EXTRA_DASHBOARD = "dashboard"
     const val EXTRA_TAB = "tab"
     private const val STATE_TAB = "tab"
+    private const val REQUEST_ADDRESS = 1
   }
 }

@@ -89,7 +89,7 @@ to tap it, or the install is refused.
 | --- | --- |
 | `app/src/main/kotlin/.../server/` | The foreground service, the supervisor that restarts Nouride, the health check, proot's command line, where Nouride runs (`Place`, `RemoteHost`, `RemoteReply`) |
 | `app/src/main/kotlin/.../install/` | Unpacking the Debian rootfs and running the installer on the first start |
-| `app/src/main/kotlin/.../ui/` | The tabs (Home, Connect, More), the address card, the dashboard in a WebView, Technical Logs |
+| `app/src/main/kotlin/.../ui/` | The tabs (Home, Connect, More), the address screen, the dashboard in a WebView, Technical Logs |
 | `app/src/main/kotlin/.../power/` | The battery exemption and the phone's own battery settings |
 | `app/src/main/kotlin/.../boot/` | Starting on boot |
 | `app/src/test/` | Unit tests, on the JVM |

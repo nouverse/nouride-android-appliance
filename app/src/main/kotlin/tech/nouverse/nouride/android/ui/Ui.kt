@@ -49,12 +49,12 @@ internal class Ui(private val context: Context) {
     if (stroke != null) setStroke(dp(1), stroke)
   }
 
-  /** A card floats, as the dashboard's do: 22dp corners, a hairline and a soft shadow; one in a dialog does not. */
-  fun card(fill: Int = color(R.color.surface), padding: Int = 20, floating: Boolean = true): LinearLayout = LinearLayout(context).apply {
+  /** A card floats, as the dashboard's do: 22dp corners, a hairline and a soft shadow. */
+  fun card(fill: Int = color(R.color.surface), padding: Int = 20): LinearLayout = LinearLayout(context).apply {
     orientation = LinearLayout.VERTICAL
     background = rounded(fill, CARD_RADIUS_DP, color(R.color.line))
     setPadding(dp(padding), dp(padding), dp(padding), dp(padding))
-    if (floating) float(this, 4)
+    float(this, 4)
   }
 
   /**

@@ -23,6 +23,15 @@ address with its port, the app's events and Nouride's log, the log taking the re
 end. Copy and Share send it all, Share straight into a chat. Never a box of log inside the scrolling status screen:
 two scrolls in one another catch the wrong finger.
 
+## Nothing over the screen
+
+A dialog over the screen is only for a confirmation, before something the person may not have meant: **Turn off
+Nouride** on More, and leaving the dashboard (`DashboardActivity`). Everything else is said on the page (the owner,
+2026-11-16): a new version is a card on Home, a permission Android needs is a sentence and a button on the card that
+needs it, and a question with something to type is a screen of its own, with its back at the top as Versions and
+Technical Logs have. `ModalsTest` lists every dialog the app builds, by the function that builds it: a new one changes
+that list, and needs a reason that holds.
+
 ## The tabs
 
 Three tabs along a bar at the bottom (`ui/BottomBar.kt`), each opened with the same header, the cat on its disc and
@@ -36,15 +45,17 @@ watch. Back from Connect or More goes Home; from Home it leaves the app (`ui/Tab
 On a phone without Nouride, before anything runs, the first screen asks the one thing the app cannot answer for the
 person: where Nouride should run (`server/Place`). Two answers, plain words: **Run it on this phone**, which starts the
 first setup at once (the press is the person asking for it), and **Use Nouride on another computer**, which opens the
-address card. A phone that already has Nouride on it (an update over an install older than the question) is never
+address screen. A phone that already has Nouride on it (an update over an install older than the question) is never
 asked: it is "this phone".
 
-The address card (`ui/AddressSheet.kt`) is a round card in the app's own look, never Android's plain dialog: "Nouride on
-another computer", "Type the address you open it at.", one field in DM Mono with a web-address keyboard and
-`nouride.example.com` as its hint, then Connect and Cancel. What is wrong is said under the field, in its own sentence:
-nothing typed, an `http://` address ("Nouride Home only opens addresses that start with https://. Try it with
-https://."), something that is not an address, and an address nothing answers at, which Connect checks once before
-taking it ("Checking…"), as a typo is the likeliest cause. While Nouride runs on this phone, the card says first, on
+The address screen (`ui/AddressActivity.kt`) is a screen of its own, as Versions is: its back and "Nouride on another
+computer" at the top, then one card, "Type the address you open it at.", one field in DM Mono with a web-address
+keyboard (up as the screen opens) and `nouride.example.com` as its hint, filled with the last address given, then
+Connect and Cancel. Connect, once the address answers, keeps it and opens Home; Cancel and back return to where the
+person came from, the first screen or More, with nothing changed. What is wrong is said under the field, in its own
+sentence (`ui/AddressForm.kt`): nothing typed, an `http://` address ("Nouride Home only opens addresses that start
+with https://. Try it with https://."), something that is not an address, and an address nothing answers at, which
+Connect checks once before taking it ("Checking…"), as a typo is the likeliest cause. While Nouride runs on this phone, the screen says first, on
 pink, that it turns off and its agents stop answering until the person switches back in More.
 
 Answered "another computer", Home keeps its one card and one button, for that computer's Nouride: its `/health` is
@@ -82,13 +93,13 @@ Under the main state, only what a person acts on:
   another computer. More carries the dot and its Versions line says it too (`ui/UpdateNotices.kt`).
 - **Keep running with the screen off**: only while the phone may stop the app, one amber line, "Nouride may stop when
   the screen is off. Fix it in More ›", which opens More, where it is fixed.
-- **A new version of the app** (`ui/UpdateCard.kt`): the first time a release is found, a round card over the screen
-  with the riding cat, "A new Nouride Home is ready", the version and that Nouride and the agents stay as they are,
-  then Update now and Later. After that a small card at the top until it is installed: Update, the download's
-  percent, "Almost done. When your phone asks, tap Update." Android 8 and later first ask the person to allow
-  installing from the app: a card with the waving cat says so and opens that setting, and the update goes on when
-  they come back. Nothing of it shows while the first start sets Nouride up. Words only: no version code, sha, URL
-  or file name; a failed download says to check the Wi-Fi and try again.
+- **A new version of the app** (`ui/UpdateCard.kt`, its sentence and button `ui/UpdateLooks.kt`): a small card at
+  the top until it is installed, "A new version is ready", the version and that Nouride and the agents stay as they
+  are, and Update: the download's percent, then "Almost done. When your phone asks, tap Update." The card is the only
+  place it is offered: nothing comes over the screen for it, not even the first time. Android 8 and later first need
+  the person to allow installing from the app: the same card says so in one sentence with Allow, which opens that
+  setting, and the update goes on when they come back. Nothing of it shows while the first start sets Nouride up.
+  Words only: no version code, sha, URL or file name; a failed download says to check the Wi-Fi and try again.
 
 ## Connect
 
@@ -110,7 +121,7 @@ phone isn't on Wi-Fi". Never an address that leads nowhere, and never `http://10
 ## More
 
 - **Where Nouride runs**, first: **This phone** or **Another computer**, side by side as Appearance's choices are.
-  This phone switches at once and starts Nouride here; Another computer opens the address card, filled with the last
+  This phone switches at once and starts Nouride here; Another computer opens the address screen, filled with the last
   address given. Under the choice, one sentence, and while it is another computer its address and Change address.
 
 Keeping it running and turning it off are not this phone's business while Nouride runs on another computer, so both
@@ -129,7 +140,8 @@ is that computer's.
   Nouride Home is ready. It opens a screen of its own (`ui/VersionsActivity.kt`) with two cards, the same shape each:
   what it is, its version, one sentence of where its update is, and one button.
   - **Nouride Home**: Check for updates (asks the feed at once), then "Update to 0.1.9", the same download and
-    install as Home's card (`AppUpdater`).
+    install as Home's card (`AppUpdater`). Before Android lets the app install, the card asks for that with Allow,
+    as Home's does.
   - **Nouride**: Check for updates, then "Update to 0.8.26" in one press: the download with its percent, the install,
     and "The update is in" with when Nouride starts again (now, once the agents are not busy, or once their background
     work is done). The card follows Nouride back and says the new version. Off, it says to turn Nouride on; a download
@@ -147,8 +159,7 @@ Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
   Nouride's soft mascot, the tuxedo cat in the lavender hoodie, and each pose means what it means in the dashboard
   (Nouride's design rules, `.agents/skills/nouride-contributing/references/design-rules.md` in the nouride repository):
   waving when off and while turning off, riding its scooter while setting up or starting (it floats gently), thumbs up
-  when running, sad beside an unplugged cable when something failed or there is no Wi-Fi. Pointing at what needs the
-  person (allowing updates), the wrench for a new version. A pose is copied from nouride's
+  when running, sad beside an unplugged cable when something failed or there is no Wi-Fi. A pose is copied from nouride's
   `packages/shared/assets/mascot/` (or `docs/design/mascot/` for one the dashboard does not draw yet) and trimmed to
   the cat, as the screens size it by height: `magick <pose>.webp -trim +repage -strip -quality 92 -define
   webp:alpha-quality=100 mascot_<name>.webp`.
@@ -167,7 +178,7 @@ Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
   shade (`ui.card`, `ui.float`; Android 9 and later, plain before); the card that says how Nouride is lit like the
   dashboard's greeting, the mood's colour at its left and peach at its right (`ui.hero`); the page cream with a faint
   lavender light at its top right (`ui.page`); the tab bar a floating card too. Buttons are pills; the main one is 56dp
-  tall, full width, and glows faintly in its own peach, which nothing else does. A card in a dialog does not float.
+  tall, full width, and glows faintly in its own peach, which nothing else does.
 - **The icon** is the cat's head on pastel lavender (`mipmap/ic_launcher`, `drawable-nodpi/icon_cat.webp`: the
   dashboard's head with its sparkles cut, and a margin so a round disc never cuts its ears); the notification's small
   icon is a white paw (`drawable/ic_notification`), as Android draws small icons as a silhouette. The developer's build, "Nouride
