@@ -1,6 +1,7 @@
 target/
 node_modules/
 dist/
+dist-fixture/
 apps/desktop/gen/
 .DS_Store
 *.key

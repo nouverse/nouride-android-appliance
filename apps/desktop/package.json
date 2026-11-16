@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit -p . && vite build",
-    "test": "bun test"
+    "test": "bun test",
+    "build:fixture": "vite build -c vite.fixture.config.ts"
   },
   "dependencies": {
     "@nouride-home/ui-kit": "workspace:*",
