@@ -1,0 +1,31 @@
+Redmi Note 12 (HyperOS 2.0, Android 15 / SDK 35), Nouride Home Dev (debug build of release/0.2.1-downloads), Nouride 0.8.38 on the phone, 2026-11-17 00:00-00:05 +0700.
+Dashboard driven over WebView devtools (CDP); the dashboard sat on its first-run page (/dashboard/welcome), so links were built in that page exactly as the
+Files page (use-file-actions save()) and "Download all" (download-all saveAs()) build them: <a href download=name>, appended to body, click().
+
+1. Files download: GET /api/control/system/files/download?path=config.toml&check=1 -> 200, then the link click -> /sdcard/Download/config.toml, 41 bytes,
+   sha256 0b98df28ee5f... = the install's .nouride/config.toml. Saved through MediaStore.Downloads, no permission asked.
+2. Same again -> /sdcard/Download/config (1).toml (second copy numbered, nothing written over).
+3. Blob zip (stored zip, 2 entries, 1 600 222 bytes) made in the page with URL.createObjectURL and saved as slide.zip ->
+   /sdcard/Download/slide.zip 1600222 bytes, sha256 1bfa712f713ef475f7b814189722a1d23b722596a459dcca3b9a803c4141bd81 = source (4 pieces of 512 KiB over the bridge).
+
+Found on the way:
+- fetch(blob:) is refused in the dashboard: its CSP is connect-src 'self'. The script now keeps each Blob as the page makes its URL (wraps URL.createObjectURL).
+- WebView.getSettings() on the download thread crashed the app: the user agent is read once on the main thread.
+$ adb shell ls -l /sdcard/Download/
+-rwxrwx--- 1 u0_a273 media_rw       41 2026-11-17 00:00 config (1).toml
+-rwxrwx--- 1 u0_a273 media_rw       41 2026-11-16 23:59 config.toml
+-rwxrwx--- 1 u0_a273 media_rw  1600222 2026-11-17 00:05 slide.zip
+(one older file of the owner's in the folder left out of this listing)
+
+--- Download Nouride's files (More), same phone, 2026-11-17 00:12-00:16 +0700 ---
+Card shown on More (local mode): "One zip of everything Nouride keeps on this phone...", "Keys and passwords stay out, as Nouride has no backup password."
+(no secrets.sealed on this install), "Other apps allowed to see your Downloads can open this zip.", "About 1,5 MB." (before the snapshot: db + wal).
+Pressed: backup.log  {"ok":true,"data":{"path":"/srv/nouride/.nouride/data/backups/db/nouride-2026-11-16-17-12-38.db","bytes":778240,"removed":0,"keep":4},...}
+-> /sdcard/Download/nouride-backup-2026-11-17.zip 34200 bytes, line "nouride-backup-2026-11-17.zip is in Downloads."
+unzip -l: .nouride/config.toml 41, .nouride/data/last-run-version 7, .nouride/memory/.nouride-vault.json 14, .nouride/people/admin.toml 164, .nouride/data/nouride.db 778240
+The folder had (left out, as it should): data/.control-token, data/nouride.db, -wal, -shm, .epoch, data/nouride.lock, data/backups/, home/.ssh, nougate/data, bin/, credentials/, jobs/, tool-output/.
+nouride db verify <the zipped data/nouride.db> --json -> {"ok":true,"data":{...,"ok":true,"detail":"ok"}} exit 0 (run on the dev box with a copy of Nouride 0.8.39; the phone runs 0.8.38).
+Big run: a 150 MiB random test file put in workspace/shared -> "About 159 MB", bar at 37% seen, done in about 8 s:
+"nouride-backup-2026-11-17 (1).zip is in Downloads.", 157368856 bytes, unzip -t: No errors; entries keep their own times. Test file and that zip removed afterwards.
+Not seen on the phone: a sealed store (data/secrets.sealed), the no-room line, remote mode hiding the card (unit-tested: BackupLooks.shown).
+Each zip leaves one more snapshot in Nouride's data/backups/db (Nouride keeps backup_keep, 4 by default, and removes the oldest).

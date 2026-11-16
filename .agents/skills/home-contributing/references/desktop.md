@@ -87,6 +87,9 @@ write to any of them. Test only Nouride Home Dev, which installs into
   `dump` gives each window's size, and `null` for a window that is closed (destroyed). While `<data>/e2e/no-browser` exists, a link the dashboard sends to the browser is
   only logged ("would go to the browser"): the browser is on the person's screen, so open it for real once, at the
   end, and say how many times you did.
+- The first download from the dashboard's window makes macOS ask on screen whether the app may use the Downloads
+  folder, and WebKit waits for the answer: the app stops answering its hooks until someone clicks Allow. Ask the
+  person at the Mac before a first download test.
 - Quit what you open (`--e2e quit`), and remove only what you made: the Dev app's folder, its LaunchAgent
   (`launchctl bootout gui/$(id -u)/tech.nouverse.nouride.home.dev.nouride`, then the plist).
 

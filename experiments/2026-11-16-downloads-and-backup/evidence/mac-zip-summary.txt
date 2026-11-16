@@ -1,0 +1,9 @@
+Mac zip: nouride-backup-2026-11-17.zip, 15 415 070 bytes, 53 entries, 16 077 412 bytes unpacked. Entries per top-level path (file names not kept: they are the owner's):
+  .nouride/agents/: 6
+  .nouride/attachments/: 11
+  .nouride/config.toml: 1
+  .nouride/config.toml.bak.1: 1
+  .nouride/data/: 2
+  .nouride/memory/: 7
+  .nouride/people/: 2
+  .nouride/workspace/: 23

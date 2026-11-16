@@ -1,0 +1,11 @@
+Archive:  big.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+       41  2026-11-16 10:48   .nouride/config.toml
+        7  2026-11-17 00:14   .nouride/data/last-run-version
+       14  2026-11-16 10:48   .nouride/memory/.nouride-vault.json
+      164  2026-11-16 10:48   .nouride/people/admin.toml
+157286400  2026-11-17 00:14   .nouride/workspace/shared/big-test.bin
+   778240  2026-11-17 00:14   .nouride/data/nouride.db
+---------                     -------
+158064866                     6 files
