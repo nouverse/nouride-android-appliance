@@ -1,0 +1,24 @@
+{
+  "windows": {
+    "dashboard": {
+      "size": {
+        "height": 938.0,
+        "width": 1218.0
+      },
+      "title": "Nouride",
+      "url": "http://127.0.0.1:18264/dashboard/setup",
+      "visible": true
+    },
+    "main": {
+      "size": {
+        "height": 809.0,
+        "width": 1132.0
+      },
+      "title": "Nouride Home Dev",
+      "url": "tauri://localhost",
+      "visible": false
+    }
+  },
+  "sidebarShown": true,
+  "versionsDot": false
+}

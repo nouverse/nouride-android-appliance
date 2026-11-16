@@ -31,7 +31,7 @@
     http://localhost:18274/dashboard/
 
   or from another device on this network:
-    http://10.18.1.99:18274/dashboard/
+    http://192.168.0.99:18274/dashboard/
 
     username  admin
     password  <redacted>

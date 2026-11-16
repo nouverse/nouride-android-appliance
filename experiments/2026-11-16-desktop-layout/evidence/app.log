@@ -1,0 +1,19 @@
+1794791619 Nouride Home Dev 0.1.0 started
+1794791621 PROBE navigation tauri://localhost/index.html
+1794791621 dashboard sign-in: 401, the app's password is forgotten
+1794791621 PROBE navigation http://127.0.0.1/dashboard/
+1794791688 PROBE new window https://example.com/probe-window-open in_app=false
+1794791688 PROBE new window opener: Ok(())
+1794791694 PROBE navigation https://example.com/probe-same
+1794791694 a link outside Nouride went to the browser
+1794791718 PROBE new window https://example.com/probe-open-noopener in_app=false
+1794791718 PROBE new window opener: Ok(())
+1794791746 PROBE navigation http://127.0.0.1/llm-gateway/oauth/start
+1794791746 PROBE navigation https://accounts.google.com/o/oauth2/v2/auth
+1794791746 a link outside Nouride went to the browser
+1794792501 Nouride Home Dev 0.1.0 started
+1794792507 nouride update check: ready None
+1794792637 a new window for Nouride's own /llm-gateway/oauth/start opens in its window
+1794792637 a link outside Nouride would go to the browser: accounts.google.com (e2e, no browser)
+1794792653 a new window for Nouride's own /llm-gateway/oauth/start opens in its window
+1794792653 a link outside Nouride went to the browser: accounts.google.com

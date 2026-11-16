@@ -1,0 +1,15 @@
+[package]
+name = "link-policy"
+description = "What stays in the dashboard's window, and Back"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+shared.workspace = true
+url.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

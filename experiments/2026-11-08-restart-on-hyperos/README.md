@@ -22,7 +22,7 @@ either app.
 1. `adb reboot` at 05:49:59Z, from the dev box over wireless ADB.
 2. The owner unlocked the phone once (pattern) when the lock screen came up, and opened neither app.
 3. From the dev box, `evidence/watch_back.py` scanned the LAN for `:18254` every few seconds and read `/health` (the
-   phone's address can change after a restart; it did not this time, 10.18.1.98).
+   phone's address can change after a restart; it did not this time, 192.168.0.98).
 4. Once wireless debugging was turned on again, `adb logcat -d -b all` from the boot; the lines about the unlock and
    the two apps are in `evidence/logcat-restart.txt`.
 

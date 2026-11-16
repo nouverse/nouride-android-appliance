@@ -1,0 +1,84 @@
+{
+  "agent": {
+    "installed": false,
+    "label": "tech.nouverse.nouride.home.dev.nouride",
+    "path": "~/Library/LaunchAgents/tech.nouverse.nouride.home.dev.nouride.plist"
+  },
+  "snapshot": {
+    "accessSwitch": false,
+    "address": null,
+    "adopted": false,
+    "appName": "Nouride Home Dev",
+    "appUpdate": null,
+    "appVersion": "0.1.0",
+    "appearance": "system",
+    "barShown": true,
+    "canTurnOff": false,
+    "dev": true,
+    "firstStart": false,
+    "lastAddress": null,
+    "look": {
+      "action": "start",
+      "busy": false,
+      "mascot": "hello",
+      "tone": "calm",
+      "words": "off"
+    },
+    "moreDot": false,
+    "nourideUpdate": null,
+    "nourideVersion": null,
+    "openToOthers": false,
+    "ours": false,
+    "phase": "stopped",
+    "place": null,
+    "progress": null,
+    "reach": "off",
+    "shareUrl": null,
+    "versions": {
+      "app": {
+        "button": "none",
+        "label": null,
+        "percent": 0,
+        "progress": false,
+        "ready": null,
+        "version": "0.1.0",
+        "words": "versions_app_dev"
+      },
+      "nouride": {
+        "button": "none",
+        "label": null,
+        "percent": 0,
+        "progress": false,
+        "ready": null,
+        "version": null,
+        "words": "versions_nouride_off"
+      }
+    },
+    "versionsRow": null
+  },
+  "tray": [
+    {
+      "enabled": false,
+      "id": "state",
+      "words": "Nouride isn't set up yet"
+    },
+    {
+      "enabled": true,
+      "id": "open_home",
+      "words": "Open Nouride Home"
+    },
+    {
+      "enabled": true,
+      "id": "quit",
+      "words": "Quit Nouride Home"
+    }
+  ],
+  "windows": {
+    "dashboard": null,
+    "main": {
+      "title": "Nouride Home Dev",
+      "url": "tauri://localhost",
+      "visible": true
+    }
+  }
+}

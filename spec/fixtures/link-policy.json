@@ -1,0 +1,291 @@
+{
+  "about": "Which links the dashboard's window keeps, and what Back does there. See spec/link-policy.md. `origin` is the Nouride the window shows: this device's own (http on the loopback) or another machine's (https). A case's `expect` is both apps' answer; `android` or `desktop`, when present, is that app's own answer where the two differ today.",
+  "home": "nouridehome://home",
+  "user_agent_mark": "NourideHome/1",
+  "in_app": [
+    {
+      "url": "https://nouride.example.com/dashboard/",
+      "origin": "https://nouride.example.com",
+      "expect": true
+    },
+    {
+      "url": "https://elsewhere.example.com/dashboard/",
+      "origin": "https://nouride.example.com",
+      "expect": false
+    },
+    {
+      "url": "https://nouride.example.com:8443/dashboard/",
+      "origin": "https://nouride.example.com",
+      "expect": false
+    },
+    {
+      "url": "http://localhost:18264/dashboard/",
+      "origin": "http://127.0.0.1:18264",
+      "expect": true
+    },
+    {
+      "url": "http://127.0.0.1:18254/dashboard/",
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "url": "https://127.0.0.1:18264/dashboard/",
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    }
+  ],
+  "link": [
+    {
+      "url": "nouridehome://home",
+      "main_frame": true,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "back"
+    },
+    {
+      "url": "http://127.0.0.1:18264/dashboard/agents",
+      "main_frame": true,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "here"
+    },
+    {
+      "url": "https://accounts.google.com/o/oauth2",
+      "main_frame": true,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "outside"
+    },
+    {
+      "url": "https://www.youtube.com/embed/x",
+      "main_frame": false,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "here"
+    },
+    {
+      "url": "https://nouride.example.com/dashboard/agents",
+      "main_frame": true,
+      "origin": "https://nouride.example.com",
+      "expect": "here"
+    },
+    {
+      "url": "http://127.0.0.1:18264/dashboard/",
+      "main_frame": true,
+      "origin": "https://nouride.example.com",
+      "expect": "outside"
+    },
+    {
+      "url": "http://127.0.0.1:18264/llm-gateway/oauth/start",
+      "main_frame": true,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "here"
+    },
+    {
+      "url": "https://accounts.google.com/o/oauth2/v2/auth?client_id=x",
+      "main_frame": true,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "outside"
+    }
+  ],
+  "back_inside": [
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/",
+        "http://127.0.0.1:18264/dashboard/agents",
+        "http://127.0.0.1:18264/dashboard/agents/nouva"
+      ],
+      "current": 2,
+      "origin": "http://127.0.0.1:18264",
+      "expect": true
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/",
+        "http://127.0.0.1:18264/dashboard/agents",
+        "http://127.0.0.1:18264/dashboard/agents/nouva"
+      ],
+      "current": 1,
+      "origin": "http://127.0.0.1:18264",
+      "expect": true
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 0,
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "history": [
+        "about:blank",
+        "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 1,
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/login",
+        "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 1,
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/login?next=%2Fagents",
+        "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 1,
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/welcome",
+        "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 1,
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/setup",
+        "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 1,
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/oauth/mcp/callback?code=x",
+        "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 1,
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/setupguide",
+        "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 1,
+      "origin": "http://127.0.0.1:18264",
+      "expect": true
+    },
+    {
+      "history": [
+        "https://accounts.google.com/o/oauth2",
+        "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 1,
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "history": [
+        "https://nouride.example.com/dashboard/",
+        "https://nouride.example.com/dashboard/agents"
+      ],
+      "current": 1,
+      "origin": "https://nouride.example.com",
+      "expect": true
+    },
+    {
+      "history": [
+        "https://nouride.example.com/dashboard/"
+      ],
+      "current": 0,
+      "origin": "https://nouride.example.com",
+      "expect": false
+    }
+  ],
+  "back": [
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/",
+        "http://127.0.0.1:18264/dashboard/agents"
+      ],
+      "current": 1,
+      "dashboard_shown": true,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "page"
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 0,
+      "dashboard_shown": true,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "ask"
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/setup",
+        "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 1,
+      "dashboard_shown": true,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "ask"
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/",
+        "http://127.0.0.1:18264/dashboard/agents"
+      ],
+      "current": 1,
+      "dashboard_shown": false,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "leave"
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 0,
+      "dashboard_shown": false,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "leave"
+    },
+    {
+      "history": [
+        "https://nouride.example.com/dashboard/"
+      ],
+      "current": 0,
+      "dashboard_shown": true,
+      "origin": "https://nouride.example.com",
+      "expect": "ask"
+    }
+  ],
+  "unreachable": [
+    {
+      "main_frame": true,
+      "url": "http://127.0.0.1:18264/dashboard/",
+      "origin": "http://127.0.0.1:18264",
+      "expect": true
+    },
+    {
+      "main_frame": false,
+      "url": "http://127.0.0.1:18264/dashboard/",
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "main_frame": true,
+      "url": "about:blank",
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "main_frame": true,
+      "url": "https://fonts.example.com/x.woff2",
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    }
+  ]
+}

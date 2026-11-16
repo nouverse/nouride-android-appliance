@@ -1,0 +1,105 @@
+{
+  "about": "Release versions as both apps read them, for their own updates and Nouride's. See spec/update-feed.md. `parse` is three numbers or null.",
+  "parse": [
+    {
+      "version": "0.1.1",
+      "expect": [
+        0,
+        1,
+        1
+      ]
+    },
+    {
+      "version": "v0.8.39",
+      "expect": [
+        0,
+        8,
+        39
+      ]
+    },
+    {
+      "version": "0.10.3",
+      "expect": [
+        0,
+        10,
+        3
+      ]
+    },
+    {
+      "version": "0.0.0-dev",
+      "expect": null
+    },
+    {
+      "version": "0.8",
+      "expect": null
+    },
+    {
+      "version": "0.1",
+      "expect": null
+    },
+    {
+      "version": "nightly",
+      "expect": null
+    },
+    {
+      "version": "0.1.1-beta",
+      "expect": null
+    },
+    {
+      "version": "0.1.+1",
+      "expect": null
+    }
+  ],
+  "newer": [
+    {
+      "candidate": "0.1.1",
+      "installed": "0.1.0",
+      "expect": true
+    },
+    {
+      "candidate": "0.2.0",
+      "installed": "0.1.9",
+      "expect": true
+    },
+    {
+      "candidate": "1.0.0",
+      "installed": "0.10.3",
+      "expect": true
+    },
+    {
+      "candidate": "0.10.0",
+      "installed": "0.9.0",
+      "expect": true
+    },
+    {
+      "candidate": "0.1.0",
+      "installed": "0.1.0",
+      "expect": false
+    },
+    {
+      "candidate": "0.0.9",
+      "installed": "0.1.0",
+      "expect": false
+    },
+    {
+      "candidate": "0.1.1",
+      "installed": "0.0.0-dev",
+      "expect": false
+    },
+    {
+      "candidate": "0.1.1-beta",
+      "installed": "0.1.0",
+      "expect": false
+    },
+    {
+      "candidate": "0.1.+1",
+      "installed": "0.1.0",
+      "expect": false
+    },
+    {
+      "candidate": "v0.8.40",
+      "installed": "0.8.39",
+      "expect": true
+    }
+  ]
+}

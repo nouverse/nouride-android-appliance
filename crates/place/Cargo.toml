@@ -1,0 +1,16 @@
+[package]
+name = "place"
+description = "Where Nouride runs, and the other computer's address"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+shared.workspace = true
+serde.workspace = true
+url.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

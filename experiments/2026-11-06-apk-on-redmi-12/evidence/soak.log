@@ -1,4 +1,4 @@
-2026-11-06T17:53:38Z http=000 0.002293s body='curl: (7) Failed to connect to 10.18.1.99 port 18264 after 2 ms: Could not connect to server\n\n' | adb=42571 mWakefulness=Awake deep=ACTIVE ACpowered:false USBpowered:false level:84 
+2026-11-06T17:53:38Z http=000 0.002293s body='curl: (7) Failed to connect to 192.168.0.99 port 18264 after 2 ms: Could not connect to server\n\n' | adb=42571 mWakefulness=Awake deep=ACTIVE ACpowered:false USBpowered:false level:84 
 2026-11-06T17:58:38Z http=200 0.070228s status=ok version=0.8.21 uptime=221s | adb=42571 mWakefulness=Dozing deep=IDLE_PENDING ACpowered:false USBpowered:false level:83 
 2026-11-06T18:05:14Z soak logger restarted (the host's nouride.service restarted at 2026-11-06T18:00:43Z and killed the first one after its 17:58:38Z line)
 2026-11-06T18:05:14Z http=200 0.027420s status=ok version=0.8.21 uptime=616s | adb=42571 mWakefulness=Dozing deep=IDLE ACpowered:false USBpowered:false level:83 

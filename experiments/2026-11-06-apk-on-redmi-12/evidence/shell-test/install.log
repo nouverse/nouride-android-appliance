@@ -260,7 +260,7 @@ Fri Nov  6 15:37:43 UTC 2026
 
 [32m✓[0m Nouride is installed.
 
-  Dashboard:  http://10.18.1.99:18274/dashboard/
+  Dashboard:  http://192.168.0.99:18274/dashboard/
 
   The first login is printed once, and only once, when the daemon first starts:
     it goes to the terminal you start it from; do not close it before reading the password

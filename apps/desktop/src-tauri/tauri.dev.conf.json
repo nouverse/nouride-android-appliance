@@ -1,0 +1,30 @@
+{
+  "productName": "Nouride Home Dev",
+  "identifier": "tech.nouverse.nouride.home.dev",
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Nouride Home Dev",
+        "width": 980,
+        "height": 640,
+        "minWidth": 560,
+        "minHeight": 520,
+        "resizable": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "visible": true
+      }
+    ]
+  },
+  "bundle": {
+    "icon": ["icons-dev/32x32.png", "icons-dev/128x128.png", "icons-dev/128x128@2x.png", "icons-dev/icon.icns", "icons-dev/icon.png"]
+  },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["nouridehome-dev"]
+      }
+    }
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "about": "What a person types as the address of a Nouride on another machine, and what each app makes of it. See spec/remote-address.md. A case's `expect` is both apps' answer; `android` or `desktop`, when present, is that app's own answer where the two differ today.",
+  "read": [
+    {
+      "typed": "nouride.example.com",
+      "expect": {
+        "read": "address",
+        "base": "https://nouride.example.com"
+      }
+    },
+    {
+      "typed": "  nouride.example.com/  ",
+      "expect": {
+        "read": "address",
+        "base": "https://nouride.example.com"
+      }
+    },
+    {
+      "typed": "https://nouride.example.com",
+      "expect": {
+        "read": "address",
+        "base": "https://nouride.example.com"
+      }
+    },
+    {
+      "typed": "HTTPS://nouride.example.com/",
+      "expect": {
+        "read": "address",
+        "base": "https://nouride.example.com"
+      }
+    },
+    {
+      "typed": "https://nouride.example.com:8443",
+      "expect": {
+        "read": "address",
+        "base": "https://nouride.example.com:8443"
+      }
+    },
+    {
+      "typed": "nouride.example.com:8443",
+      "expect": {
+        "read": "address",
+        "base": "https://nouride.example.com:8443"
+      }
+    },
+    {
+      "typed": "https://nouride.example.com/dashboard/",
+      "expect": {
+        "read": "address",
+        "base": "https://nouride.example.com"
+      }
+    },
+    {
+      "typed": "https://nouride.example.com/dashboard",
+      "expect": {
+        "read": "address",
+        "base": "https://nouride.example.com"
+      }
+    },
+    {
+      "typed": "box.tail1234.ts.net",
+      "expect": {
+        "read": "address",
+        "base": "https://box.tail1234.ts.net"
+      }
+    },
+    {
+      "typed": "https://nouride.example.com:443",
+      "expect": {
+        "read": "address",
+        "base": "https://nouride.example.com"
+      }
+    },
+    {
+      "typed": "nouride.example.com:443/dashboard/",
+      "expect": {
+        "read": "address",
+        "base": "https://nouride.example.com"
+      }
+    },
+    {
+      "typed": "https://Nouride.Example.com",
+      "expect": {
+        "read": "address",
+        "base": "https://nouride.example.com"
+      }
+    },
+    {
+      "typed": "http://nouride.example.com",
+      "expect": {
+        "read": "plain_http"
+      }
+    },
+    {
+      "typed": "HTTP://nouride.example.com",
+      "expect": {
+        "read": "plain_http"
+      }
+    },
+    {
+      "typed": "http://192.168.50.20:18254",
+      "expect": {
+        "read": "plain_http"
+      }
+    },
+    {
+      "typed": "",
+      "expect": {
+        "read": "empty"
+      }
+    },
+    {
+      "typed": "   ",
+      "expect": {
+        "read": "empty"
+      }
+    },
+    {
+      "typed": "ftp://nouride.example.com",
+      "expect": {
+        "read": "not_an_address"
+      }
+    },
+    {
+      "typed": "nouride example.com",
+      "expect": {
+        "read": "not_an_address"
+      }
+    },
+    {
+      "typed": "https://nouride.example.com/agents",
+      "expect": {
+        "read": "not_an_address"
+      }
+    },
+    {
+      "typed": "https://nouride.example.com?token=1",
+      "expect": {
+        "read": "not_an_address"
+      }
+    },
+    {
+      "typed": "https://nouride.example.com#/agents",
+      "expect": {
+        "read": "not_an_address"
+      }
+    },
+    {
+      "typed": "https://",
+      "expect": {
+        "read": "not_an_address"
+      }
+    },
+    {
+      "typed": "https://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.example.com",
+      "expect": {
+        "read": "not_an_address"
+      }
+    },
+    {
+      "typed": "https://nouride.example.com\\dashboard",
+      "expect": {
+        "read": "not_an_address"
+      }
+    },
+    {
+      "typed": "nouride.example.com:99999",
+      "expect": {
+        "read": "not_an_address"
+      },
+      "android": {
+        "read": "address",
+        "base": "https://nouride.example.com:99999"
+      }
+    }
+  ],
+  "shown": [
+    {
+      "base": "https://nouride.example.com",
+      "expect": "nouride.example.com"
+    },
+    {
+      "base": "https://nouride.example.com:8443",
+      "expect": "nouride.example.com:8443"
+    }
+  ],
+  "dashboard": [
+    {
+      "base": "https://nouride.example.com",
+      "expect": "https://nouride.example.com/dashboard/"
+    },
+    {
+      "base": "https://nouride.example.com:8443",
+      "expect": "https://nouride.example.com:8443/dashboard/"
+    }
+  ]
+}

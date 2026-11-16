@@ -1,0 +1,9 @@
+{
+  "name": "nouride-home",
+  "private": true,
+  "workspaces": ["apps/desktop", "packages/*"],
+  "scripts": {
+    "test": "cd apps/desktop && bun test",
+    "build:desktop": "cd apps/desktop && bun run build"
+  }
+}

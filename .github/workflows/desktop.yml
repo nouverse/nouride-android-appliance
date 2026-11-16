@@ -1,0 +1,72 @@
+# The desktop app's logic and screens on Linux, on a change that can affect them: the crates (with the behaviour both
+# apps share in spec/, which their tests read), the app, its packages, the workspaces' manifests and locks, or VERSION.
+# Building the Tauri binary itself needs macOS (or Linux's WebKitGTK) and is checked on a Mac, not here.
+name: Desktop
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "crates/**"
+      - "apps/desktop/**"
+      - "packages/**"
+      - "spec/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
+      - "package.json"
+      - "bun.lock"
+      - "VERSION"
+      - "scripts/bump-version"
+      - ".github/workflows/desktop.yml"
+  pull_request:
+    paths:
+      - "crates/**"
+      - "apps/desktop/**"
+      - "packages/**"
+      - "spec/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "rust-toolchain.toml"
+      - "package.json"
+      - "bun.lock"
+      - "VERSION"
+      - "scripts/bump-version"
+      - ".github/workflows/desktop.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cargo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ hashFiles('Cargo.lock', 'rust-toolchain.toml') }}
+
+      - name: One version
+        run: scripts/bump-version --check
+
+      - name: Crates
+        # Each crate on its own, as the binary's crate needs a WebKit this runner does not have.
+        run: for d in crates/*/; do (cd "$d" && cargo test -q --locked) || exit 1; done
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Screens
+        run: |
+          bun install --frozen-lockfile
+          cd apps/desktop
+          bun test
+          bun run build
