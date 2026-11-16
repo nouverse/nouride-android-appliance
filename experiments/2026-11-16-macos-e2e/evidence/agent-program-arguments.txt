@@ -1,0 +1,10 @@
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>-c</string>
+    <string>(d=&quot;~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride&quot;; p=&quot;$d/.nouride-pending-update&quot;; [ -f &quot;$p&quot; ] || exit 0; n=$(( $(cat &quot;$p.attempts&quot; 2&gt;/dev/null || echo 0) + 1 )); echo &quot;$n&quot; &gt; &quot;$p.attempts&quot;; [ &quot;$n&quot; -le 3 ] &amp;&amp; exit 0; for f in nouride dashboard skills frontend run config.example.toml; do [ -e &quot;$d/.nouride-previous/$f&quot; ] || continue; rm -rf &quot;$d/$f.failed&quot;; [ -e &quot;$d/$f&quot; ] &amp;&amp; mv &quot;$d/$f&quot; &quot;$d/$f.failed&quot;; mv &quot;$d/.nouride-previous/$f&quot; &quot;$d/$f&quot;; done; mv &quot;$p&quot; &quot;$d/.nouride-rolled-back&quot;; rm -f &quot;$p.attempts&quot;; echo &quot;nouride: the update did not come up; restored the previous version&quot; &gt;&amp;2; exit 0); exec &quot;$0&quot; &quot;$@&quot;</string>
+    <string>~/Library/Application Support/tech.nouverse.nouride.home.dev/nouride/nouride</string>
+    <string>start</string>
+  </array>
+  <key>Label</key>
+  <string>tech.nouverse.nouride.home.dev.nouride</string>

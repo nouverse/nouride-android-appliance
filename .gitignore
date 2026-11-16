@@ -8,3 +8,11 @@ app/src/main/assets/rootfs.tgz
 *.iml
 *.jks
 *.keystore
+target/
+node_modules/
+dist/
+dist-fixture/
+apps/desktop/gen/
+.DS_Store
+*.key
+*.p12
