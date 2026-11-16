@@ -35,7 +35,7 @@ android {
     ndk { abiFilters += "arm64-v8a" }
     // Where the app looks for its own updates (update/Updates.kt). A test build may point it elsewhere.
     resValue("string", "update_feed", System.getenv("NOURIDE_HOME_UPDATE_FEED")
-      ?: "https://api.github.com/repos/nouverse/nouride-android-appliance/releases/latest")
+      ?: "https://api.github.com/repos/nouverse/nouride-home/releases/latest")
     // What a person's copy is: its name, Nouride's ports (Nouride.kt) and the link a browser comes back with after a
     // sign-in (CallbackCatcher, the manifest). The debug build below changes every one of them.
     resValue("string", "app_name", "Nouride Home")

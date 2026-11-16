@@ -40,7 +40,7 @@
   },
   "plugins": {
     "updater": {
-      "endpoints": ["https://github.com/nouverse/nouride-appliance-desktop/releases/latest/download/latest.json"],
+      "endpoints": ["https://github.com/nouverse/nouride-home/releases/latest/download/latest.json"],
       "pubkey": ""
     },
     "deep-link": {

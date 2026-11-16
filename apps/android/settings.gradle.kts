@@ -14,5 +14,5 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "nouride-android"
+rootProject.name = "nouride-home"
 include(":app")

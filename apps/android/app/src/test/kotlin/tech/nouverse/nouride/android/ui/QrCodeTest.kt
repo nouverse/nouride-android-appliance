@@ -30,7 +30,7 @@ class QrCodeTest {
     Case("http://192.168.1.23:18254", version = 2, mask = 7, forced = true, sha256 = "f5ce30a6f5130fde8d2e0debb2dc1c01d099d01e02d745c67592962934b367a4"),
     Case("x".repeat(110), version = 7, mask = 0, forced = false, sha256 = "1fc0b5f1273847bfdc50100f139ec46f6d584078234406409dde9e20a6410ae0"),
     Case("Nouride Home ".repeat(9), version = 7, mask = 3, forced = true, sha256 = "1910eff5e3913b5de0c66edd0a6e464050c8b40037d98e46d17ac01a8601df13"),
-    Case("https://github.com/nouverse/nouride-android-appliance/releases/download/v0.1.2/nouride-home-0.1.2.apk?" + "a".repeat(90), version = 10, mask = 2, forced = false, sha256 = "981403e3d012764a432d466ce2135cb7713f8b4804143a1d48c05bca9f0301ed"),
+    Case("https://github.com/nouverse/nouride-home/releases/download/v0.1.2/nouride-home-0.1.2.apk?" + "a".repeat(101), version = 10, mask = 2, forced = false, sha256 = "79bdd2184594034db15fb14b2e19223628f43978b772f5d86f062d918ffbd7a3"),
   )
 
   private fun digest(modules: Array<BooleanArray>): String =

@@ -11,8 +11,8 @@ class UpdateFeedTest {
   private fun feed(tag: String = "v0.1.1", draft: Boolean = false, prerelease: Boolean = false, assets: String? = null) = """
     {"tag_name":"$tag","draft":$draft,"prerelease":$prerelease,"name":"Nouride Home ${tag.removePrefix("v")}",
      "assets":${assets ?: """[
-       {"name":"nouride-home-${tag.removePrefix("v")}.apk","browser_download_url":"https://github.com/nouverse/nouride-android-appliance/releases/download/$tag/nouride-home-${tag.removePrefix("v")}.apk"},
-       {"name":"nouride-home-${tag.removePrefix("v")}.apk.sha256","browser_download_url":"https://github.com/nouverse/nouride-android-appliance/releases/download/$tag/nouride-home-${tag.removePrefix("v")}.apk.sha256"}
+       {"name":"nouride-home-${tag.removePrefix("v")}.apk","browser_download_url":"https://github.com/nouverse/nouride-home/releases/download/$tag/nouride-home-${tag.removePrefix("v")}.apk"},
+       {"name":"nouride-home-${tag.removePrefix("v")}.apk.sha256","browser_download_url":"https://github.com/nouverse/nouride-home/releases/download/$tag/nouride-home-${tag.removePrefix("v")}.apk.sha256"}
      ]"""}}
   """.trimIndent()
 
