@@ -1,15 +1,15 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 /**
- * The version a release build carries, from `NOURIDE_HOME_VERSION` (the release workflow sets it from the tag, `v0.2.0`
- * → `0.2.0`). The version code grows with it, so Android takes each release as an update of the one before:
- * major × 1 000 000 + minor × 1 000 + patch.
+ * The version a release build carries: the repository's VERSION, one for both apps (`scripts/bump-version` changes
+ * it; the release workflow refuses a tag that is not it). The version code grows with it, so Android takes each
+ * release as an update of the one before: major × 1 000 000 + minor × 1 000 + patch.
  */
-val releaseVersion: String? = System.getenv("NOURIDE_HOME_VERSION")?.takeIf { it.isNotBlank() }
+val releaseVersion: String = rootDir.resolve("../../VERSION").readText().trim()
 
 fun versionCodeOf(version: String): Int {
   val parts = version.split('.').map { it.toInt() }
-  require(parts.size == 3 && parts.all { it in 0..999 }) { "NOURIDE_HOME_VERSION is not x.y.z: $version" }
+  require(parts.size == 3 && parts.all { it in 0..999 }) { "VERSION is not x.y.z: $version" }
   return parts[0] * 1_000_000 + parts[1] * 1_000 + parts[2]
 }
 
@@ -30,8 +30,8 @@ android {
     // Termux's target. From 29 on, an app may not execute files in its data directory (W^X),
     // and proot maps every program of the Debian rootfs from there.
     targetSdk = 28
-    versionCode = releaseVersion?.let(::versionCodeOf) ?: 1
-    versionName = releaseVersion ?: "0.0.0-dev"
+    versionCode = versionCodeOf(releaseVersion)
+    versionName = releaseVersion
     ndk { abiFilters += "arm64-v8a" }
     // Where the app looks for its own updates (update/Updates.kt). A test build may point it elsewhere.
     resValue("string", "update_feed", System.getenv("NOURIDE_HOME_UPDATE_FEED")
@@ -98,6 +98,17 @@ android {
   lint {
     // targetSdk 28 is deliberate (see above); the app is sideloaded, not published on Play.
     disable += "ExpiredTargetSdkVersion"
+  }
+}
+
+// A developer's build stays `0.0.0-dev`, code 1, whatever VERSION says: not x.y.z, so it is never offered an update
+// (update/UpdateFeed.kt), and any release installs over it.
+androidComponents {
+  onVariants(selector().withBuildType("debug")) { variant ->
+    variant.outputs.forEach { output ->
+      output.versionName.set("0.0.0-dev")
+      output.versionCode.set(1)
+    }
   }
 }
 

@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+"""The one version of Nouride Home, in VERSION, carried into every file that states it.
+
+    scripts/bump-version 0.2.1    writes 0.2.1 to VERSION, then into the files below
+    scripts/bump-version          writes what VERSION says into the files below
+    scripts/bump-version --check  changes nothing; exits 1 and names each file that disagrees with VERSION
+
+The Android app reads VERSION itself (apps/android/app/build.gradle.kts). The desktop's version is stated in
+apps/desktop/src-tauri/tauri.conf.json, in the Cargo workspace's `[workspace.package]` (every crate, the Tauri binary
+included, takes it from there) and in Cargo.lock's entries for those crates. Run from anywhere; needs python3 only.
+"""
+import json
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+VERSION_FILE = ROOT / "VERSION"
+TAURI_CONF = ROOT / "apps/desktop/src-tauri/tauri.conf.json"
+CARGO_TOML = ROOT / "Cargo.toml"
+CARGO_LOCK = ROOT / "Cargo.lock"
+X_Y_Z = re.compile(r"^(0|[1-9]\d{0,2})\.(0|[1-9]\d{0,2})\.(0|[1-9]\d{0,2})$")
+WORKSPACE_VERSION = re.compile(r'(\[workspace\.package\][^\[]*?\nversion = ")([^"]*)(")')
+
+
+def workspace_crates() -> set[str]:
+    """The names of the workspace's own packages: Cargo.lock's entries with no `source`."""
+    names = set()
+    for block in CARGO_LOCK.read_text().split("[[package]]")[1:]:
+        if "\nsource = " not in block:
+            names.add(re.search(r'\nname = "([^"]+)"', block).group(1))
+    return names
+
+
+def stated() -> dict[str, str]:
+    """Each file's version, as it states it now."""
+    out = {
+        str(TAURI_CONF.relative_to(ROOT)): json.loads(TAURI_CONF.read_text())["version"],
+        "Cargo.toml [workspace.package]": WORKSPACE_VERSION.search(CARGO_TOML.read_text()).group(2),
+    }
+    for block in CARGO_LOCK.read_text().split("[[package]]")[1:]:
+        if "\nsource = " not in block:
+            name = re.search(r'\nname = "([^"]+)"', block).group(1)
+            out[f"Cargo.lock {name}"] = re.search(r'\nversion = "([^"]+)"', block).group(1)
+    return out
+
+
+def write(version: str) -> None:
+    conf = TAURI_CONF.read_text()
+    TAURI_CONF.write_text(re.sub(r'^(  "version": ")[^"]*(")', rf"\g<1>{version}\g<2>", conf, count=1, flags=re.M))
+    CARGO_TOML.write_text(WORKSPACE_VERSION.sub(rf"\g<1>{version}\g<3>", CARGO_TOML.read_text(), count=1))
+    own = workspace_crates()
+    blocks = CARGO_LOCK.read_text().split("[[package]]")
+    for i, block in enumerate(blocks[1:], start=1):
+        name = re.search(r'\nname = "([^"]+)"', block).group(1)
+        if name in own:
+            blocks[i] = re.sub(r'(\nversion = ")[^"]*(")', rf"\g<1>{version}\g<2>", block, count=1)
+    CARGO_LOCK.write_text("[[package]]".join(blocks))
+
+
+def main(args: list[str]) -> int:
+    if args and args[0] != "--check":
+        if not X_Y_Z.match(args[0]):
+            print(f"not a version x.y.z: {args[0]}", file=sys.stderr)
+            return 2
+        VERSION_FILE.write_text(args[0] + "\n")
+    version = VERSION_FILE.read_text().strip()
+    if not X_Y_Z.match(version):
+        print(f"VERSION is not x.y.z: {version!r}", file=sys.stderr)
+        return 1
+    if args == ["--check"]:
+        wrong = {where: v for where, v in stated().items() if v != version}
+        for where, v in wrong.items():
+            print(f"{where} says {v}, VERSION says {version}", file=sys.stderr)
+        return 1 if wrong else 0
+    write(version)
+    print(f"version {version}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
