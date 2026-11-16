@@ -2242,6 +2242,7 @@ dependencies = [
 name = "link-policy"
 version = "0.2.0"
 dependencies = [
+ "serde_json",
  "shared",
  "url",
 ]
@@ -3006,6 +3007,7 @@ name = "place"
 version = "0.2.0"
 dependencies = [
  "serde",
+ "serde_json",
  "shared",
  "url",
 ]

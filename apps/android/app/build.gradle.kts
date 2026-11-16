@@ -95,6 +95,16 @@ android {
     targetCompatibility = JavaVersion.VERSION_17
   }
 
+  testOptions {
+    // The behaviour both apps share (spec/fixtures/, read by the desktop's Rust tests too): its folder, and a change
+    // there runs the tests again.
+    unitTests.all { test ->
+      val spec = rootDir.resolve("../../spec")
+      test.systemProperty("nouride.spec", spec.absolutePath)
+      test.inputs.dir(spec).withPropertyName("spec")
+    }
+  }
+
   lint {
     // targetSdk 28 is deliberate (see above); the app is sideloaded, not published on Play.
     disable += "ExpiredTargetSdkVersion"
