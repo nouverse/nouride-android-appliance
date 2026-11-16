@@ -8,7 +8,7 @@ def now():
 
 
 def probe(i, port=18254):
-    ip = "10.18.1.%d" % i
+    ip = "192.168.0.%d" % i
     s = socket.socket()
     s.settimeout(0.5)
     try:

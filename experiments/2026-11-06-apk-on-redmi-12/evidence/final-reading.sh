@@ -2,7 +2,7 @@
 # Takes the closing soak reading: /health and /dashboard/ from this box over the LAN, Android's view of the
 # app, and copies of the app's logs. Usage: final-reading.sh <adb port> <evidence dir>
 set -u
-HOST=10.18.1.99; PORT="${1:?adb port}"; EV="${2:?evidence dir}"; PKG=tech.nouverse.nouride.android
+HOST=192.168.0.99; PORT="${1:?adb port}"; EV="${2:?evidence dir}"; PKG=tech.nouverse.nouride.android
 TS=$(date -u +%Y%m%dT%H%MZ)
 {
   echo "== $(date -u +%FT%TZ) from $(hostname) (LAN)"

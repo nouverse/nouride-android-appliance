@@ -32,7 +32,7 @@
     http://localhost:18264/dashboard/
 
   or from another device on this network:
-    http://10.18.1.99:18264/dashboard/
+    http://192.168.0.99:18264/dashboard/
 
     username  admin
     password  <redacted>
@@ -68,7 +68,7 @@
 {"timestamp":"2026-11-06T18:42:08.577Z","level":"info","component":"daemon","message":"nouride ready","data":{"agents":["reno"],"gateways":["telegram:reno","web:dashboard","web:mission"],"providers":["default"],"uptime_ms":2388}}
 {"timestamp":"2026-11-06T18:42:08.721Z","level":"info","component":"gateway.telegram:reno","message":"polling started","data":{"username":"RenoNourideBot"}}
 {"timestamp":"2026-11-06T18:42:09.368Z","level":"info","component":"pipeline","message":"command menu published","data":{"gateway":"telegram:reno","synced":27}}
-{"timestamp":"2026-11-07T00:03:49.908Z","level":"info","component":"llm.providers","message":"provider ready","data":{"profile":"default","kind":"openai","base_url":"http://10.18.1.106:3000/openai/v1"}}
+{"timestamp":"2026-11-07T00:03:49.908Z","level":"info","component":"llm.providers","message":"provider ready","data":{"profile":"default","kind":"openai","base_url":"http://192.168.0.106:3000/openai/v1"}}
 {"timestamp":"2026-11-07T00:03:52.603Z","level":"error","component":"pipeline.turn","message":"turn failed","agent_id":"reno","chat_id":"<telegram id>","data":{"error":"LLMError: 403 Forbidden: {\"error\":{\"message\":\"Access denied: unknown_error\",\"type\":\"access_denied\",\"code\":\"403\"}} (through nougate, tried antigravity)","failure_class":"auth","action":"stop"}}
 {"timestamp":"2026-11-07T00:03:52.611Z","level":"warn","component":"notify","message":"alert","data":{"key":"provider_auth:default","text":"reno cannot reach default: auth. the provider rejected the credential. Check the secret named in [providers.*] api_key (`nouride doctor` lists which resolve)."}}
 {"timestamp":"2026-11-07T00:03:52.663Z","level":"info","component":"pipeline.turn-context","message":"closed an unfinished turn","chat_id":"<telegram id>","data":{"cause":"error","done":0,"cut_off":0,"not_started":0}}

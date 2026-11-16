@@ -122,7 +122,7 @@ the symlinked-parent check removed (RootfsExtractorTest red); the pax `path` rec
 ## 4. Phone evidence
 
 The phone: Redmi 12 (`23021RAA2Y`, `topaz`), HyperOS `OS2.0.202.0.VMGIDXM`, Android 15 (SDK 35), kernel
-5.15.167, 5.5 GiB RAM, arm64-v8a. Wireless ADB at `10.18.1.99:42571`. Already set on the phone before the
+5.15.167, 5.5 GiB RAM, arm64-v8a. Wireless ADB at `192.168.0.99:42571`. Already set on the phone before the
 spike (by the Termux setup): `max_phantom_processes=2147483647`. When the spike started, Termux was not
 running (ports 8022 and 18254 closed), so the Termux install of Nouride (agent reno) was down; the spike did
 not touch it until Gading asked for reno to move into the app and for Termux to go (4.7).
@@ -227,7 +227,7 @@ Storage after the first start: rootfs 321 MB (of which `/srv/nouride` 119 MB), a
 
 ```
 == 2026-11-06T18:04:15Z from agent-host (LAN)
-GET http://10.18.1.99:18264/health
+GET http://192.168.0.99:18264/health
 {"status":"ok","edition":"basic","appliance":false,"uptime":558,"version":"0.8.21","eventProtocol":"1.8","agents":0,"install":"461c687569e7","gateways":{"web:dashboard":"connected"},"memory":{"rssBytes":67055616,"heapUsedBytes":8719051},...}
 HTTP 200 in 0.107090s
 GET /dashboard/ HTTP 200, 2940 bytes, text/html;charset=utf-8, 0.018548s
@@ -236,7 +236,7 @@ GET /dashboard/ HTTP 200, 2940 bytes, text/html;charset=utf-8, 0.018548s
 
 ### 4.6 The soak: 6 hours on battery, 5 h 30 min of it with the screen off
 
-From the dev box, `soak.sh` asked `http://10.18.1.99:18264/health` every 5 minutes and read the phone's screen
+From the dev box, `soak.sh` asked `http://192.168.0.99:18264/health` every 5 minutes and read the phone's screen
 state, Doze state and battery over adb (`evidence/soak.log`). In the app, `HealthPoller` asked
 `127.0.0.1` every 60 s (`evidence/app/health.log`).
 
@@ -266,7 +266,7 @@ The last reading (`evidence/lan-T1.txt`):
 
 ```
 == 2026-11-07T00:06:39Z from agent-host (LAN)
-GET http://10.18.1.99:18264/health
+GET http://192.168.0.99:18264/health
 {"status":"ok","edition":"basic","appliance":false,"uptime":19474,"version":"0.8.21","eventProtocol":"1.8","agents":1,"install":"461c687569e7","gateways":{"telegram:reno":"connected","web:dashboard":"connected"},"memory":{"rssBytes":51675136,"heapUsedBytes":12725429},...}
 HTTP 200 in 0.042371s
 GET /dashboard/ HTTP 200, 2940 bytes, text/html;charset=utf-8, 0.106684s

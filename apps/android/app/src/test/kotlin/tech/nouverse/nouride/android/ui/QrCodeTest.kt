@@ -19,7 +19,7 @@ class QrCodeTest {
   private val cases = listOf(
     Case("HELLO", version = 1, mask = 2, forced = false, sha256 = "1fff7fd781f0f59edd796e0f79b20d68de6ecef41b47571460c4bbfbac1afe97"),
     Case("http://192.168.1.23:18254", version = 2, mask = 6, forced = false, sha256 = "61cd83e0ee2bf535a149885c6a3a18f711058ff9ad401e3d4da12d5ae6866d22"),
-    Case("http://10.18.1.99:18264", version = 2, mask = 4, forced = false, sha256 = "dc138a0602a5855a255ac756039fbeba7dbc07789a0cc195972600e6c02f3cfd"),
+    Case("http://192.168.0.195:18264", version = 2, mask = 4, forced = false, sha256 = "a7bfdbc2d7e428baabd93813ef8b540976231d845fbd8597f6d621940df5dc94"),
     Case("http://192.168.1.23:18254", version = 2, mask = 0, forced = true, sha256 = "d33cfbfc2dc8db605ac7da3acc44b58ad7100c3b360a05c96c10585e5b0e697d"),
     Case("http://192.168.1.23:18254", version = 2, mask = 1, forced = true, sha256 = "777d68e55b414c2e11f4ab8e9afac362c9c57f926545a8c935995f47f61a8493"),
     Case("http://192.168.1.23:18254", version = 2, mask = 2, forced = true, sha256 = "50a6187b4c7f036241fc4523f07b13917cb223ecc5d585279c5a9baf87d76949"),
