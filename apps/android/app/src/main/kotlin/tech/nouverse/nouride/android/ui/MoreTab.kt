@@ -12,8 +12,14 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.text.format.Formatter
+import android.widget.ProgressBar
+import tech.nouverse.nouride.android.Layout
 import tech.nouverse.nouride.android.R
+import tech.nouverse.nouride.android.backup.BackupStatus
+import tech.nouverse.nouride.android.backup.NourideBackup
 import tech.nouverse.nouride.android.power.PowerSettings
+import tech.nouverse.nouride.android.server.Place
 import tech.nouverse.nouride.android.server.RemoteHost
 import tech.nouverse.nouride.android.server.ServerState
 import tech.nouverse.nouride.android.server.Where
@@ -24,8 +30,9 @@ import tech.nouverse.nouride.android.update.Updates
  * The More tab, for what is rarely needed: where Nouride runs (this phone or another computer, `server/Place`), keeping
  * Nouride running (the battery exemption, with a check once it is
  * given, and on Xiaomi's phones the Autostart switch), the appearance, Versions and updates (this app's and Nouride's,
- * on a screen of their own), turning Nouride off, and Technical Logs for whoever helps. Turning off lives here so it is
- * never pressed by mistake on Home.
+ * on a screen of their own), Nouride's files as one zip (`backup/NourideBackup`, this phone's own Nouride only),
+ * turning Nouride off, and Technical Logs for whoever helps. Turning off lives here so it is never pressed by mistake on
+ * Home.
  */
 internal class MoreTab(
   private val activity: Activity,
@@ -51,6 +58,15 @@ internal class MoreTab(
   private val versions: TextView = ui.text(15f, R.color.muted)
   /** Keeping Nouride running is this phone's own server's business: hidden while Nouride lives elsewhere. */
   private val running: LinearLayout = ui.card()
+  /** Nouride's files as one zip: this phone's own Nouride's, so hidden while it lives elsewhere. */
+  private val backup: LinearLayout = ui.card()
+  private val backupSecrets: TextView = ui.text(15f, R.color.muted)
+  private val backupSize: TextView = ui.text(15f, R.color.muted)
+  private val backupButton: Button = ui.secondary { NourideBackup.start(activity) }.apply { setText(R.string.backup_button) }
+  private val backupBar: ProgressBar = ui.progressBar()
+  private val backupResult: TextView = ui.text(15f, R.color.ink)
+  private val backupListener = { renderBackup() }
+  private var where: Where? = null
   private val turnOff: Button = ui.quiet { onTurnOff() }.apply {
     setText(R.string.turn_off_nouride)
     setTextColor(ui.color(R.color.warn))
@@ -114,6 +130,16 @@ internal class MoreTab(
       addView(ui.text(16f, R.color.ink).apply { setText(R.string.versions_row) })
       addView(versions, ui.fullWidth(2))
     }, ui.fullWidth(12))
+
+    backup.addView(ui.text(17f, R.color.ink, bold = true).apply { setText(R.string.backup_title) })
+    backup.addView(ui.text(15f, R.color.muted).apply { setText(R.string.backup_body) }, ui.fullWidth(10))
+    backup.addView(backupSecrets, ui.fullWidth(6))
+    backup.addView(ui.text(15f, R.color.muted).apply { setText(R.string.backup_others) }, ui.fullWidth(6))
+    backup.addView(backupSize, ui.fullWidth(6))
+    backup.addView(backupButton, ui.fullWidth(12))
+    backup.addView(backupBar, ui.fullWidth(12))
+    backup.addView(backupResult, ui.fullWidth(8))
+    column.addView(backup, ui.fullWidth(12))
 
     column.addView(turnOff, ui.fullWidth(16))
     column.addView(ui.card(padding = 18).apply {
@@ -211,10 +237,42 @@ internal class MoreTab(
     batteryOk.visibility = if (mayStop || !here) View.GONE else View.VISIBLE
     batteryAsk.visibility = if (mayStop && here) View.VISIBLE else View.GONE
     turnOff.visibility = if (canTurnOff && here) View.VISIBLE else View.GONE
+    this.where = where
+    renderBackup()
   }
+
+  /** The zip's card, as `NourideBackup` says: only with Nouride installed on this phone. */
+  private fun renderBackup() {
+    val status = NourideBackup.status
+    backup.visibility = if (BackupLooks.shown(where, Layout(activity).installed)) View.VISIBLE else View.GONE
+    backupSecrets.setText(BackupLooks.secrets(status))
+    backupSize.text = activity.getString(BackupLooks.size(status), status.size?.let { Formatter.formatShortFileSize(activity, it) })
+    backupButton.isEnabled = BackupLooks.canStart(status)
+    backupButton.alpha = if (backupButton.isEnabled) 1f else 0.5f
+    backupBar.visibility = if (BackupLooks.bar(status.step)) View.VISIBLE else View.GONE
+    val percent = BackupLooks.percent(status)
+    backupBar.isIndeterminate = percent == null
+    backupBar.progress = percent ?: 0
+    val result = BackupLooks.result(status.step)
+    backupResult.visibility = if (result == 0) View.GONE else View.VISIBLE
+    if (result != 0) {
+      val arg: Any = when (status.step) {
+        BackupStatus.Step.SAVING -> status.percent
+        BackupStatus.Step.SAVED -> status.saved.orEmpty()
+        else -> Formatter.formatShortFileSize(activity, status.size ?: 0)
+      }
+      backupResult.text = activity.getString(result, arg)
+    }
+  }
+
+  /** Off the screen: the zip goes on, and the card is drawn again when it comes back. */
+  fun pause() = NourideBackup.unlisten(backupListener)
 
   /** On the screen's resume: the two versions, as far as they are known without asking anyone. */
   fun resume() {
+    NourideBackup.listen(backupListener)
+    // Counted for this phone's own Nouride only: on another computer the files are there.
+    if (Place(activity).address() == null) NourideBackup.count(activity)
     val app = Updates.installedVersion(activity)
     val nouride = ServerState.health?.version?.removePrefix("v")
     val waiting = UpdateNotices.versionsRow(app = Updates.waiting(activity) != null, nouride = NourideNotice.waiting(activity) != null)
