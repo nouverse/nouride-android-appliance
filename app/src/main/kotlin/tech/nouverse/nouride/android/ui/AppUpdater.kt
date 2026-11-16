@@ -14,8 +14,6 @@ internal class AppUpdater(
   /** Whether the first start is setting Nouride up, when an update waits (`Updates.waitsFor`). */
   private val waits: () -> Boolean,
   private val onChange: () -> Unit,
-  /** Android 8 and later ask the person once to let this app install its updates: the screen says so, then [allowing]. */
-  private val askToAllow: () -> Unit,
 ) {
   enum class State { IDLE, DOWNLOADING, INSTALLING, FAILED }
 
@@ -38,7 +36,10 @@ internal class AppUpdater(
     return true
   }
 
-  /** The person pressed the button that opens Settings, where they allow it. */
+  /**
+   * Android 8 and later ask the person once to let this app install its updates: the card says so (`UpdateLooks`,
+   * `VersionLooks`), and its Allow opens Settings, where they allow it.
+   */
   fun allowing() {
     askedToAllow = true
     activity.startActivity(Updates.allowInstallIntent(activity))
@@ -46,7 +47,8 @@ internal class AppUpdater(
 
   fun start(release: Release) {
     if (busy || waits()) return
-    if (!Updates.canInstall(activity)) return askToAllow()
+    // Not allowed yet: the card says so with Allow (it reads `Updates.canInstall` as it draws).
+    if (!Updates.canInstall(activity)) return onChange()
     state = State.DOWNLOADING
     percent = 0
     onChange()

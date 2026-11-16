@@ -51,7 +51,7 @@ class VersionsActivity : Activity() {
     ui.lightSystemBars(window)
     app = VersionCard(this, ui, R.string.app_name, ::appPressed)
     nouride = NourideCard(this, ui)
-    updater = AppUpdater(this, ::waits, onChange = ::showApp) { askToAllowInstalls(this, ui) { updater.allowing() } }
+    updater = AppUpdater(this, ::waits, onChange = ::showApp)
     setContentView(views())
     // Home's card for a new Nouride: the update starts here, where its progress is followed, once the check finds it.
     if (savedInstanceState == null && !remote && intent.getBooleanExtra(EXTRA_UPDATE_NOURIDE, false)) nouride.updateWhenFound()
@@ -114,6 +114,7 @@ class VersionsActivity : Activity() {
     when (button) {
       VersionButton.CHECK -> checkApp()
       VersionButton.UPDATE -> Updates.waiting(this)?.let(updater::start)
+      VersionButton.ALLOW -> updater.allowing()
       VersionButton.INSTALL, VersionButton.NONE -> Unit
     }
   }
@@ -145,6 +146,8 @@ class VersionsActivity : Activity() {
       updater.state == AppUpdater.State.DOWNLOADING -> AppStep.DOWNLOADING
       updater.state == AppUpdater.State.INSTALLING -> AppStep.INSTALLING
       appStep == AppStep.CHECKING -> AppStep.CHECKING
+      // As on Home's card: without Android's permission neither Update nor Try again goes anywhere.
+      waiting != null && !Updates.canInstall(this) -> AppStep.ALLOW
       updater.state == AppUpdater.State.FAILED && waiting != null -> AppStep.DOWNLOAD_FAILED
       Updates.failed(this) && waiting != null -> AppStep.INSTALL_FAILED
       // While Nouride is first set up, Update waits for it, as on Home (`AppUpdater.start`).

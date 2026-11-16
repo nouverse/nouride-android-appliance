@@ -82,13 +82,13 @@ Under the main state, only what a person acts on:
   another computer. More carries the dot and its Versions line says it too (`ui/UpdateNotices.kt`).
 - **Keep running with the screen off**: only while the phone may stop the app, one amber line, "Nouride may stop when
   the screen is off. Fix it in More ›", which opens More, where it is fixed.
-- **A new version of the app** (`ui/UpdateCard.kt`): the first time a release is found, a round card over the screen
-  with the riding cat, "A new Nouride Home is ready", the version and that Nouride and the agents stay as they are,
-  then Update now and Later. After that a small card at the top until it is installed: Update, the download's
-  percent, "Almost done. When your phone asks, tap Update." Android 8 and later first ask the person to allow
-  installing from the app: a card with the waving cat says so and opens that setting, and the update goes on when
-  they come back. Nothing of it shows while the first start sets Nouride up. Words only: no version code, sha, URL
-  or file name; a failed download says to check the Wi-Fi and try again.
+- **A new version of the app** (`ui/UpdateCard.kt`, its sentence and button `ui/UpdateLooks.kt`): a small card at
+  the top until it is installed, "A new version is ready", the version and that Nouride and the agents stay as they
+  are, and Update: the download's percent, then "Almost done. When your phone asks, tap Update." The card is the only
+  place it is offered: nothing comes over the screen for it, not even the first time. Android 8 and later first need
+  the person to allow installing from the app: the same card says so in one sentence with Allow, which opens that
+  setting, and the update goes on when they come back. Nothing of it shows while the first start sets Nouride up.
+  Words only: no version code, sha, URL or file name; a failed download says to check the Wi-Fi and try again.
 
 ## Connect
 
@@ -129,7 +129,8 @@ is that computer's.
   Nouride Home is ready. It opens a screen of its own (`ui/VersionsActivity.kt`) with two cards, the same shape each:
   what it is, its version, one sentence of where its update is, and one button.
   - **Nouride Home**: Check for updates (asks the feed at once), then "Update to 0.1.9", the same download and
-    install as Home's card (`AppUpdater`).
+    install as Home's card (`AppUpdater`). Before Android lets the app install, the card asks for that with Allow,
+    as Home's does.
   - **Nouride**: Check for updates, then "Update to 0.8.26" in one press: the download with its percent, the install,
     and "The update is in" with when Nouride starts again (now, once the agents are not busy, or once their background
     work is done). The card follows Nouride back and says the new version. Off, it says to turn Nouride on; a download
@@ -147,8 +148,7 @@ Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
   Nouride's soft mascot, the tuxedo cat in the lavender hoodie, and each pose means what it means in the dashboard
   (Nouride's design rules, `.agents/skills/nouride-contributing/references/design-rules.md` in the nouride repository):
   waving when off and while turning off, riding its scooter while setting up or starting (it floats gently), thumbs up
-  when running, sad beside an unplugged cable when something failed or there is no Wi-Fi. Pointing at what needs the
-  person (allowing updates), the wrench for a new version. A pose is copied from nouride's
+  when running, sad beside an unplugged cable when something failed or there is no Wi-Fi. A pose is copied from nouride's
   `packages/shared/assets/mascot/` (or `docs/design/mascot/` for one the dashboard does not draw yet) and trimmed to
   the cat, as the screens size it by height: `magick <pose>.webp -trim +repage -strip -quality 92 -define
   webp:alpha-quality=100 mascot_<name>.webp`.

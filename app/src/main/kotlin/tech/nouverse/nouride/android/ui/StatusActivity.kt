@@ -125,7 +125,7 @@ class StatusActivity : Activity() {
   private fun openDashboard() = startActivity(Intent(this, DashboardActivity::class.java))
 
   private fun views(): View {
-    // More said "You have the newest version" behind the dialog offering one: its line was read before the check.
+    // More's Versions line says what the check found, not what was known before it.
     update = UpdateCard(this, ui, onChecked = { more.resume() })
     nourideUpdate = NourideUpdateCard(this, ui) {
       startActivity(Intent(this, VersionsActivity::class.java).putExtra(VersionsActivity.EXTRA_UPDATE_NOURIDE, true))

@@ -31,7 +31,6 @@ object Updates {
   private const val SHA = "sha"
   private const val CHECKED_AT = "checked_at"
   private const val CHECKED_FOR = "checked_for"
-  private const val OFFERED = "offered"
   private const val FAILED = "failed"
 
   /**
@@ -44,8 +43,9 @@ object Updates {
   /**
    * While the first start sets Nouride up, an update waits: replacing the app stops the setup halfway, and an installer
    * cut off inside apt can leave it unable to finish. It waits from the moment the person presses Start on a phone
-   * where Nouride is not installed yet, not from the service's first report, which came after the big card once on the
-   * phone. A setup that failed does not wait: the update may be what fixes it. Every later start is quick and resumes.
+   * where Nouride is not installed yet, not from the service's first report, which once came after the update had been
+   * offered on the phone. A setup that failed does not wait: the update may be what fixes it. Every later start is quick
+   * and resumes.
    */
   fun waitsFor(phase: ServerState.Phase, startPressed: Boolean, installed: () -> Boolean): Boolean = when (phase) {
     ServerState.Phase.EXTRACTING, ServerState.Phase.INSTALLING -> true
@@ -97,13 +97,6 @@ object Updates {
       if (release != null) putString(VERSION, release.version).putString(APK, release.apkUrl).putString(SHA, release.sha256Url)
     }.apply()
   }
-
-  /** Whether the person has been asked about [version] already: the big card shows once a release, then the small one. */
-  fun offered(context: Context, version: String): Boolean =
-    context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(OFFERED, null) == version
-
-  fun markOffered(context: Context, version: String) =
-    context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(OFFERED, version).apply()
 
   /** Why the last install did not go in, set by `UpdateReceiver`; cleared when the next one starts. */
   fun failed(context: Context): Boolean = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(FAILED, false)
