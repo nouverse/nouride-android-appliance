@@ -1,17 +1,14 @@
 # A release of Nouride Home: publish a release `vX.Y.Z` on GitHub and this builds the APK from the pinned inputs, runs
 # the unit tests, signs it with the release key, checks the signature against scripts/release-cert.sha256, and
-# attaches it to that release with its sha256. Never on a push. Run by hand (Actions → Release → Run workflow) it
-# builds the same APK as a dry run: kept as the run's artifact for 7 days, nothing attached.
+# attaches it to that release with its sha256. Never on a push. The tag must be `v` and the repository's VERSION, the one
+# version of both apps, which the APK carries. Run by hand (Actions → Release → Run workflow) it builds VERSION's APK
+# as a dry run: kept as the run's artifact for 7 days, nothing attached. The desktop app is not built here yet.
 name: Release
 
 on:
   release:
     types: [published]
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Version to build as a dry run, x.y.z"
-        required: true
 
 permissions:
   contents: write
@@ -28,11 +25,14 @@ jobs:
 
       - name: Version
         env:
-          INPUT_VERSION: ${{ inputs.version }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          if [ -n "$RELEASE_TAG" ]; then v="${RELEASE_TAG#v}"; else v="$INPUT_VERSION"; fi
-          echo "$v" | grep -Eq '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' || { echo "not a version x.y.z: $v" >&2; exit 1; }
+          v=$(cat VERSION)
+          echo "$v" | grep -Eq '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$' || { echo "VERSION is not x.y.z: $v" >&2; exit 1; }
+          if [ -n "$RELEASE_TAG" ] && [ "$RELEASE_TAG" != "v$v" ]; then
+            echo "the tag is $RELEASE_TAG but VERSION says $v: bump VERSION on main first" >&2; exit 1
+          fi
+          scripts/bump-version --check
           echo "NOURIDE_HOME_VERSION=$v" >> "$GITHUB_ENV"
 
       - name: Toolchain cache
@@ -71,13 +71,14 @@ jobs:
           NOURIDE_HOME_KEY_ALIAS: ${{ secrets.NOURIDE_HOME_KEY_ALIAS }}
         run: |
           . "$HOME/android-toolchain/env.sh"
+          cd apps/android
           ./gradlew --no-daemon testDebugUnitTest assembleRelease
 
       - name: Signature
         # The key every earlier release was signed with, or phones refuse the update: a wrong key fails here.
         run: |
           . "$HOME/android-toolchain/env.sh"
-          apk=app/build/outputs/apk/release/app-release.apk
+          apk=apps/android/app/build/outputs/apk/release/app-release.apk
           got=$("$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" | sed -n 's/.*certificate SHA-256 digest: //p' | head -1)
           want=$(cat scripts/release-cert.sha256)
           [ "$got" = "$want" ] || { echo "signed with $got, releases use $want" >&2; exit 1; }

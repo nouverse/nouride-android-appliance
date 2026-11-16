@@ -1,0 +1,58 @@
+# The Android app's unit tests and a debug build, on a change that can affect it: its code, the behaviour both apps
+# share (spec/, which its tests read), the scripts that build proot and the Debian layer, or VERSION.
+name: Android
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/android/**"
+      - "spec/**"
+      - "scripts/**"
+      - "VERSION"
+      - ".github/workflows/android.yml"
+  pull_request:
+    paths:
+      - "apps/android/**"
+      - "spec/**"
+      - "scripts/**"
+      - "VERSION"
+      - ".github/workflows/android.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain cache
+        uses: actions/cache@v4
+        with:
+          path: ~/android-toolchain
+          key: toolchain-${{ hashFiles('scripts/setup-toolchain.sh') }}
+
+      - name: Toolchain
+        # sdkmanager asks to accept each licence; the script is the one every build of this app uses.
+        run: yes | scripts/setup-toolchain.sh "$HOME/android-toolchain" > /dev/null
+
+      - name: Rootfs cache
+        uses: actions/cache@v4
+        with:
+          path: build/rootfs
+          key: rootfs-${{ hashFiles('scripts/assets.lock') }}
+
+      - name: proot and the Debian layer
+        run: |
+          . "$HOME/android-toolchain/env.sh"
+          scripts/build-proot.sh
+          scripts/build-rootfs.sh
+
+      - name: Test and build
+        run: |
+          . "$HOME/android-toolchain/env.sh"
+          cd apps/android
+          ./gradlew --no-daemon testDebugUnitTest assembleDebug
