@@ -15,6 +15,11 @@ pub const HOME: &str = "nouridehome://home";
 /// Added to the window's user agent, so the dashboard knows it is inside the app and shows that way back.
 pub const USER_AGENT_MARK: &str = "NourideHome/1";
 
+/// Run in the dashboard's window before its own scripts: a link that asks for a new tab is opened with `window.open`,
+/// which reaches the window's new-window handler. WebKit on macOS drops a `target="_blank"` click before either
+/// handler sees it, so the dashboard's sign-in buttons did nothing (`apps/ui/tests/new-tabs.test.ts` runs it).
+pub const NEW_TABS_SCRIPT: &str = include_str!("new-tabs.js");
+
 /// Where a link the dashboard follows goes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Link {
@@ -45,6 +50,21 @@ pub fn link(url: &str, is_for_main_frame: bool, origin: &str) -> Link {
   } else {
     Link::Outside
   }
+}
+
+/// Where a page the dashboard asks a new window for goes. A window has no tabs, so nothing opens a second one.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NewWindow {
+  /// One of Nouride's own pages: the dashboard's window follows it. A path that only redirects (the gateway's
+  /// `/oauth/start`, to Google) is caught as it redirects, by [`link`], and the page on screen stays.
+  Here,
+  /// Anything else, a provider's sign-in above all: the browser, where the person's own session is. Android's
+  /// `onCreateWindow` does the same.
+  Browser,
+}
+
+pub fn new_window(url: &str, origin: &str) -> NewWindow {
+  if url != "about:blank" && in_app(url, origin) { NewWindow::Here } else { NewWindow::Browser }
 }
 
 /// Whether a failed load is Nouride itself not answering, shown as the cat and Try again: the page the window was
@@ -179,6 +199,35 @@ mod tests {
     assert_eq!(link(&page("agents"), true, ORIGIN), Link::Here);
     assert_eq!(link("https://accounts.google.com/o/oauth2", true, ORIGIN), Link::Outside);
     assert_eq!(link("https://www.youtube.com/embed/x", false, ORIGIN), Link::Here);
+  }
+
+  #[test]
+  fn a_sign_in_asking_for_a_new_window_goes_to_the_browser() {
+    // Each sign-in on the dashboard's Provider step, as the gateway answers it: ChatGPT's and Claude's go straight to
+    // the provider, GitHub Copilot's device page too, Google Gemini's through the gateway's own redirect.
+    for url in [
+      "https://auth.openai.com/oauth/authorize?client_id=x&redirect_uri=http%3A%2F%2Flocalhost%3A1455%2Fauth%2Fcallback",
+      "https://claude.ai/oauth/authorize?code=true&client_id=x",
+      "https://github.com/login/device",
+      "https://accounts.google.com/o/oauth2/v2/auth?client_id=x",
+    ] {
+      assert_eq!(new_window(url, ORIGIN), NewWindow::Browser, "{url}");
+    }
+    assert_eq!(new_window("about:blank", ORIGIN), NewWindow::Browser);
+  }
+
+  #[test]
+  fn nourides_own_page_in_a_new_window_stays_and_its_redirect_to_google_leaves() {
+    let start = format!("{ORIGIN}/llm-gateway/oauth/start");
+    assert_eq!(new_window(&start, ORIGIN), NewWindow::Here);
+    assert_eq!(link(&start, true, ORIGIN), Link::Here);
+    assert_eq!(link("https://accounts.google.com/o/oauth2/v2/auth?client_id=x", true, ORIGIN), Link::Outside);
+  }
+
+  #[test]
+  fn the_new_tabs_script_opens_with_window_open_and_leaves_ordinary_links_alone() {
+    assert!(NEW_TABS_SCRIPT.contains("window.open(a.href, \"_blank\", \"noopener\")"));
+    assert!(NEW_TABS_SCRIPT.contains("_self: true"));
   }
 
   #[test]

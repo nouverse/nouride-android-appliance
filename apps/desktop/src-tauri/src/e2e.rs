@@ -48,6 +48,11 @@ pub fn handle(handle: &AppHandle, app: &Arc<App>, argv: &[String]) {
         }
       }
       "tray" => tray::press(&h, &a, &arg),
+      // Runs a script in the dashboard's window, as a click there would (WKWebView has no WebDriver).
+      "dashboard-js" => {
+        let w = h.get_webview_window(windows::dashboard::LABEL).ok_or("the dashboard's window is not open")?;
+        w.eval(&arg).map_err(|e| e.to_string())?;
+      }
       "check-nouride-update" => {
         let _ = a.notices().remember(&updates::client::Client { origin: a.build.origin(), token_path: a.layout.control_token() }.status(true).map_err(|e| e.to_string())?, crate::applog::now_ms());
       }
