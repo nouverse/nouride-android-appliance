@@ -85,8 +85,11 @@ pub fn handle(handle: &AppHandle, app: &Arc<App>, argv: &[String]) {
 fn dump(handle: &AppHandle, app: &App) -> serde_json::Value {
   let window = |label: &str| {
     handle.get_webview_window(label).map(|w| {
+      let scale = w.scale_factor().unwrap_or(1.0);
+      let size = w.inner_size().map(|s| s.to_logical::<f64>(scale)).ok();
       json!({
         "visible": w.is_visible().unwrap_or(false),
+        "size": size.map(|s| json!({ "width": s.width.round(), "height": s.height.round() })),
         "url": w.url().map(|u| u.to_string()).unwrap_or_default(),
         "title": w.title().unwrap_or_default(),
       })

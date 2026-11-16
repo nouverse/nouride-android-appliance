@@ -1,62 +1,94 @@
 import { useEffect, useState } from "react";
-import { TabBar } from "./commons/components/TabBar";
+import { Sidebar } from "./commons/components/Sidebar";
 import { useSnapshot } from "./commons/hooks/useSnapshot";
-import { ipc, type Screen } from "./commons/lib/ipc";
-import { back, tabOf } from "./commons/lib/screens";
-import { ConnectTab } from "./modules/connect/ConnectTab";
+import { useWindowWidth } from "./commons/hooks/useWindowWidth";
+import { ipc } from "./commons/lib/ipc";
+import { isMac, type Section, sectionOf, shortcut, sidebarShape, sidebarShown } from "./commons/lib/sections";
+import { ConnectScreen } from "./modules/connect/ConnectScreen";
 import { WhereScreen } from "./modules/first-run/WhereScreen";
-import { HomeTab } from "./modules/home/HomeTab";
+import { HomeScreen } from "./modules/home/HomeScreen";
 import { LogsScreen } from "./modules/logs/LogsScreen";
-import { MoreTab } from "./modules/more/MoreTab";
+import { SettingsScreen } from "./modules/settings/SettingsScreen";
 import { VersionsScreen } from "./modules/versions/VersionsScreen";
+
+const MAC = isMac(navigator.userAgent);
 
 export function App() {
   const s = useSnapshot();
-  const [screen, setScreen] = useState<Screen>("home");
+  const [section, setSection] = useState<Section>("home");
+  const width = useWindowWidth();
+  const shown = s ? sidebarShown(s) : false;
 
   useEffect(() => {
-    const stop = ipc.onScreen(setScreen);
+    const stop = ipc.onScreen((name) => {
+      const to = sectionOf(name);
+      if (to) setSection(to);
+    });
     return () => {
       stop.then((f) => f());
     };
   }, []);
 
-  // The keyboard's Back (Cmd+[ or Escape) goes where the bar's Back would.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" || (e.metaKey && e.key === "[")) {
-        const to = back(screen);
-        if (to) setScreen(to);
+      const to = shortcut(e, MAC, shown);
+      if (to) {
+        e.preventDefault();
+        setSection(to);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [screen]);
+  }, [shown]);
 
   if (!s) return null;
-  if (s.place === null) return <WhereScreen s={s} />;
+
+  // macOS draws its window buttons over the window's top (`titleBarStyle: Overlay`): that strip moves the window.
+  const titleStrip = MAC && <div data-tauri-drag-region className="fixed inset-x-0 top-0 z-10 h-8" />;
+
+  if (s.place === null) {
+    return (
+      <>
+        {titleStrip}
+        <WhereScreen s={s} mac={MAC} />
+      </>
+    );
+  }
+
+  // The first setup: no sidebar, its progress the one thing to watch.
+  if (!shown) {
+    return (
+      <>
+        {titleStrip}
+        <main className={`grid h-full place-items-center overflow-y-auto px-7 pb-8 animate-fade ${MAC ? "pt-10" : "pt-7"}`}>
+          <HomeScreen s={s} go={setSection} alone />
+        </main>
+      </>
+    );
+  }
 
   const page = (() => {
-    switch (screen) {
+    switch (section) {
       case "home":
-        return <HomeTab s={s} go={setScreen} />;
+        return <HomeScreen s={s} go={setSection} />;
       case "connect":
-        return <ConnectTab s={s} go={setScreen} />;
-      case "more":
-        return <MoreTab s={s} go={setScreen} />;
+        return <ConnectScreen s={s} go={setSection} />;
       case "versions":
-        return <VersionsScreen s={s} go={setScreen} />;
+        return <VersionsScreen s={s} />;
+      case "settings":
+        return <SettingsScreen s={s} />;
       case "logs":
-        return <LogsScreen s={s} go={setScreen} />;
+        return <LogsScreen />;
     }
   })();
 
   return (
-    <div className="flex h-full flex-col">
-      <main key={screen} className="flex-1 overflow-y-auto px-5 pt-6 pb-4 animate-fade">
+    <div className="flex h-full">
+      {titleStrip}
+      <Sidebar s={s} open={section} onOpen={setSection} shape={sidebarShape(width)} mac={MAC} />
+      <main key={section} className={`min-w-0 flex-1 overflow-y-auto px-7 pb-8 animate-fade ${MAC ? "pt-10" : "pt-7"}`}>
         {page}
       </main>
-      {s.barShown && screen !== "logs" && <TabBar open={tabOf(screen)} onOpen={setScreen} moreDot={s.moreDot} />}
     </div>
   );
 }

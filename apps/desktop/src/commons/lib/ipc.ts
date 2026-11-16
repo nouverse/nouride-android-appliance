@@ -53,10 +53,10 @@ export interface Snapshot {
   adopted: boolean;
   phase: Phase;
   look: Look;
-  /** The first setup is running: the bar is hidden and the progress shows. */
+  /** The first setup is running: the sidebar is hidden and the progress shows. */
   firstStart: boolean;
   progress: { step: Step; number: number; of: number; percent: number } | null;
-  barShown: boolean;
+  sidebarShown: boolean;
   canTurnOff: boolean;
   /** Connect. */
   reach: Reach;
@@ -72,8 +72,9 @@ export interface Snapshot {
   /** A newer Nouride waiting, for Home's card. */
   nourideUpdate: string | null;
   appUpdate: string | null;
-  moreDot: boolean;
-  /** More's Versions line when something waits, or `null` for the versions themselves. */
+  /** The dot on Versions and updates: an update waits there. */
+  versionsDot: boolean;
+  /** Home's versions line when something waits, or `null` for the versions themselves. */
   versionsRow: string | null;
   appearance: Appearance;
   versions: { app: VersionCard; nouride: VersionCard };
@@ -87,8 +88,6 @@ export interface Logs {
   parts: { name: string; text: string }[];
 }
 
-/** Where the window should go, when the menu bar or an e2e hook asks. */
-export type Screen = "home" | "connect" | "more" | "versions" | "logs";
 
 export const ipc = {
   state: () => invoke<Snapshot>("state"),
@@ -111,6 +110,6 @@ export const ipc = {
   qr: (text: string) => invoke<string>("qr", { text }),
   onState: (handler: (snapshot: Snapshot) => void): Promise<UnlistenFn> =>
     listen<Snapshot>("state", (event) => handler(event.payload)),
-  onScreen: (handler: (screen: Screen) => void): Promise<UnlistenFn> =>
-    listen<Screen>("screen", (event) => handler(event.payload)),
+  /** Where the window should go, when the menu bar or an e2e hook asks: a section's name (`sections.ts`). */
+  onScreen: (handler: (name: string) => void): Promise<UnlistenFn> => listen<string>("screen", (event) => handler(event.payload)),
 };

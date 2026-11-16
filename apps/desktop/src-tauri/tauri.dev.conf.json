@@ -6,10 +6,13 @@
       {
         "label": "main",
         "title": "Nouride Home Dev",
-        "width": 420,
-        "height": 760,
-        "minWidth": 380,
-        "minHeight": 620,
+        "width": 980,
+        "height": 640,
+        "minWidth": 560,
+        "minHeight": 520,
+        "resizable": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
         "visible": true
       }
     ]

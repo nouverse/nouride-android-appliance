@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { VersionCard } from "../src/commons/lib/ipc";
-import { cardWords, progressWords, shown, versionsLine } from "../src/commons/lib/versions";
+import { cardWords, progressWords, shown, versionLines } from "../src/commons/lib/versions";
 
 const card = (over: Partial<VersionCard>): VersionCard => ({
   version: "0.8.39",
@@ -13,16 +13,11 @@ const card = (over: Partial<VersionCard>): VersionCard => ({
   ...over,
 });
 
-describe("More's Versions line", () => {
-  test("says what waits, before the versions", () => {
-    expect(versionsLine({ versionsRow: "versions_row_nouride_update", appVersion: "0.1.0", nourideVersion: "0.8.39", place: "here" })).toBe(
-      "A new version of Nouride is ready.",
-    );
-  });
+describe("Home's versions", () => {
   test("names both versions while Nouride runs here, and the app's alone otherwise", () => {
-    expect(versionsLine({ versionsRow: null, appVersion: "0.1.0", nourideVersion: "0.8.39", place: "here" })).toBe("Nouride Home 0.1.0, Nouride 0.8.39");
-    expect(versionsLine({ versionsRow: null, appVersion: "0.1.0", nourideVersion: "0.8.39", place: "remote" })).toBe("Nouride Home 0.1.0");
-    expect(versionsLine({ versionsRow: null, appVersion: "0.1.0", nourideVersion: null, place: "here" })).toBe("Nouride Home 0.1.0");
+    expect(versionLines({ appVersion: "0.1.0", nourideVersion: "0.8.39", place: "here" })).toEqual(["Nouride Home 0.1.0", "Nouride 0.8.39"]);
+    expect(versionLines({ appVersion: "0.1.0", nourideVersion: "0.8.39", place: "remote" })).toEqual(["Nouride Home 0.1.0"]);
+    expect(versionLines({ appVersion: "0.1.0", nourideVersion: null, place: "here" })).toEqual(["Nouride Home 0.1.0"]);
   });
 });
 

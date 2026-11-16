@@ -1,11 +1,10 @@
 import type { Snapshot } from "./ipc";
 import { t } from "./words";
 
-/** More's Versions line: what waits there, or the two versions in one line ("Nouride Home 0.1.0, Nouride 0.8.39"). */
-export function versionsLine(s: Pick<Snapshot, "versionsRow" | "appVersion" | "nourideVersion" | "place">): string {
-  if (s.versionsRow) return t(s.versionsRow);
-  if (s.nourideVersion && s.place === "here") return t("versions_row_both", { app: s.appVersion, nouride: s.nourideVersion });
-  return t("versions_row_app", { app: s.appVersion });
+/** Home's versions, one line each: the app's, and Nouride's while it runs on this computer ("Nouride 0.8.39"). */
+export function versionLines(s: Pick<Snapshot, "appVersion" | "nourideVersion" | "place">): string[] {
+  const app = t("versions_row_app", { app: s.appVersion });
+  return s.nourideVersion && s.place === "here" ? [app, t("versions_row_nouride", { nouride: s.nourideVersion })] : [app];
 }
 
 /** A card's sentence and button label, filled with its version and percent. */

@@ -4,10 +4,10 @@ import { ipc, type Snapshot } from "../../commons/lib/ipc";
 import { t } from "../../commons/lib/words";
 
 /**
- * "Nouride on another computer": one field, Connect and Cancel. What is wrong is said under the field in its own
+ * "Nouride on another computer": one field, Connect and Cancel, over the window, or in the first question's column. What is wrong is said under the field in its own
  * sentence; Connect checks once that something answers there ("Checking…"), a typo being the likeliest cause.
  */
-export function AddressCard({ s, onClose }: { s: Snapshot; onClose: () => void }) {
+export function AddressCard({ s, onClose, inline }: { s: Snapshot; onClose: () => void; inline?: boolean }) {
   const [typed, setTyped] = useState(s.lastAddress ?? "");
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
@@ -22,8 +22,8 @@ export function AddressCard({ s, onClose }: { s: Snapshot; onClose: () => void }
     else setError(answer.error);
   };
 
-  return (
-    <Dialog onClose={onClose}>
+  const card = (
+    <>
       <h2 className="font-display text-xl tracking-tight">{t("where_ask_title")}</h2>
       {stopsHere && <p className="mt-3 rounded-box bg-accent/10 p-3 text-sm text-accent">{t("where_stops_here")}</p>}
       <p className="mt-3 text-base-content/75">{t("where_ask_body")}</p>
@@ -49,6 +49,8 @@ export function AddressCard({ s, onClose }: { s: Snapshot; onClose: () => void }
           {checking ? t("where_checking") : t("where_connect")}
         </button>
       </div>
-    </Dialog>
+    </>
   );
+  // In the first question's column it takes the answers' place; elsewhere it stands over the window.
+  return inline ? <div className="rounded-box border border-base-300 bg-base-100 p-6 shadow-soft">{card}</div> : <Dialog onClose={onClose}>{card}</Dialog>;
 }

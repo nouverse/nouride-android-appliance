@@ -7,7 +7,7 @@ use std::sync::Mutex;
 use daemon::phase::{Seen, Tracker};
 use daemon::progress::SetupProgress;
 use daemon::Layout;
-use looks::{tabs, versions, Look};
+use looks::{connect, versions, Look};
 use serde::Serialize;
 use service::launchd::LaunchAgent;
 use service::{Job, System};
@@ -196,13 +196,13 @@ impl App {
     let app_update = if self.build.dev { None } else { inner.app_update.clone() };
     let first_start = inner.progress.is_some();
     let reach = if place == Some(Where::Remote) {
-      tabs::Reach::Ready
+      connect::Reach::Ready
     } else {
-      tabs::reach(&look, inner.lan.as_deref(), open_to_others || adopted)
+      connect::reach(&look, inner.lan.as_deref(), open_to_others || adopted)
     };
     let share_url = match place {
       Some(Where::Remote) => self.place().last_address().map(|b| place::remote_host::dashboard(&b)),
-      _ if reach == tabs::Reach::Ready => inner.lan.as_ref().map(|ip| format!("http://{ip}:{}/dashboard/", self.build.port)),
+      _ if reach == connect::Reach::Ready => inner.lan.as_ref().map(|ip| format!("http://{ip}:{}/dashboard/", self.build.port)),
       _ => None,
     };
     let app_look = versions::app_card(inner.app_card.step, self.build.dev);
@@ -231,7 +231,7 @@ impl App {
         let s = p.snapshot();
         Progress { step: s.step, number: s.step.number(), of: daemon::progress::Step::ALL.len(), percent: s.percent }
       }),
-      bar_shown: tabs::bar_shown(&look, first_start),
+      sidebar_shown: looks::sidebar::sidebar_shown(&look, first_start),
       can_turn_off: here && ours && looks::status::can_turn_off(inner.phase),
       reach,
       share_url,
@@ -241,7 +241,7 @@ impl App {
       nouride_version: running_version.clone(),
       nouride_update: nouride_update.clone(),
       app_update: app_update.clone(),
-      more_dot: looks::notices::more_dot(app_update.is_some(), nouride_update.is_some()),
+      versions_dot: looks::notices::versions_dot(app_update.is_some(), nouride_update.is_some()),
       versions_row: looks::notices::versions_row(app_update.is_some(), nouride_update.is_some()),
       appearance: self.appearance(),
       versions: Versions {
@@ -311,9 +311,9 @@ pub struct Snapshot {
   pub look: Look,
   pub first_start: bool,
   pub progress: Option<Progress>,
-  pub bar_shown: bool,
+  pub sidebar_shown: bool,
   pub can_turn_off: bool,
-  pub reach: tabs::Reach,
+  pub reach: connect::Reach,
   pub share_url: Option<String>,
   pub open_to_others: bool,
   pub access_switch: bool,
@@ -322,7 +322,7 @@ pub struct Snapshot {
   pub nouride_version: Option<String>,
   pub nouride_update: Option<String>,
   pub app_update: Option<String>,
-  pub more_dot: bool,
+  pub versions_dot: bool,
   pub versions_row: Option<&'static str>,
   pub appearance: Appearance,
   pub versions: Versions,

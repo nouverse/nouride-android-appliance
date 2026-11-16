@@ -1,7 +1,7 @@
 import { Card } from "@nouride-home/ui-kit/components";
-import { ChevronLeft } from "lucide-react";
 import { useEffect } from "react";
-import { ipc, type Screen, type Snapshot, type VersionCard } from "../../commons/lib/ipc";
+import { Page } from "../../commons/components/Page";
+import { ipc, type Snapshot, type VersionCard } from "../../commons/lib/ipc";
 import { cardWords } from "../../commons/lib/versions";
 import { t } from "../../commons/lib/words";
 
@@ -27,7 +27,7 @@ function VersionCardView({ name, card, onPress }: { name: string; card: VersionC
 }
 
 /** This app's version and Nouride's, each with a check and its update (Android's Versions and updates). */
-export function VersionsScreen({ s, go }: { s: Snapshot; go: (screen: Screen) => void }) {
+export function VersionsScreen({ s }: { s: Snapshot }) {
   useEffect(() => {
     ipc.checkApp();
     if (s.place === "here") ipc.checkNouride();
@@ -38,22 +38,18 @@ export function VersionsScreen({ s, go }: { s: Snapshot; go: (screen: Screen) =>
     else if (card.button === "install") ipc.installNouride();
   };
   return (
-    <div className="flex flex-col gap-4">
-      <header className="flex items-center gap-2 pb-2">
-        <button type="button" className="btn btn-ghost btn-circle btn-sm" onClick={() => go("more")} aria-label={t("back")}>
-          <ChevronLeft className="size-5" />
-        </button>
-        <h1 className="font-display text-2xl tracking-tight">{t("versions_title")}</h1>
-      </header>
-      <VersionCardView name={s.appName} card={s.versions.app} onPress={() => press("app", s.versions.app)} />
-      {s.place === "here" ? (
-        <VersionCardView name={t("versions_nouride")} card={s.versions.nouride} onPress={() => press("nouride", s.versions.nouride)} />
-      ) : (
-        <Card>
-          <p className="font-display text-xl">{t("versions_nouride")}</p>
-          <p className="mt-3">{t("versions_nouride_remote")}</p>
-        </Card>
-      )}
-    </div>
+    <Page title={t("versions_title")}>
+      <div className="grid items-start gap-5 @min-[680px]:grid-cols-2">
+        <VersionCardView name={s.appName} card={s.versions.app} onPress={() => press("app", s.versions.app)} />
+        {s.place === "here" ? (
+          <VersionCardView name={t("versions_nouride")} card={s.versions.nouride} onPress={() => press("nouride", s.versions.nouride)} />
+        ) : (
+          <Card>
+            <p className="font-display text-xl">{t("versions_nouride")}</p>
+            <p className="mt-3">{t("versions_nouride_remote")}</p>
+          </Card>
+        )}
+      </div>
+    </Page>
   );
 }
