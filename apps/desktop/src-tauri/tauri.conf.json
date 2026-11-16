@@ -4,8 +4,10 @@
   "version": "0.1.0",
   "identifier": "tech.nouverse.nouride.home",
   "build": {
-    "frontendDist": "../ui/dist",
-    "devUrl": "http://localhost:1420"
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "bun run dev",
+    "beforeBuildCommand": "bun run build"
   },
   "app": {
     "windows": [

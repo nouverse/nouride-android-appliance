@@ -1,7 +1,7 @@
 /**
  * The one way the screens reach Rust: Tauri's `invoke` for what a person does, and the `state` event for what the app
- * is. Nothing else in `apps/ui` imports `@tauri-apps/api`. The types mirror `apps/desktop/src/state.rs`; a field is
- * renamed in both or in neither.
+ * is. Nothing else in the screens imports `@tauri-apps/api`. The types mirror `apps/desktop/src-tauri/src/state.rs`;
+ * a field is renamed in both or in neither.
  */
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";

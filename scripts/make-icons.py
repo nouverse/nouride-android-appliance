@@ -43,7 +43,7 @@ def tray_icon(out: str, px: int) -> None:
 
 
 if __name__ == "__main__":
-    app_icon(RELEASE, "apps/desktop/icons/source.png")
-    app_icon(DEV, "apps/desktop/icons-dev/source.png")
-    tray_icon("apps/desktop/icons/tray.png", 44)
+    app_icon(RELEASE, "apps/desktop/src-tauri/icons/source.png")
+    app_icon(DEV, "apps/desktop/src-tauri/icons-dev/source.png")
+    tray_icon("apps/desktop/src-tauri/icons/tray.png", 44)
     print("icons written")

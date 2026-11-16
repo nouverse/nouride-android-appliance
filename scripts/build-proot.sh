@@ -2,8 +2,8 @@
 # Builds proot (termux/proot, the release Termux ships) and its loader for arm64 Android
 # with the NDK, talloc linked in statically, and puts them where Gradle packages them:
 #
-#   app/src/main/jniLibs/arm64-v8a/libproot.so          the proot executable
-#   app/src/main/jniLibs/arm64-v8a/libproot-loader.so   the loader proot starts every guest program with
+#   apps/android/app/src/main/jniLibs/arm64-v8a/libproot.so          the proot executable
+#   apps/android/app/src/main/jniLibs/arm64-v8a/libproot-loader.so   the loader proot starts every guest program with
 #
 # Android installs lib*.so from the APK into the app's nativeLibraryDir, the one place an app
 # may execute files from. The names are a packaging trick: both are executables, not libraries.
@@ -28,7 +28,7 @@ TOOLS="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
 export CC="$TOOLS/aarch64-linux-android$NDK_API-clang"
 export AR="$TOOLS/llvm-ar"
 WORK="$ROOT/build/proot"
-OUT="$ROOT/app/src/main/jniLibs/arm64-v8a"
+OUT="$ROOT/apps/android/app/src/main/jniLibs/arm64-v8a"
 UNUSED_LOADER_DIR=/data/data/tech.nouverse.nouride.home/files/libexec/proot
 
 fetch() { # url sha256 file

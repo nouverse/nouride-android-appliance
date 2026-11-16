@@ -1,9 +1,9 @@
 {
-  "name": "nouride-appliance-desktop",
+  "name": "nouride-home",
   "private": true,
-  "workspaces": ["apps/ui", "apps/desktop", "packages/ui-kit"],
+  "workspaces": ["apps/desktop", "packages/*"],
   "scripts": {
-    "test": "cd apps/ui && bun test",
-    "build:ui": "cd apps/ui && bun run build"
+    "test": "cd apps/desktop && bun test",
+    "build:desktop": "cd apps/desktop && bun run build"
   }
 }

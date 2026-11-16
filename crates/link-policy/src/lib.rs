@@ -17,7 +17,7 @@ pub const USER_AGENT_MARK: &str = "NourideHome/1";
 
 /// Run in the dashboard's window before its own scripts: a link that asks for a new tab is opened with `window.open`,
 /// which reaches the window's new-window handler. WebKit on macOS drops a `target="_blank"` click before either
-/// handler sees it, so the dashboard's sign-in buttons did nothing (`apps/ui/tests/new-tabs.test.ts` runs it).
+/// handler sees it, so the dashboard's sign-in buttons did nothing (`apps/desktop/tests/new-tabs.test.ts` runs it).
 pub const NEW_TABS_SCRIPT: &str = include_str!("new-tabs.js");
 
 /// Where a link the dashboard follows goes.

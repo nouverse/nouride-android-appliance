@@ -8,7 +8,7 @@
 #   e2e place-here [v0.8.37]   # Run it on this computer (a pinned release for an update test)
 #   e2e shot home              # a picture of the app's own window, <data>/e2e/home.png
 #   e2e quit
-APP="${APP:-$HOME/nix-work/nouride-appliance-desktop/target/debug/bundle/macos/Nouride Home Dev.app}"
+APP="${APP:-$HOME/nix-work/nouride-home/target/debug/bundle/macos/Nouride Home Dev.app}"
 DATA="$HOME/Library/Application Support/tech.nouverse.nouride.home.dev"
 BIN="$APP/Contents/MacOS/nouride-home"
 

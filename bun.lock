@@ -7,12 +7,6 @@
     },
     "apps/desktop": {
       "name": "@nouride-home/desktop",
-      "devDependencies": {
-        "@tauri-apps/cli": "2.12.4",
-      },
-    },
-    "apps/ui": {
-      "name": "@nouride-home/ui",
       "dependencies": {
         "@nouride-home/ui-kit": "workspace:*",
         "@tauri-apps/api": "2.12.4",
@@ -22,6 +16,7 @@
       },
       "devDependencies": {
         "@tailwindcss/vite": "4.3.5",
+        "@tauri-apps/cli": "2.12.4",
         "@types/bun": "1.4.4",
         "@types/react": "19.3.0",
         "@types/react-dom": "19.3.0",
@@ -63,8 +58,6 @@
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.2.6", "", { "dependencies": { "@tybys/wasm-util": "^0.10.3" }, "peerDependencies": { "@emnapi/core": "^1.7.1 || 2.0.0-beta.2", "@emnapi/runtime": "^1.7.1 || 2.0.0-beta.2" } }, "sha512-mRyDmEw9/fCDXCGfL1sbgIw/GUK0PVxRW4YwgPN61F3LQ+fSyoBFarJVzgGyhF6kRzEQZ0FejDqm4WLXSeqQmw=="],
 
     "@nouride-home/desktop": ["@nouride-home/desktop@workspace:apps/desktop"],
-
-    "@nouride-home/ui": ["@nouride-home/ui@workspace:apps/ui"],
 
     "@nouride-home/ui-kit": ["@nouride-home/ui-kit@workspace:packages/ui-kit"],
 

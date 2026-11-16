@@ -1,4 +1,4 @@
-// Draws the layout pictures: the fixture build of apps/ui (`bun run build:fixture`, Tauri's API mocked) served on
+// Draws the layout pictures: the fixture build of apps/desktop (`bun run build:fixture`, Tauri's API mocked) served on
 // 127.0.0.1 and opened in headless Chromium at a Mac's user agent, so the screens leave room for the window buttons
 // as they do on macOS. Run from the repository's root: `node experiments/2026-11-16-desktop-layout/render.mjs`.
 // PLAYWRIGHT names Playwright's module (default: the system's /usr/lib/node_modules/playwright), CHROMIUM the browser
@@ -9,7 +9,7 @@ import { extname, join, resolve } from "node:path";
 
 const { chromium } = await import(process.env.PLAYWRIGHT ?? "/usr/lib/node_modules/playwright/index.mjs");
 
-const root = resolve("apps/ui/dist-fixture");
+const root = resolve("apps/desktop/dist-fixture");
 const out = resolve("experiments/2026-11-16-desktop-layout");
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2", ".webp": "image/webp", ".svg": "image/svg+xml" };
 

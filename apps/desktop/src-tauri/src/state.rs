@@ -1,5 +1,5 @@
 //! The app's one state, and the snapshot the screens and the menu bar are drawn from. Every rule it applies is a
-//! crate's; this file only gathers what the crates decided. The snapshot's fields mirror `apps/ui/src/commons/lib/
+//! crate's; this file only gathers what the crates decided. The snapshot's fields mirror `apps/desktop/src/commons/lib/
 //! ipc.ts`: a field is renamed in both or in neither.
 
 use std::sync::Mutex;
