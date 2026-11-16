@@ -24,6 +24,9 @@ object RemoteHost {
 
   private const val HTTPS_PORT = 443
 
+  /** What a port may be. `java.net.URI` reads any number of digits as one, 99999 included. */
+  private val PORTS = 1..65535
+
   /** What a person typed, read: an address to open, or why it cannot be one, each with its own sentence on screen. */
   sealed class Read {
     data class Address(val base: String) : Read()
@@ -51,6 +54,7 @@ object RemoteHost {
     val path = uri.path.orEmpty().removeSuffix("/")
     if (path.isNotEmpty() && path != DASHBOARD_PATH) return Read.NotAnAddress
     if (uri.query != null || uri.fragment != null) return Read.NotAnAddress
+    if (uri.port != -1 && uri.port !in PORTS) return Read.NotAnAddress
     // 443 is https's own: kept, the origin would not match the links the dashboard writes without it (`LinkPolicy`).
     val port = if (uri.port == -1 || uri.port == HTTPS_PORT) "" else ":${uri.port}"
     return Read.Address("https://$host$port")
