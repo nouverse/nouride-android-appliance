@@ -1,0 +1,50 @@
+# footprint -p <pid> on the Mac (macOS 27.0.1, arm64), first line of each. WebKit processes are the app's when they
+# were started after the app (a list of those already running, other apps', was taken first).
+
+## Before: the build at 090bbaa, running about 2 hours, both windows closed (= hidden)
+nouride-home [99536]: 64-bit    Footprint: 41 MB (16384 bytes per page)
+com.apple.WebKit.GPU [99540]: 64-bit    Footprint: 22 MB (16384 bytes per page)
+com.apple.WebKit.WebContent [99541]: 64-bit    Footprint: 41 MB (16384 bytes per page)
+com.apple.WebKit.Networking [99542]: 64-bit    Footprint: 8705 KB (16384 bytes per page)
+com.apple.WebKit.WebContent [99611]: 64-bit    Footprint: 196 MB (16384 bytes per page)
+nouride [6578]: 64-bit    Footprint: 51 MB (16384 bytes per page)
+windows: {"dashboard": {"visible": false, "url": "http://127.0.0.1:18264/dashboard/"}, "main": {"visible": false, "url": "tauri://localhost"}}
+
+## After: this build, fresh start
+== launch: main open, no dashboard
+  nouride-home [63694]: 64-bit    Footprint: 33 MB (16384 bytes per page)
+  com.apple.WebKit.GPU [63699]: 64-bit    Footprint: 12 MB (16384 bytes per page)
+  com.apple.WebKit.WebContent [63700]: 64-bit    Footprint: 26 MB (16384 bytes per page)
+  com.apple.WebKit.Networking [63701]: 64-bit    Footprint: 5984 KB (16384 bytes per page)
+  nouride [6578]: 64-bit    Footprint: 49 MB (16384 bytes per page)
+  total: 125.8 MB
+== main and dashboard open
+  nouride-home [63694]: 64-bit    Footprint: 36 MB (16384 bytes per page)
+  com.apple.WebKit.GPU [63699]: 64-bit    Footprint: 15 MB (16384 bytes per page)
+  com.apple.WebKit.WebContent [63700]: 64-bit    Footprint: 24 MB (16384 bytes per page)
+  com.apple.WebKit.Networking [63701]: 64-bit    Footprint: 7024 KB (16384 bytes per page)
+  com.apple.WebKit.WebContent [63828]: 64-bit    Footprint: 68 MB (16384 bytes per page)
+  nouride [6578]: 64-bit    Footprint: 50 MB (16384 bytes per page)
+  total: 199.8 MB
+windows: {'dashboard': None, 'main': {'visible': True, 'url': 'tauri://localhost'}}
+== main open, dashboard closed
+  nouride-home [63694]: 64-bit    Footprint: 35 MB (16384 bytes per page)
+  com.apple.WebKit.GPU [63699]: 64-bit    Footprint: 14 MB (16384 bytes per page)
+  com.apple.WebKit.WebContent [63700]: 64-bit    Footprint: 24 MB (16384 bytes per page)
+  com.apple.WebKit.Networking [63701]: 64-bit    Footprint: 6656 KB (16384 bytes per page)
+  nouride [6578]: 64-bit    Footprint: 50 MB (16384 bytes per page)
+  total: 129.5 MB
+windows: {'dashboard': None, 'main': None}
+== tray only, both closed
+  nouride-home [63694]: 64-bit    Footprint: 34 MB (16384 bytes per page)
+  com.apple.WebKit.GPU [63699]: 64-bit    Footprint: 14 MB (16384 bytes per page)
+  com.apple.WebKit.Networking [63701]: 64-bit    Footprint: 6336 KB (16384 bytes per page)
+  nouride [6578]: 64-bit    Footprint: 50 MB (16384 bytes per page)
+  total: 104.1 MB
+== tray only, after 5 more open/close rounds of each window
+  nouride-home [63694]: 64-bit    Footprint: 37 MB (16384 bytes per page)
+  com.apple.WebKit.GPU [63699]: 64-bit    Footprint: 17 MB (16384 bytes per page)
+  com.apple.WebKit.Networking [63701]: 64-bit    Footprint: 7920 KB (16384 bytes per page)
+  nouride [6578]: 64-bit    Footprint: 50 MB (16384 bytes per page)
+  total: 111.7 MB
+WebContent processes of the app now: 0

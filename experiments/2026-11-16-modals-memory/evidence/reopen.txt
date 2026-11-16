@@ -1,0 +1,13 @@
+# The windows after each way of opening them again, from `--e2e dump` (null: no such window, it was destroyed).
+1 tray Open Nouride Home, nothing open:
+    {'dashboard': None, 'main': {'visible': True, 'url': 'tauri://localhost'}}
+2 close, then tray update notice (Versions):
+    {'dashboard': None, 'main': {'visible': True, 'url': 'tauri://localhost/index.html#/versions'}}
+3 close, then open the app again (as a Dock click, Reopen):
+    {'dashboard': None, 'main': {'visible': True, 'url': 'tauri://localhost'}}
+4 close, then the deep link scheme:
+    {'dashboard': None, 'main': None}
+5 tray Open Nouride (dashboard), then is it signed in:
+    {'dashboard': {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/?e2e=no-password-field'}, 'main': None}
+6 the dashboard back button (nouridehome://home):
+    {'dashboard': None, 'main': {'visible': True, 'url': 'tauri://localhost'}}

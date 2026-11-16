@@ -31,6 +31,18 @@ the title hidden: the sidebar runs up under the window buttons and leaves them r
 moves the window (`data-tauri-drag-region`). Linux keeps its own title bar. Closing the window keeps the app in the menu
 bar; Nouride keeps running either way.
 
+**Windows live while they are open.** Closing the app's window or the dashboard's destroys it, and its WebKit
+processes with it (on a Mac, about 25 MB for the app's window and 70 to 200 MB for the dashboard's, which grows with
+use; `experiments/2026-11-16-modals-memory`). The app stays in the menu bar. Whatever shows a window makes it again
+when it is gone: the menu bar, a Dock click, Open Nouride, the dashboard's back. So a window is looked up by its label
+each time it is needed, never kept (`windows::main::show`, `windows::dashboard::open`); the app's window is made from
+its config at the screen asked for (`looks::window::main_page`, read by `startSection`), the dashboard's signed in
+again as it opens. Closing the last window does not quit the app (`looks::window::exits`); Quit does.
+
+**A modal only for a confirmation.** Nothing stands over the window but a question that confirms something the person
+pressed: Settings' Turn off is the one (`commons/components/Dialog.tsx`). A form, a choice, a message or an address
+opens in the page, where the person already is (`apps/ui/tests/modals.test.ts` holds this). No native dialog either.
+
 **The sidebar** (`commons/components/Sidebar.tsx`, the logic in `commons/lib/sections.ts`), on a slightly tinted
 surface down the left: the cat on its disc and "Nouride Home" at the top (with a yellow Dev badge on the Dev build), then
 **Home**, **Connect**, **Versions and updates**, **Settings**, and **Technical Logs** set apart at the bottom. They are
@@ -70,7 +82,7 @@ card says first, on pink, that it turns off and its agents stop answering until 
 The screen is one centred column: the waving cat, the question and its sentence, then the two answers side by side as
 two big choice cards (an icon, the answer, one line under it: "Nouride Home installs it and keeps it running.", "Type the
 address of a Nouride you already have."), one under the other in a narrow window. The address card takes the answers'
-place in the same column; in Settings it stands over the window.
+place in the same column; in Settings it opens as a section of the place's card, under the choice (below).
 
 ## Home
 
@@ -134,11 +146,15 @@ One page of grouped sections, as a computer's settings window has them (a group'
 rows that open other screens:
 
 - **Where Nouride runs**: one sentence, and This computer or Another computer as a choice; on another computer its
-  address and Change address, which opens the address card over the window.
+  address and Change address. Another computer (or Change address) opens the address as a section of the same card,
+  right under the choice, never over the window: "Nouride on another computer", the pink warning while Nouride runs
+  here, the field, Connect and Cancel. The choice shows Another computer while it is open; nothing changes until
+  Connect works. Cancel, or pressing This computer, closes it and leaves the place as it was
+  (`modules/settings/placeChoice.ts`).
 - **Appearance**: "Nouride Home and Nouride's window look this way.", Same as computer, Light, Dark; applies at once
   to the app and to the dashboard's window.
 - **Nouride on this computer** (installed by the app, while it may be turned off): one sentence and **Turn off
-  Nouride** in amber words, not a button. It asks once, in the window: "Turn Nouride off? Your assistant will not
+  Nouride** in amber words, not a button. It asks once, the app's one modal: "Turn Nouride off? Your assistant will not
   answer until you start it again."
 
 ## The menu bar
@@ -164,7 +180,8 @@ tab (`target="_blank"`) goes the same way: WebKit drops such a click, so the win
 to turn it into `window.open`, and `link_policy::new_window` decides; a Nouride path that redirects out (the gateway's
 `/oauth/start`, to Google) leaves for the browser as it redirects, and the page on screen stays. When Nouride does not answer, the leaning cat and "Nouride isn't answering", "It may still be starting, or it
 is turned off. Check Home, then try again." with Try again stand in for the WebView's own error page. The dashboard's
-own back button closes the window and brings Nouride Home forward.
+own back button closes the window (destroying it, as its close button does) and brings Nouride Home forward, made
+again if it was closed.
 
 ## How it looks
 
