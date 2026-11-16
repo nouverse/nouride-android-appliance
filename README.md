@@ -11,6 +11,7 @@ or opens a Nouride that already runs on another computer.
 
 [**Nouride**](https://nouride.com) · [**Guide**](https://nouride.com/en/docs/deployment/nouride-home/) · [**Releases**](https://github.com/nouverse/nouride-home/releases) · [**Nouride's source**](https://github.com/nouverse/nouride)
 
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg?style=flat-square)](#licence)
 [![Release](https://img.shields.io/github/v/release/nouverse/nouride-home?style=flat-square&label=Release)](https://github.com/nouverse/nouride-home/releases)
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=flat-square&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/gadingnst)
 [![Ko-fi](https://img.shields.io/badge/Support-Ko--fi-29abe0?style=flat-square&logo=kofi&logoColor=white)](https://ko-fi.com/gadingnst)
@@ -231,6 +232,17 @@ contributing skill).
 
 Read `AGENTS.md` first. The skills in `.agents/skills/` hold the detail: `home-ui` for anything a person sees,
 `home-contributing` for building, testing and the rules of the code, each with a page per app in `references/`.
+
+## Licence
+
+Nouride Home is licensed under the [GNU Affero General Public License v3.0 only](./LICENSE) (`AGPL-3.0-only`). You may
+use, change and share it; a changed version you give to others, or let others use over a network, comes with its
+source under the same licence.
+
+Nouride itself, which the apps install and run, is a separate program with its own licence (`FSL-1.1-ALv2`, see
+[its repository](https://github.com/nouverse/nouride)). The Nouride name, the Nouride Home name, the cat and the logo
+are trademarks of Nouverse and are not licensed: a changed copy is not called Nouride or Nouride Home. The licence text
+governs; this summary does not replace it.
 
 <br>
 
