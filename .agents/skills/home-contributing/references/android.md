@@ -20,7 +20,8 @@ The Android app, in `apps/android` (Kotlin, Gradle, no third-party Android libra
    (pure, tested), `Updates` checks it when the app opens (every 6 h at most, at once after the app changed version) and from the service twice a day,
    downloads the APK against its sha256 and hands it to `PackageInstaller`. `UpdateReceiver` hears the installer: the
    screen asking the person, then the result, and the new version starts Nouride again on success. `ui/UpdateCard`
-   is the card and the big card once a release; both wait while the first start sets Nouride up. `ui/AppUpdater` is the
+   is Home's card, the one place the update is offered, Android's permission to install included (its sentence and
+   button are `ui/UpdateLooks`, pure and tested); it waits while the first start sets Nouride up. `ui/AppUpdater` is the
    download and install both it and the Versions screen use. Nouride's own update is `update/NourideUpdates`: the
    dashboard's routes (`/api/control/update`, `/update/download`, `/update/progress`, `/update/install`) on the
    loopback, signed in with the install's control token (`NourideUpdate.TOKEN_PATH`, what `nouride` commands use), so it
@@ -28,9 +29,11 @@ The Android app, in `apps/android` (Kotlin, Gradle, no third-party Android libra
 
 7. `ui/` is everything a person sees: `StatusActivity` holds the three tabs along the bottom (`HomeTab`, `ConnectTab`,
    `MoreTab`, `BottomBar`, the rules in `Tabs`), `DashboardActivity` the dashboard in a WebView, `SupportActivity`
-   Technical Logs. Connect's switch is `server/NetworkAccess` (the `.env`'s `HOST=0.0.0.0` or `127.0.0.1`, which
-   `nouride start` reads and which wins over `config.toml`), then `ServerService.ACTION_RESTART`: the daemon stopped
-   cleanly and the `Supervisor` starting it again at once (`restartNext`), not counted as a crash in its backoff.
+   Technical Logs, `AddressActivity` the address of another computer (its refusals and its one check in `AddressForm`,
+   pure and tested), which hands the address back to `StatusActivity`. Connect's switch is `server/NetworkAccess` (the
+   `.env`'s `HOST=0.0.0.0` or `127.0.0.1`, which `nouride start` reads and which wins over `config.toml`), then
+   `ServerService.ACTION_RESTART`: the daemon stopped cleanly and the `Supervisor` starting it again at once
+   (`restartNext`), not counted as a crash in its backoff.
    `QrCode` draws the Connect tab's code without a library; `QrCodeTest` checks it module by module
    against segno's output. `Appearance` is the More tab's Light or Dark: every activity starts from a context in it
    (`attachBaseContext`), as Android's per-app setting only exists from Android 12.

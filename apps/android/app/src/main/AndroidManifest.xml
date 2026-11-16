@@ -54,6 +54,12 @@
       android:name=".ui.VersionsActivity"
       android:exported="false" />
 
+    <!-- The address of another computer: the keyboard comes up with the field, and the screen shrinks above it. -->
+    <activity
+      android:name=".ui.AddressActivity"
+      android:exported="false"
+      android:windowSoftInputMode="stateVisible|adjustResize" />
+
     <service
       android:name=".server.ServerService"
       android:exported="false"

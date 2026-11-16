@@ -40,7 +40,7 @@ internal class VersionCard(private val context: Context, ui: Ui, titleId: Int, p
     bar.progress = percent
     button = look.button
     val label = if (look.label == 0) "" else context.getString(look.label, next ?: "")
-    main.visibility = if (look.button == VersionButton.UPDATE || look.button == VersionButton.INSTALL) View.VISIBLE else View.GONE
+    main.visibility = if (look.button == VersionButton.UPDATE || look.button == VersionButton.INSTALL || look.button == VersionButton.ALLOW) View.VISIBLE else View.GONE
     quiet.visibility = if (look.button == VersionButton.CHECK) View.VISIBLE else View.GONE
     main.text = label
     quiet.text = label

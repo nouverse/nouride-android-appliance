@@ -1,7 +1,6 @@
 package tech.nouverse.nouride.android.ui
 
 import android.app.Activity
-import android.app.Dialog
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
@@ -15,11 +14,12 @@ import tech.nouverse.nouride.android.update.Updates
 import kotlin.concurrent.thread
 
 /**
- * A new version of Nouride Home, on the status screen. The first time a release is found, a card over the screen says so
- * (Update now, or Later); after that a small card stays at the top until it is installed, and the notification says
- * it too (`ServerService`). Update downloads it with its progress, checks it, and hands it to Android's installer, which
- * asks once. Words only: no version code, no sha, no URL. All of it waits while the first start sets Nouride up
- * (`Updates.waitsFor`), and comes once it is done.
+ * A new version of Nouride Home, on Home: a small card at the top until it is installed, and the notification says it
+ * too (`ServerService`). Nothing comes over the screen for it: an update is not a question the person has to answer
+ * now. Update downloads it with its progress, checks it, and hands it to Android's installer, which asks once. When
+ * Android does not let this app install yet, the card says so with Allow, which opens that setting, and the update goes
+ * on when the person comes back (`AppUpdater.allowing`). Words only: no version code, no sha, no URL. All of it waits
+ * while the first start sets Nouride up (`Updates.waitsFor`), and comes once it is done.
  */
 internal class UpdateCard(
   private val activity: Activity,
@@ -31,16 +31,14 @@ internal class UpdateCard(
   private val title: TextView = ui.text(17f, R.color.ink, bold = true).apply { setText(R.string.update_title) }
   private val body: TextView = ui.text(15f, R.color.muted)
   private val bar: ProgressBar = ui.progressBar()
-  private val button: Button = ui.primary { start() }
+  private var look = UpdateLooks.of(UpdateStep.READY)
+  private val button: Button = ui.primary { pressed() }
   private var release: Release? = null
   private val layout = Layout(activity)
   private var startPressed = false
-  private var offerDialog: Dialog? = null
   private var settingUp = waits()
   // Done, or waiting for the setup again: the card is shown or hidden for what is known now, as `show` decides.
-  private val updater: AppUpdater = AppUpdater(activity, ::waits, onChange = { if (updater.busy) render() else show(release) }) {
-    askToAllowInstalls(activity, ui) { updater.allowing() }
-  }
+  private val updater: AppUpdater = AppUpdater(activity, ::waits, onChange = { if (updater.busy) render() else show(release) })
 
   init {
     view.addView(title)
@@ -65,7 +63,6 @@ internal class UpdateCard(
         if (activity.isDestroyed) return@runOnUiThread
         show(found)
         onChecked()
-        offerOnce()
       }
     }
   }
@@ -75,9 +72,7 @@ internal class UpdateCard(
     val now = waits()
     if (now == settingUp) return
     settingUp = now
-    if (now) offerDialog?.dismiss()
     show(release)
-    offerOnce()
   }
 
   /** From the status screen when the person presses Start (or `--ez start true`), before the service has said a word. */
@@ -95,39 +90,26 @@ internal class UpdateCard(
     render()
   }
 
-  /** The big card, once a release, and not while Nouride is being set up: it comes when that is done. */
-  private fun offerOnce() {
-    val found = release ?: return
-    if (settingUp || Updates.offered(activity, found.version)) return
-    Updates.markOffered(activity, found.version)
-    offer(found)
-  }
-
   private fun render() {
     val found = release ?: return
-    val state = updater.state
-    bar.visibility = if (state == AppUpdater.State.DOWNLOADING) View.VISIBLE else View.GONE
+    look = UpdateLooks.of(UpdateLooks.step(updater.state, Updates.canInstall(activity), Updates.failed(activity)))
+    bar.visibility = if (look.progress) View.VISIBLE else View.GONE
     bar.isIndeterminate = updater.percent == 0
     bar.progress = updater.percent
-    button.visibility = if (updater.busy) View.GONE else View.VISIBLE
-    button.setText(if (state == AppUpdater.State.FAILED || Updates.failed(activity)) R.string.update_retry else R.string.update_button)
-    body.text = when {
-      state == AppUpdater.State.DOWNLOADING -> activity.getString(R.string.update_downloading, updater.percent)
-      state == AppUpdater.State.INSTALLING -> activity.getString(R.string.update_installing)
-      state == AppUpdater.State.FAILED -> activity.getString(R.string.update_failed)
-      Updates.failed(activity) -> activity.getString(R.string.update_install_failed)
-      else -> activity.getString(R.string.update_body, found.version)
-    }
+    button.visibility = if (look.button == UpdateButton.NONE) View.GONE else View.VISIBLE
+    if (look.label != 0) button.setText(look.label)
+    body.text = activity.getString(look.words, found.version, updater.percent)
+  }
+
+  private fun pressed() = when (look.button) {
+    UpdateButton.UPDATE -> start()
+    UpdateButton.ALLOW -> updater.allowing()
+    UpdateButton.NONE -> Unit
   }
 
   private fun start() {
     val found = release ?: return
     if (settingUp) return
     updater.start(found)
-  }
-
-  private fun offer(found: Release) {
-    offerDialog = catDialog(activity, ui, R.drawable.mascot_update, activity.getString(R.string.update_dialog_title),
-      activity.getString(R.string.update_dialog_body, found.version), R.string.update_now) { start() }
   }
 }

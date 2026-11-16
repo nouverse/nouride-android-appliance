@@ -6,7 +6,7 @@ import tech.nouverse.nouride.android.update.NourideStatus
 import tech.nouverse.nouride.android.update.Restart
 
 /** Where the Versions screen's Nouride Home card is. */
-enum class AppStep { CHECKING, UP_TO_DATE, READY, CHECK_FAILED, DOWNLOADING, INSTALLING, DOWNLOAD_FAILED, INSTALL_FAILED }
+enum class AppStep { CHECKING, UP_TO_DATE, READY, ALLOW, CHECK_FAILED, DOWNLOADING, INSTALLING, DOWNLOAD_FAILED, INSTALL_FAILED }
 
 /** Where its Nouride card is. */
 enum class NourideStep {
@@ -14,8 +14,11 @@ enum class NourideStep {
   RESTARTING_NOW, RESTARTING_IDLE, RESTARTING_JOBS, DOWNLOAD_FAILED, INSTALL_FAILED,
 }
 
-/** What a card's one button does: ask again, fetch and put in the new version, put in the one already fetched. */
-enum class VersionButton { CHECK, UPDATE, INSTALL, NONE }
+/**
+ * What a card's one button does: ask again, fetch and put in the new version, put in the one already fetched, or open
+ * the setting that lets this app install its update.
+ */
+enum class VersionButton { CHECK, UPDATE, INSTALL, ALLOW, NONE }
 
 /** A card's sentence and button. [words] and [label] may take the version, then a percent; [label] is 0 with no button. */
 data class VersionLook(val words: Int, val button: VersionButton, val label: Int, val progress: Boolean)
@@ -29,6 +32,7 @@ object VersionLooks {
     AppStep.CHECKING -> VersionLook(R.string.checking, VersionButton.NONE, 0, progress = false)
     AppStep.UP_TO_DATE -> VersionLook(R.string.up_to_date, VersionButton.CHECK, R.string.check_updates, progress = false)
     AppStep.READY -> VersionLook(R.string.versions_app_ready, VersionButton.UPDATE, R.string.versions_update_to, progress = false)
+    AppStep.ALLOW -> VersionLook(R.string.update_allow_body, VersionButton.ALLOW, R.string.update_allow, progress = false)
     AppStep.CHECK_FAILED -> VersionLook(R.string.check_failed, VersionButton.CHECK, R.string.update_retry, progress = false)
     AppStep.DOWNLOADING -> VersionLook(R.string.versions_downloading, VersionButton.NONE, 0, progress = true)
     AppStep.INSTALLING -> VersionLook(R.string.update_installing, VersionButton.NONE, 0, progress = false)

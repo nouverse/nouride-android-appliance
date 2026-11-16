@@ -209,7 +209,7 @@ contributing skill).
 | --- | --- |
 | `apps/android/app/src/main/kotlin/.../server/` | The foreground service, the supervisor that restarts Nouride, the health check, proot's command line, where Nouride runs (`Place`, `RemoteHost`, `RemoteReply`) |
 | `apps/android/app/src/main/kotlin/.../install/` | Unpacking the Debian rootfs and running the installer on the first start |
-| `apps/android/app/src/main/kotlin/.../ui/` | The tabs (Home, Connect, More), the address card, the dashboard in a WebView, Technical Logs |
+| `apps/android/app/src/main/kotlin/.../ui/` | The tabs (Home, Connect, More), the address screen, the dashboard in a WebView, Technical Logs |
 | `apps/android/app/src/main/kotlin/.../power/` | The battery exemption and the phone's own battery settings |
 | `apps/android/app/src/main/kotlin/.../boot/` | Starting on boot |
 | `apps/android/app/src/test/` | Unit tests, on the JVM |

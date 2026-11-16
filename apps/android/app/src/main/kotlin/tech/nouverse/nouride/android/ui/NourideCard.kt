@@ -69,7 +69,7 @@ internal class NourideCard(private val activity: Activity, ui: Ui) {
     VersionButton.CHECK -> check(force = true)
     VersionButton.UPDATE -> update(download = true)
     VersionButton.INSTALL -> update(download = false)
-    VersionButton.NONE -> Unit
+    VersionButton.ALLOW, VersionButton.NONE -> Unit
   }
 
   private fun check(force: Boolean) {
