@@ -1,0 +1,4 @@
+# The stable channel, with nothing added: the dev box's shared rustup can neither add a toolchain nor a component,
+# and Tauri 2 needs nothing newer than stable.
+[toolchain]
+channel = "stable"

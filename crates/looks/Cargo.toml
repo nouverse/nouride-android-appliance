@@ -1,0 +1,15 @@
+[package]
+name = "looks"
+description = "Each state's sentence, cat and button, as keys into the words"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+shared.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

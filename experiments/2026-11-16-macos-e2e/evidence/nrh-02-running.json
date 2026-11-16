@@ -1,0 +1,99 @@
+{
+  "agent": {
+    "installed": true,
+    "label": "tech.nouverse.nouride.home.dev.nouride",
+    "path": "~/Library/LaunchAgents/tech.nouverse.nouride.home.dev.nouride.plist"
+  },
+  "snapshot": {
+    "accessSwitch": true,
+    "address": null,
+    "adopted": false,
+    "appName": "Nouride Home Dev",
+    "appUpdate": null,
+    "appVersion": "0.1.0",
+    "appearance": "system",
+    "barShown": true,
+    "canTurnOff": true,
+    "dev": true,
+    "firstStart": false,
+    "lastAddress": null,
+    "look": {
+      "action": "open",
+      "busy": false,
+      "mascot": "thumbs",
+      "tone": "good",
+      "words": "running"
+    },
+    "moreDot": true,
+    "nourideUpdate": "0.8.38",
+    "nourideVersion": "0.8.37",
+    "openToOthers": false,
+    "ours": true,
+    "phase": "running",
+    "place": "here",
+    "progress": null,
+    "reach": "this_computer",
+    "shareUrl": null,
+    "versions": {
+      "app": {
+        "button": "none",
+        "label": null,
+        "percent": 0,
+        "progress": false,
+        "ready": null,
+        "version": "0.1.0",
+        "words": "versions_app_dev"
+      },
+      "nouride": {
+        "button": "none",
+        "label": null,
+        "percent": 0,
+        "progress": false,
+        "ready": null,
+        "version": "0.8.37",
+        "words": "checking"
+      }
+    },
+    "versionsRow": "versions_row_nouride_update"
+  },
+  "tray": [
+    {
+      "enabled": false,
+      "id": "state",
+      "words": "Nouride is running"
+    },
+    {
+      "enabled": true,
+      "id": "updates",
+      "words": "A new Nouride is ready"
+    },
+    {
+      "enabled": true,
+      "id": "open_home",
+      "words": "Open Nouride Home"
+    },
+    {
+      "enabled": true,
+      "id": "open_dashboard",
+      "words": "Open Nouride"
+    },
+    {
+      "enabled": true,
+      "id": "turn_off",
+      "words": "Turn off Nouride"
+    },
+    {
+      "enabled": true,
+      "id": "quit",
+      "words": "Quit Nouride Home"
+    }
+  ],
+  "windows": {
+    "dashboard": null,
+    "main": {
+      "title": "Nouride Home Dev",
+      "url": "tauri://localhost",
+      "visible": true
+    }
+  }
+}
