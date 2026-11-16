@@ -16,17 +16,17 @@ Developer ID yet; see `docs/rfc/0001-desktop-v0.1.md`.
 
 ## What it does
 
-- Asks once where Nouride should run, and changes it in More at any time.
+- Asks once where Nouride should run, and changes it in Settings at any time.
 - On this computer: uses a Nouride that already answers on this computer's default port, or installs one with
   `https://get.nouride.com/install.sh` into the app's own folder (`~/Library/Application Support/<bundle id>/nouride`)
   and keeps it running as the app's own LaunchAgent, so Nouride runs whether or not the app is open, and starts again
   at login.
 - Opens the dashboard in a window of the app, signed in with the account the app made on the first setup. Links to
   anything but Nouride open in the browser.
-- Says when a new Nouride is ready (on Home, in the menu bar and on More) and puts it in through Nouride's own update.
+- Says when a new Nouride is ready (on Home, in the menu bar and with a dot on Versions and updates) and puts it in through Nouride's own update.
   The app's own updates come from this repository's Releases through Tauri's updater; none is published yet.
 - Connect: lets other devices on the same network open Nouride (off as installed), with a QR code.
-- Technical Logs, at the end of More, holds what a helper needs: the state, the app's events and Nouride's log.
+- Technical Logs, at the bottom of the sidebar, holds what a helper needs: the state, the app's events and Nouride's log.
 
 What it is built on: [Tauri](https://tauri.app) 2 (the window, the WebView, the tray and the updater are Tauri's and
 the system's WebKit), React and Tailwind for the screens, and launchd for keeping Nouride running. Nouride itself is
@@ -62,7 +62,7 @@ contributing skill).
 | Path | What it is |
 | --- | --- |
 | `apps/desktop/` | The Tauri binary: windows, the tray, commands. Wiring only |
-| `apps/ui/` | The screens (React, Tailwind), by module: first-run, home, connect, more, versions, logs |
+| `apps/ui/` | The screens (React, Tailwind), by module: first-run, home, connect, versions, settings, logs |
 | `crates/shared/` | The build's names and ports, and the types the other crates share |
 | `crates/place/` | Where Nouride runs, and the other computer's address (`RemoteHost`, `RemoteReply`) |
 | `crates/daemon/` | Nouride on this computer: health, the installer's run and progress, `.env` and `config.toml`, the first account, the state |

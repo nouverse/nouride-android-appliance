@@ -55,7 +55,9 @@ with_program` puts the binary's path back as one argument; keep it until Nouride
 
 - Crates: `cargo test` in each, on Linux, no screen: `for d in crates/*/; do (cd "$d" && cargo test -q) || exit 1; done`.
   The rules ported from Android keep Android's test cases, one for one, so a difference is visible.
-- UI: `cd apps/ui && bun test` (the words, the IPC types' mapping, formatting) and `bun run build`.
+- UI: `cd apps/ui && bun test` (the words, the sections and their shortcuts, the dashboard window's new-tabs script,
+  formatting) and `bun run build`. Pictures of the screens without a Mac: `bun run build:fixture` (Tauri's API mocked
+  by `apps/ui/fixtures/`, never in the app's bundle) and `experiments/2026-11-16-desktop-layout/render.mjs`.
 - A change carries a test that fails without it: break it, see it red, put it back, and say "sabotage: ..." in the
   commit body.
 
@@ -74,8 +76,13 @@ write to any of them. Test only Nouride Home Dev, which installs into
   fails when either changed.
 - The e2e hooks (Dev build only, `apps/desktop/src/e2e.rs`): run the app's binary again with `--e2e <action>` and the
   running app does it (single instance): `dump` (the state as JSON into `<data>/e2e/state.json`), `place-here`,
-  `place-remote <address>`, `start`, `stop`, `open-dashboard`, `close-dashboard`, `tab <home|connect|more|versions|logs>`,
+  `place-remote <address>`, `start`, `stop`, `open-dashboard`, `close-dashboard`, `show <home|connect|versions|settings|logs>`,
+  `dashboard-js <script>` (runs a script in the dashboard's window, as a click there would; it returns nothing, so a
+  script that reads the page writes what it found into the address with `history.replaceState` for `dump` to show),
   `tray <item id>`, `check-nouride-update`, `shot <name>` (a capture of the app's own window only, never the screen).
+  `dump` gives each window's size. While `<data>/e2e/no-browser` exists, a link the dashboard sends to the browser is
+  only logged ("would go to the browser"): the browser is on the person's screen, so open it for real once, at the
+  end, and say how many times you did.
 - Quit what you open (`--e2e quit`), and remove only what you made: the Dev app's folder, its LaunchAgent
   (`launchctl bootout gui/$(id -u)/tech.nouverse.nouride.home.dev.nouride`, then the plist).
 

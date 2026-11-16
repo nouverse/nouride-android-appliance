@@ -73,6 +73,9 @@ The dashboard in a window of the app (a WebView: WKWebView on macOS), never a br
 
 ### More
 
+(Since the desktop layout, 2026-11-16, there is no More: its rows are the sidebar's sections and the Settings page, as
+the `desktop-appliance-ui` skill describes. The rest of this section is v0.1 as first written.)
+
 Where Nouride runs; Appearance (Same as computer, Light, Dark, applied to the app's windows and to the dashboard's);
 Versions and updates (Android's two cards and `VersionLooks`); Turn off Nouride (amber words, asks once); Technical
 Logs (the technical state, the app's events, the installer's log and Nouride's, Copy).

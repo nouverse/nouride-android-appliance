@@ -10,7 +10,8 @@ coding agent working here.
 
 The person at the computer has never opened a terminal and should never need to. **By default the app never shows** a
 log, a file path, a port number on its own, a process state, an exception, JSON, a shell command, or the words health,
-daemon, launchd, LaunchAgent, plist, service. Those live on one screen, "Technical Logs", at the end of More. Read the
+daemon, launchd, LaunchAgent, plist, service. Those live on one screen, "Technical Logs", at the bottom of the window's
+sidebar. Read the
 `desktop-appliance-ui` skill before you change anything a person sees: a screen, a tray item, a button, an error.
 
 ## Start here

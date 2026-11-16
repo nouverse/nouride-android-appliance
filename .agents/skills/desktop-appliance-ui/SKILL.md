@@ -1,6 +1,6 @@
 ---
 name: desktop-appliance-ui
-description: The rules for everything a person sees in Nouride Home for desktop, whose users are not technical - the first question, Home, Connect, More, Versions and updates, Technical Logs, the dashboard's window, the menu bar (tray) menu, buttons, errors and the words on them, in English; what is hidden by default (logs, paths, ports, process states) and where it goes instead. Use when adding or changing a screen, a tray item, a button, a message or an error, or reviewing one.
+description: The rules for everything a person sees in Nouride Home for desktop, whose users are not technical - the window and its sidebar, the first question, Home, Connect, Versions and updates, Settings, Technical Logs, the dashboard's window, the menu bar (tray) menu, buttons, errors and the words on them, in English; what is hidden by default (logs, paths, ports, process states) and where it goes instead. Use when adding or changing a screen, a tray item, a button, a message or an error, or reviewing one.
 ---
 
 # A computer's Nouride for people who are not technical
@@ -19,17 +19,39 @@ skill holds, with "computer" for "phone".
 - A port number on its own, or an address a person has to type, where a button can open it or Copy can take it.
 - Monospace text, except an address (DM Mono, in a soft pill) and Technical Logs.
 
-All of it lives on **Technical Logs** (`apps/ui/src/modules/logs`), the last line of More: the technical state, the
+All of it lives on **Technical Logs** (`apps/ui/src/modules/logs`), set apart at the bottom of the sidebar: the technical state, the
 address with its port, the app's events, the installer's log and Nouride's, the log taking the rest of the window and
 opening at its end, and Copy.
 
 ## The window
 
-One window, about a phone's width (420 × 760), with three tabs along the bottom (`modules/*`, the bar in
-`commons/components/TabBar`): **Home**, **Connect**, **More**. Each opens with the same header, the cat on its disc and
-the tab's name. The open tab sits in a soft lavender pill; a dot on More says something there needs the person (an
-update waiting). The bar is hidden while the first setup runs: its progress is the one thing to watch (`looks::tabs`).
-Closing the window keeps the app in the menu bar; Nouride keeps running either way.
+A desktop window, not the phone's screen made wider: 980 × 640 when it opens, resizable down to 560 × 520
+(`apps/desktop/tauri.conf.json`, and `tauri.dev.conf.json` for the Dev build). On macOS the title bar is an overlay with
+the title hidden: the sidebar runs up under the window buttons and leaves them room, and a 32 px strip along the top
+moves the window (`data-tauri-drag-region`). Linux keeps its own title bar. Closing the window keeps the app in the menu
+bar; Nouride keeps running either way.
+
+**The sidebar** (`commons/components/Sidebar.tsx`, the logic in `commons/lib/sections.ts`), on a slightly tinted
+surface down the left: the cat on its disc and "Nouride Home" at the top (with a yellow Dev badge on the Dev build), then
+**Home**, **Connect**, **Versions and updates**, **Settings**, and **Technical Logs** set apart at the bottom. They are
+siblings: none opens "inside" another, so there is no Back between them. The open one sits in the soft lavender pill; a
+dot on Versions and updates says an update waits there. Cmd+1 to Cmd+5 open them in that order (Ctrl on Linux).
+
+**Responsive**, from the window's width and the content's (`@container` on each page, Tailwind's container variants):
+
+| Window | Sidebar | Content |
+| --- | --- | --- |
+| about 960 px and up | labels, 228 px | Home in two columns, Connect's code beside the switch and the address |
+| 720 to about 960 px | labels | one column: Home's facts under the state card; Connect's switch over the code and the address |
+| under 720 px | an icon rail, 64 px: the cat on top, icons with their name as a tooltip and for a screen reader, the dot still on Versions | one column, one card under another |
+
+There is no bottom tab bar at any width: a narrow window is still a desktop window. Nothing may be cut, overlap or
+scroll sideways at any width from the minimum up. Each page keeps a readable width on a wide window (960 px, Settings
+720 px); Technical Logs takes the whole content area. A page opens with its name in Fredoka, nothing else in its header
+but Technical Logs' Copy.
+
+No sidebar before the first question is answered, nor while the first setup runs: its progress is the one thing to
+watch, alone in the middle of the window (`looks::sidebar`).
 
 ## Where Nouride runs (the first screen)
 
@@ -43,7 +65,12 @@ The address card is a round card in the app's look: "Nouride on another computer
 one field in DM Mono with `nouride.example.com` as its placeholder, then Connect and Cancel. What is wrong is said under
 the field, in its own sentence, Android's words: nothing typed, an `http://` address, something that is not an address,
 and an address nothing answers at, which Connect checks once ("Checking…"). While Nouride runs on this computer, the
-card says first, on pink, that it turns off and its agents stop answering until the person switches back in More.
+card says first, on pink, that it turns off and its agents stop answering until the person switches back in Settings.
+
+The screen is one centred column: the waving cat, the question and its sentence, then the two answers side by side as
+two big choice cards (an icon, the answer, one line under it: "Nouride Home installs it and keeps it running.", "Type the
+address of a Nouride you already have."), one under the other in a narrow window. The address card takes the answers'
+place in the same column; in Settings it stands over the window.
 
 ## Home
 
@@ -70,9 +97,16 @@ The first setup's bar (`daemon::progress`): what is happening now ("Downloading 
 "Turning Nouride on for the first time"), "Step 2 of 3" and the percent. It never goes back and reaches 100 only when
 Nouride answers.
 
-Under the main state, only what a person acts on: **Open Nouride**, and **A new Nouride is ready** (a small card, "Nouride
-0.8.40 is ready. Your agents, chats and settings stay as they are.", Update, which opens Versions and updates and starts
-the update there). Never while Nouride runs on another computer.
+Under the state card, its one main button. Beside it when there is room (under it otherwise), what a person may want
+to read, never a port, a path or a process state:
+
+- **A new Nouride is ready**, when one waits (a small card, "Nouride 0.8.40 is ready. Your agents, chats and settings
+  stay as they are.", Update, which opens Versions and updates and starts the update there). Never while Nouride runs
+  on another computer.
+- One card of facts: **Where Nouride runs** ("This computer", or the other computer's address in its pill, the only
+  place Home shows it); **Versions** ("Nouride Home 0.1.0", and "Nouride 0.8.39" while it runs here; a new Nouride
+  Home's line when one waits, opening Versions and updates); **Open from other devices** (on, off, or as the other
+  computer or the Nouride already here was set up) with Go to Connect.
 
 ## Connect
 
@@ -86,17 +120,26 @@ a network".
 Another computer: that computer's address and its code, Copy, "Sign in with that Nouride's username and password.", no
 switch.
 
-## More
+With room, the code stands on the left and the switch over the address beside it; in a medium window the switch spans
+the top with the code and the address side by side under it; in a narrow one: the switch, the code, the address.
 
-- **Where Nouride runs**: This computer or Another computer, side by side as Appearance's choices are. Under it one
-  sentence, and on another computer its address and Change address.
-- **Appearance**: Same as computer, Light, Dark; applies at once to the app and to the dashboard's window.
-- **Versions and updates ›**: the two versions in one line ("Nouride Home 0.1.0, Nouride 0.8.39"), or what is ready.
-  It opens a screen of two cards, Android's (`looks::versions`): what it is, its version, where its update is, one
-  button.
-- **Turn off Nouride**: amber words, not a button. It asks once: "Turn Nouride off? Your assistant will not answer
-  until you start it again."
-- **Technical Logs ›**, last.
+## Versions and updates
+
+Android's two cards (`looks::versions`), side by side when there is room: what it is, its version, where its update is,
+one button. The sidebar's dot sits on it while an update waits.
+
+## Settings
+
+One page of grouped sections, as a computer's settings window has them (a group's name above its card), not a list of
+rows that open other screens:
+
+- **Where Nouride runs**: one sentence, and This computer or Another computer as a choice; on another computer its
+  address and Change address, which opens the address card over the window.
+- **Appearance**: "Nouride Home and Nouride's window look this way.", Same as computer, Light, Dark; applies at once
+  to the app and to the dashboard's window.
+- **Nouride on this computer** (installed by the app, while it may be turned off): one sentence and **Turn off
+  Nouride** in amber words, not a button. It asks once, in the window: "Turn Nouride off? Your assistant will not
+  answer until you start it again."
 
 ## The menu bar
 
@@ -108,13 +151,18 @@ The icon is the cat's head as a template image (macOS draws it in the menu bar's
    ready", which opens Versions and updates.
 3. Open Nouride Home.
 4. Open Nouride, while it may work.
-5. Start Nouride or Turn off Nouride (this computer, installed by the app). Turn off asks first, in the window.
+5. Start Nouride or Turn off Nouride (this computer, installed by the app). Turn off opens Settings, where it asks
+   first.
 6. Quit Nouride Home ("Nouride keeps running" is what Quit means: it never stops Nouride).
 
 ## The dashboard's window
 
 Opened by Open Nouride: the dashboard, signed in, at 1200 × 800, titled "Nouride". Links outside Nouride open in the
-browser. When Nouride does not answer, the leaning cat and "Nouride isn't answering", "It may still be starting, or it
+default browser, the dashboard's sign-in buttons above all (Claude, ChatGPT, GitHub Copilot, Google Gemini): the
+person's own session is there, and the dashboard's cookie never goes to a stranger's page. A link that asks for a new
+tab (`target="_blank"`) goes the same way: WebKit drops such a click, so the window runs `link_policy::NEW_TABS_SCRIPT`
+to turn it into `window.open`, and `link_policy::new_window` decides; a Nouride path that redirects out (the gateway's
+`/oauth/start`, to Google) leaves for the browser as it redirects, and the page on screen stays. When Nouride does not answer, the leaning cat and "Nouride isn't answering", "It may still be starting, or it
 is turned off. Check Home, then try again." with Try again stand in for the WebView's own error page. The dashboard's
 own back button closes the window and brings Nouride Home forward.
 
@@ -144,4 +192,6 @@ and at the top of its window.
 
 - Read every new screen and message as someone who has never used a computer for work would.
 - The state-to-words mappings are tested (`crates/looks`, and the UI's test that every key has its words).
-- Look at it on a real Mac, in the light and the dark appearance, and say in the change that you did.
+- Look at it at the window's sizes (1200 × 760, 980 × 640, 820 × 560, 560 × 520), light and dark: on a real Mac, or,
+  as macOS refuses screen captures over ssh, in the fixture build (`cd apps/ui && bun run build:fixture`, then
+  `experiments/2026-11-16-desktop-layout/render.mjs`). Say in the change which you did.
