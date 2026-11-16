@@ -27,7 +27,7 @@ import kotlin.concurrent.thread
  * The app's screen, three tabs along a bar at the bottom: Home (the cat, how Nouride is, one big button), Connect
  * (Nouride on another device) and More (keeping it running, this app's version, turning it off, Technical Logs). The
  * users are not technical, so the server's phases, addresses and log stay behind Technical Logs (`SupportActivity`,
- * `StatusLook`, and the android-appliance-ui skill). The bar is hidden while the first start sets Nouride up.
+ * `StatusLook`, and the home-ui skill). The bar is hidden while the first start sets Nouride up.
  *
  * A phone without Nouride first asks where it runs (`Place`): on this phone, started when that is pressed, or on another
  * computer at an address the person gives. Nothing of the phone's own server starts until it is answered, and answered

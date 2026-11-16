@@ -1,15 +1,14 @@
----
-name: desktop-appliance-ui
-description: The rules for everything a person sees in Nouride Home for desktop, whose users are not technical - the window and its sidebar, the first question, Home, Connect, Versions and updates, Settings, Technical Logs, the dashboard's window, the menu bar (tray) menu, buttons, errors and the words on them, in English; what is hidden by default (logs, paths, ports, process states) and where it goes instead. Use when adding or changing a screen, a tray item, a button, a message or an error, or reviewing one.
----
+# Nouride Home for desktop: what a person sees
 
-# A computer's Nouride for people who are not technical
+The rules both apps share are in `../SKILL.md`; this page is the computer's.
+
+## A computer's Nouride for people who are not technical
 
 The person using this app wants their computer to keep Nouride running, or to open the one they have elsewhere. They do
 not know what a log, a port, a process or launchd is, and they should not have to learn. If a screen needs one of those
 words to make sense, the screen is wrong, not the person. The app mirrors Nouride Home for Android: the same
-questions, states, sentences and cat. Where this skill does not say otherwise, the Android app's `android-appliance-ui`
-skill holds, with "computer" for "phone".
+questions, states, sentences and cat. Where this page does not say otherwise, the Android app's page
+(`android.md`, beside this one) holds, with "computer" for "phone".
 
 ## What is never shown by default
 
@@ -19,14 +18,14 @@ skill holds, with "computer" for "phone".
 - A port number on its own, or an address a person has to type, where a button can open it or Copy can take it.
 - Monospace text, except an address (DM Mono, in a soft pill) and Technical Logs.
 
-All of it lives on **Technical Logs** (`apps/ui/src/modules/logs`), set apart at the bottom of the sidebar: the technical state, the
+All of it lives on **Technical Logs** (`apps/desktop/src/modules/logs`), set apart at the bottom of the sidebar: the technical state, the
 address with its port, the app's events, the installer's log and Nouride's, the log taking the rest of the window and
 opening at its end, and Copy.
 
 ## The window
 
 A desktop window, not the phone's screen made wider: 980 × 640 when it opens, resizable down to 560 × 520
-(`apps/desktop/tauri.conf.json`, and `tauri.dev.conf.json` for the Dev build). On macOS the title bar is an overlay with
+(`apps/desktop/src-tauri/tauri.conf.json`, and `tauri.dev.conf.json` for the Dev build). On macOS the title bar is an overlay with
 the title hidden: the sidebar runs up under the window buttons and leaves them room, and a 32 px strip along the top
 moves the window (`data-tauri-drag-region`). Linux keeps its own title bar. Closing the window keeps the app in the menu
 bar; Nouride keeps running either way.
@@ -41,7 +40,7 @@ again as it opens. Closing the last window does not quit the app (`looks::window
 
 **A modal only for a confirmation.** Nothing stands over the window but a question that confirms something the person
 pressed: Settings' Turn off is the one (`commons/components/Dialog.tsx`). A form, a choice, a message or an address
-opens in the page, where the person already is (`apps/ui/tests/modals.test.ts` holds this). No native dialog either.
+opens in the page, where the person already is (`apps/desktop/tests/modals.test.ts` holds this). No native dialog either.
 
 **The sidebar** (`commons/components/Sidebar.tsx`, the logic in `commons/lib/sections.ts`), on a slightly tinted
 surface down the left: the cat on its disc and "Nouride Home" at the top (with a yellow Dev badge on the Dev build), then
@@ -160,7 +159,7 @@ rows that open other screens:
 ## The menu bar
 
 The icon is the cat's head as a template image (macOS draws it in the menu bar's colour). The menu, top to bottom
-(`apps/desktop/src/tray.rs`, words from `looks::tray`):
+(`apps/desktop/src-tauri/src/tray.rs`, words from `looks::tray`):
 
 1. The state, greyed: Home's title ("Nouride is running").
 2. The update notice when one waits: "A new Nouride is ready", "A new version of Nouride Home is ready", or "Updates are
@@ -200,7 +199,6 @@ and at the top of its window.
 
 ## Words
 
-- Short sentences. What happened, then what to do. Never an error without a next step.
 - The app is "Nouride Home"; what it runs is "Nouride", never the server, the daemon or the service. Say "the
   computer".
 - Every string is in `packages/ui-kit/src/words.json`. English only. No exclamation marks, no emoji, no jargon.
@@ -210,5 +208,5 @@ and at the top of its window.
 - Read every new screen and message as someone who has never used a computer for work would.
 - The state-to-words mappings are tested (`crates/looks`, and the UI's test that every key has its words).
 - Look at it at the window's sizes (1200 × 760, 980 × 640, 820 × 560, 560 × 520), light and dark: on a real Mac, or,
-  as macOS refuses screen captures over ssh, in the fixture build (`cd apps/ui && bun run build:fixture`, then
+  as macOS refuses screen captures over ssh, in the fixture build (`cd apps/desktop && bun run build:fixture`, then
   `experiments/2026-11-16-desktop-layout/render.mjs`). Say in the change which you did.

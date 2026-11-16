@@ -1,5 +1,5 @@
 {
-  "_note": "Every word a person reads in Nouride Home, written for someone who has never opened a terminal (the desktop-appliance-ui skill). {version} and {percent} are filled in; nothing else is.",
+  "_note": "Every word a person reads in Nouride Home, written for someone who has never opened a terminal (the home-ui skill). {version} and {percent} are filled in; nothing else is.",
   "app_name": "Nouride Home",
   "app_name_dev": "Nouride Home Dev",
   "off_title": "Nouride is off",

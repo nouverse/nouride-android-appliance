@@ -1,9 +1,8 @@
----
-name: android-appliance-ui
-description: The rules for everything a person sees in Nouride Home, the Android app that runs Nouride on the phone, whose users are not technical - the status screen, the first start, the notification, buttons, errors, battery guidance and the words on them, in English; what is hidden by default (logs, paths, ports, process states) and where it goes instead. Use when adding or changing a screen, a notification, a button, a message or an error, or reviewing one.
----
+# Nouride Home for Android: what a person sees
 
-# A phone server for people who are not technical
+The rules both apps share are in `../SKILL.md`; this page is the phone's.
+
+## A phone server for people who are not technical
 
 The person using this app wants their phone to keep Nouride running. They do not know what a log, a port, a process
 or Debian is, and they should not have to learn. If a screen needs one of those words to make sense, the screen is
@@ -171,13 +170,12 @@ Fun and calm: the Nouride cat, soft colours, round shapes, big touch targets.
 - **The icon** is the cat's head on pastel lavender (`mipmap/ic_launcher`, `drawable-nodpi/icon_cat.webp`: the
   dashboard's head with its sparkles cut, and a margin so a round disc never cuts its ears); the notification's small
   icon is a white paw (`drawable/ic_notification`), as Android draws small icons as a silhouette. The developer's build, "Nouride
-  Home Dev", is the same cat on yellow (`app/src/debug/res`), on its icon and at the top of its screen, so the two
+  Home Dev", is the same cat on yellow (`apps/android/app/src/debug/res`), on its icon and at the top of its screen, so the two
   apps on one phone are never mistaken for each other.
 - No third-party UI library: the pieces are in `ui/Ui.kt`.
 
 ## Words
 
-- Short sentences. What happened, then what to do. Never an error without a next step.
 - The app is "Nouride Home"; what it runs is "Nouride", never the server, the daemon or the service. Say "the
   phone", not the device.
 - Times as people say them: "a few minutes", "just now". Not timestamps.
