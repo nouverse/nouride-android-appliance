@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Message
@@ -42,6 +43,8 @@ import kotlin.concurrent.thread
  * as the way in: a session there is the person's, not this app's to make. When that fails (the person changed
  * the password, or the install is older than the account) the dashboard shows its own login page, as anywhere else.
  *
+ * A file the dashboard downloads is kept in the phone's Downloads (`DashboardDownloads`).
+ *
  * Only Nouride's own pages open here (`LinkPolicy`); every other link leaves for the browser or the app that owns it,
  * a provider's sign-in page included (`LoopbackSignIn`). `nouridehome://dashboard`, where a finished sign-in sends the
  * browser, brings this screen back where it was, and the dashboard asks the gateway again for its accounts.
@@ -57,6 +60,7 @@ class DashboardActivity : Activity() {
   private lateinit var opening: View
   private lateinit var unreachable: View
   private var failed: String? = null
+  private lateinit var downloads: DashboardDownloads
 
   /** The Nouride this screen shows: this phone's own, or the machine a person pointed the app at (`server/Place`). */
   private lateinit var origin: String
@@ -81,6 +85,7 @@ class DashboardActivity : Activity() {
     web.webViewClient = Guard()
     web.webChromeClient = NewWindows()
     web.settings.userAgentString = "${web.settings.userAgentString} ${LinkPolicy.USER_AGENT_MARK}"
+    downloads = DashboardDownloads(this, web, { origin }, ::openOutside).also { it.attach() }
     // The sign-in and the first page take a moment: a blank white WebView looked broken. The app's own background and
     // the cat until the dashboard is on screen.
     val ui = Ui(this)
@@ -170,7 +175,15 @@ class DashboardActivity : Activity() {
   /** Nouride's pages stay; anything else goes out, redirects too: `/oauth/start` answers with Google's page. */
   private inner class Guard : WebViewClient() {
     override fun onPageCommitVisible(view: WebView, url: String) {
-      if (LinkPolicy.inApp(url, origin) && url != "about:blank") opening.visibility = View.GONE
+      if (LinkPolicy.inApp(url, origin) && url != "about:blank") {
+        opening.visibility = View.GONE
+        downloads.inject()
+      }
+    }
+
+    /** Again once the page is whole: a page restored from its saved state may show no commit. */
+    override fun onPageFinished(view: WebView, url: String) {
+      if (LinkPolicy.inApp(url, origin)) downloads.inject()
     }
 
     override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
@@ -267,6 +280,13 @@ class DashboardActivity : Activity() {
       null
     } finally {
       connection.disconnect()
+    }
+  }
+
+  override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    if (requestCode == DashboardDownloads.PERMISSION_REQUEST) {
+      downloads.permissionAnswered(grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED)
     }
   }
 

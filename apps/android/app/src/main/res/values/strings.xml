@@ -79,6 +79,11 @@
   <string name="leave_dashboard_body">Nouride keeps running and your agents keep answering. Tap Open Nouride on Home to come back.</string>
   <string name="leave_dashboard">Go back</string>
   <string name="stay">Stay</string>
+  <string name="download_started">Downloading %1$s.</string>
+  <string name="download_saved">%1$s is in Downloads.</string>
+  <string name="download_failed">%1$s didn\'t download. Try again.</string>
+  <string name="download_no_room">There isn\'t enough room on this phone for %1$s. Free some space, then try again.</string>
+  <string name="download_needs_permission">Nouride Home can\'t save files in Downloads without your permission. Try again and allow it.</string>
   <string name="dashboard_unreachable_body">It may still be starting, or it is turned off. Check Home, then try again.</string>
 
   <!-- The bar along the bottom, and its three tabs. -->
