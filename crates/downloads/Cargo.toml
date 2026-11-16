@@ -1,0 +1,14 @@
+[package]
+name = "downloads"
+description = "A file the dashboard's window keeps: which are kept, its name, and where it goes"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+url.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

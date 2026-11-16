@@ -1,0 +1,277 @@
+{
+  "about": "A file the dashboard hands its window to keep: which are kept, the name it is saved under, and the number a second copy gets. See spec/downloads.md. A case's `expect` is both apps' answer; `android` or `desktop`, when present, is that app's own answer where the two differ today.",
+  "source": [
+    {
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "origin": "http://127.0.0.1:18264",
+      "expect": "save"
+    },
+    {
+      "url": "http://127.0.0.1:18264/dashboard/files",
+      "origin": "http://127.0.0.1:18264",
+      "expect": "save"
+    },
+    {
+      "url": "blob:http://127.0.0.1:18264/5f0c6a1e-8a52-4f0e-9d1b-2d6c1d3f4a10",
+      "origin": "http://127.0.0.1:18264",
+      "expect": "save"
+    },
+    {
+      "url": "https://nouride.example.com/api/control/system/files/download?path=a.txt",
+      "origin": "https://nouride.example.com",
+      "expect": "save"
+    },
+    {
+      "url": "https://NOURIDE.example.com:443/files/a.txt",
+      "origin": "https://nouride.example.com",
+      "expect": "save"
+    },
+    {
+      "url": "blob:https://nouride.example.com/0d6b7a52-1d7e-4b4f-a2f5-9a3c8e1b2c44",
+      "origin": "https://nouride.example.com",
+      "expect": "save"
+    },
+    {
+      "url": "http://127.0.0.1:18254/api/control/system/files/download?path=a.txt",
+      "origin": "http://127.0.0.1:18264",
+      "expect": "outside"
+    },
+    {
+      "url": "http://localhost:18264/a.txt",
+      "origin": "http://127.0.0.1:18264",
+      "expect": "outside"
+    },
+    {
+      "url": "https://example.org/report.pdf",
+      "origin": "http://127.0.0.1:18264",
+      "expect": "outside"
+    },
+    {
+      "url": "http://nouride.example.com/a.txt",
+      "origin": "https://nouride.example.com",
+      "expect": "outside"
+    },
+    {
+      "url": "https://nouride.example.com:8443/a.txt",
+      "origin": "https://nouride.example.com",
+      "expect": "outside"
+    },
+    {
+      "url": "blob:https://example.org/0d6b7a52-1d7e-4b4f-a2f5-9a3c8e1b2c44",
+      "origin": "https://nouride.example.com",
+      "expect": "refused"
+    },
+    {
+      "url": "blob:null/0d6b7a52-1d7e-4b4f-a2f5-9a3c8e1b2c44",
+      "origin": "http://127.0.0.1:18264",
+      "expect": "refused"
+    },
+    {
+      "url": "data:text/plain;base64,aGk=",
+      "origin": "http://127.0.0.1:18264",
+      "expect": "refused"
+    },
+    {
+      "url": "file:///etc/passwd",
+      "origin": "http://127.0.0.1:18264",
+      "expect": "refused"
+    },
+    {
+      "url": "javascript:alert(1)",
+      "origin": "http://127.0.0.1:18264",
+      "expect": "refused"
+    },
+    {
+      "url": "not a url",
+      "origin": "http://127.0.0.1:18264",
+      "expect": "refused"
+    }
+  ],
+  "name": [
+    {
+      "given": "report.pdf",
+      "disposition": "attachment; filename=\"other.pdf\"",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "report.pdf"
+    },
+    {
+      "given": "",
+      "disposition": "attachment; filename=\"report.pdf\"",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "report.pdf"
+    },
+    {
+      "disposition": "attachment; filename=\"report.pdf\"",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "report.pdf"
+    },
+    {
+      "disposition": "attachment; filename=report.pdf",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "report.pdf"
+    },
+    {
+      "disposition": "attachment; filename=\"ascii.txt\"; filename*=UTF-8''r%C3%A9sum%C3%A9%20final.txt",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "résumé final.txt"
+    },
+    {
+      "disposition": "attachment; filename*=utf-8''%E6%97%A5%E8%A8%98.md",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "日記.md"
+    },
+    {
+      "disposition": "attachment; filename=\"say \\\"hi\\\".txt\"",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "say _hi_.txt"
+    },
+    {
+      "disposition": "attachment; filename=\"a;b.txt\"",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "a;b.txt"
+    },
+    {
+      "disposition": "attachment",
+      "url": "http://127.0.0.1:18264/uploads/chat%201/photo.png",
+      "expect": "photo.png"
+    },
+    {
+      "disposition": "inline",
+      "url": "http://127.0.0.1:18264/uploads/chat%201/my%20photo.png?size=full",
+      "expect": "my photo.png"
+    },
+    {
+      "url": "http://127.0.0.1:18264/",
+      "expect": "download"
+    },
+    {
+      "url": "blob:http://127.0.0.1:18264/5f0c6a1e-8a52-4f0e-9d1b-2d6c1d3f4a10",
+      "expect": "download"
+    },
+    {
+      "given": "slide.zip",
+      "url": "blob:http://127.0.0.1:18264/5f0c6a1e-8a52-4f0e-9d1b-2d6c1d3f4a10",
+      "expect": "slide.zip"
+    },
+    {
+      "given": "../../etc/passwd",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "_.._etc_passwd"
+    },
+    {
+      "given": "C:\\Users\\a\\b.txt",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "C__Users_a_b.txt"
+    },
+    {
+      "given": ".env",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "env"
+    },
+    {
+      "given": "  notes.txt.  ",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "notes.txt"
+    },
+    {
+      "given": "what?<now>|*.txt",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "what__now___.txt"
+    },
+    {
+      "given": "tab\there\u0007.txt",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "tabhere.txt"
+    },
+    {
+      "given": "...",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "download"
+    },
+    {
+      "given": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.pdf",
+      "url": "http://127.0.0.1:18264/api/control/system/files/download?path=agents%2Fnix%2Freport.pdf",
+      "expect": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.pdf"
+    }
+  ],
+  "numbered": [
+    {
+      "name": "report.pdf",
+      "n": 1,
+      "expect": "report (1).pdf"
+    },
+    {
+      "name": "report.pdf",
+      "n": 12,
+      "expect": "report (12).pdf"
+    },
+    {
+      "name": "v1.2 notes.txt",
+      "n": 1,
+      "expect": "v1.2 notes (1).txt"
+    },
+    {
+      "name": "nouride-backup-2026-11-16.zip",
+      "n": 2,
+      "expect": "nouride-backup-2026-11-16 (2).zip"
+    },
+    {
+      "name": "logs.tar.gz",
+      "n": 1,
+      "expect": "logs (1).tar.gz"
+    },
+    {
+      "name": "logs.tar.zst",
+      "n": 1,
+      "expect": "logs (1).tar.zst"
+    },
+    {
+      "name": "data.gz",
+      "n": 1,
+      "expect": "data (1).gz"
+    },
+    {
+      "name": "README",
+      "n": 3,
+      "expect": "README (3)"
+    }
+  ],
+  "free": [
+    {
+      "name": "report.pdf",
+      "taken": [],
+      "expect": "report.pdf"
+    },
+    {
+      "name": "report.pdf",
+      "taken": [
+        "report.pdf"
+      ],
+      "expect": "report (1).pdf"
+    },
+    {
+      "name": "report.pdf",
+      "taken": [
+        "report.pdf",
+        "report (1).pdf",
+        "report (2).pdf"
+      ],
+      "expect": "report (3).pdf"
+    },
+    {
+      "name": "report.pdf",
+      "taken": [
+        "report.pdf",
+        "report (2).pdf"
+      ],
+      "expect": "report (1).pdf"
+    },
+    {
+      "name": "report.pdf",
+      "taken": [
+        "report (1).pdf"
+      ],
+      "expect": "report.pdf"
+    }
+  ]
+}

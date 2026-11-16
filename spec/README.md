@@ -11,6 +11,7 @@ here is checked against both apps on the next test run.
 | [remote-address.md](remote-address.md) | `fixtures/remote-address.json` | `server/RemoteHost.kt` | `crates/place/src/remote_host.rs` |
 | [link-policy.md](link-policy.md) | `fixtures/link-policy.json` | `ui/LinkPolicy.kt` | `crates/link-policy` |
 | [update-feed.md](update-feed.md) | `fixtures/versions.json` | `update/UpdateFeed.kt` | `crates/shared/src/version.rs` |
+| [downloads.md](downloads.md) | `fixtures/downloads.json` | `download/Downloads.kt` | `crates/downloads` |
 
 ## Reading a case
 
