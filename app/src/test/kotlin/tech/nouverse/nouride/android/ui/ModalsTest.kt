@@ -13,8 +13,6 @@ class ModalsTest {
   private val confirmations = setOf(
     "StatusActivity.confirmTurnOff",
     "DashboardActivity.askToLeave",
-    // The address of another computer, until it is a screen of its own.
-    "AddressSheet.addressSheet",
   )
 
   @Test
