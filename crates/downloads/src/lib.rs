@@ -17,6 +17,30 @@ pub enum Source {
   Refused,
 }
 
+/// Run in the dashboard's window before its own scripts: it gives the page a way to show a short line at its foot,
+/// which [`line_call`] uses (`apps/desktop/tests/download-line.test.ts` runs it).
+pub const LINE_SCRIPT: &str = include_str!("line.js");
+
+/// The script that shows `text` as that line: the text as a JSON string, so nothing in it runs as code.
+pub fn line_call(text: &str) -> String {
+  format!("window.__nourideHomeLine && window.__nourideHomeLine({})", serde_json::Value::from(text))
+}
+
+/// The name WebKit suggested, before wry numbered it: wry (0.57) picks `base (n).rest`, `base` cut at the first dot,
+/// when the name is taken in Downloads, and only then tells the app. Taken back when `base.rest` is there, so the spec's
+/// own numbering ([`free`]) is the one a person sees.
+pub fn before_webkit_numbering(name: &str, exists: impl Fn(&str) -> bool) -> String {
+  let (base, rest) = name.find('.').map_or((name, ""), |i| name.split_at(i));
+  let Some(open) = base.strip_suffix(')').and_then(|b| b.rfind(" (").map(|i| (i, b))) else { return name.to_owned() };
+  let (i, inner) = open;
+  let digits = &inner[i + 2..];
+  if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
+    return name.to_owned();
+  }
+  let original = format!("{}{rest}", &base[..i]);
+  if exists(&original) { original } else { name.to_owned() }
+}
+
 /// The name of a file when nothing else names it.
 pub const FALLBACK: &str = "download";
 
@@ -201,6 +225,24 @@ mod tests {
   #[test]
   fn bytes_that_are_not_utf8_leave_the_name_as_written() {
     assert_eq!(percent_decode("%FF.txt"), "%FF.txt");
+  }
+
+  #[test]
+  fn webkit_s_own_number_is_taken_back_only_when_the_first_copy_is_there() {
+    let there = |n: &str| ["report.pdf", "logs.tar.gz", "a (1).txt"].contains(&n);
+    assert_eq!(before_webkit_numbering("report (1).pdf", there), "report.pdf");
+    assert_eq!(before_webkit_numbering("report (12).pdf", there), "report.pdf");
+    assert_eq!(before_webkit_numbering("logs (1).tar.gz", there), "logs.tar.gz");
+    assert_eq!(before_webkit_numbering("a (1) (1).txt", there), "a (1).txt");
+    assert_eq!(before_webkit_numbering("other (1).pdf", there), "other (1).pdf");
+    assert_eq!(before_webkit_numbering("report (x).pdf", there), "report (x).pdf");
+    assert_eq!(before_webkit_numbering("report ().pdf", there), "report ().pdf");
+    assert_eq!(before_webkit_numbering("report.pdf", there), "report.pdf");
+  }
+
+  #[test]
+  fn the_line_s_text_never_runs_as_code() {
+    assert_eq!(line_call("a\"); alert(1); (\"b.txt is in Downloads."), r#"window.__nourideHomeLine && window.__nourideHomeLine("a\"); alert(1); (\"b.txt is in Downloads.")"#);
   }
 
   #[test]

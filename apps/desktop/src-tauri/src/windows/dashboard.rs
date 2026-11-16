@@ -1,12 +1,16 @@
 //! The dashboard in a window of the app: signed in with the app's account on this computer's own Nouride, its own
-//! login elsewhere; its user agent marked so the dashboard draws its back button; `link_policy` deciding what stays.
+//! login elsewhere; its user agent marked so the dashboard draws its back button; `link_policy` deciding what stays;
+//! a file it downloads kept in Downloads as `downloads` says, with a line at the foot of the page.
 
-use std::sync::Arc;
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex};
 
+use downloads::{Source, LINE_SCRIPT};
 use link_policy::{Link, NewWindow, NEW_TABS_SCRIPT, USER_AGENT_MARK};
 use shared::Where;
-use tauri::webview::{Cookie, NewWindowResponse};
-use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
+use tauri::webview::{Cookie, DownloadEvent, NewWindowResponse};
+use tauri::{AppHandle, Manager, Webview, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 use tauri_plugin_opener::OpenerExt;
 use url::Url;
 
@@ -85,6 +89,10 @@ fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
   let nav_app = app.clone();
   let new_handle = handle.clone();
   let new_app = app.clone();
+  let download_handle = handle.clone();
+  let download_app = app.clone();
+  // Each download's name, from its request to its end: on macOS the end does not say where the file went.
+  let names: Arc<Mutex<HashMap<String, String>>> = Arc::default();
   WebviewWindowBuilder::new(handle, LABEL, WebviewUrl::App("index.html#/opening".into()))
     .title(crate::words::t("dashboard_title"))
     .inner_size(1200.0, 800.0)
@@ -93,6 +101,7 @@ fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
     // WebKit drops a click on a `target="_blank"` link before either handler below sees it: this makes it a
     // `window.open`, which `on_new_window` does see.
     .initialization_script(NEW_TABS_SCRIPT)
+    .initialization_script(LINE_SCRIPT)
     .on_navigation(move |url| {
       if own_page(url) || url.as_str() == "about:blank" {
         return true;
@@ -129,7 +138,53 @@ fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
       }
       NewWindowResponse::Deny
     })
+    // A file the dashboard downloads (System > Files, an attachment, "Download all"'s blob): Nouride's own goes to
+    // Downloads under its own name, a second copy numbered; another machine's goes to the browser, so the dashboard's
+    // session never goes with it.
+    .on_download(move |webview, event| match event {
+      DownloadEvent::Requested { url, destination } => {
+        match downloads::source(url.as_str(), &download_app.dashboard().1) {
+          Source::Save => {
+            let target = keep_in_downloads(destination.as_path());
+            let name = target.file_name().and_then(|n| n.to_str()).unwrap_or(downloads::FALLBACK).to_owned();
+            *destination = target;
+            line(&webview, "download_started", &name);
+            names.lock().unwrap_or_else(|e| e.into_inner()).insert(url.to_string(), name);
+            true
+          }
+          Source::Outside => {
+            to_browser(&download_handle, &download_app, &url, "a download outside Nouride");
+            false
+          }
+          Source::Refused => {
+            applog::write(&download_app.layout.app_log(), &format!("a download refused: {} address", url.scheme()));
+            false
+          }
+        }
+      }
+      DownloadEvent::Finished { url, success, .. } => {
+        let name = names.lock().unwrap_or_else(|e| e.into_inner()).remove(url.as_str()).unwrap_or_else(|| downloads::FALLBACK.to_owned());
+        line(&webview, if success { "download_saved" } else { "download_failed" }, &name);
+        applog::write(&download_app.layout.app_log(), &format!("a download {}", if success { "was kept" } else { "failed" }));
+        true
+      }
+      _ => true,
+    })
     .build()
+}
+
+/// Where a download goes: the folder WebKit chose (the person's Downloads), under the name the page or the server gave
+/// it, made safe, never over a file there.
+fn keep_in_downloads(chosen: &Path) -> PathBuf {
+  let dir = chosen.parent().map(PathBuf::from).unwrap_or_default();
+  let suggested = chosen.file_name().and_then(|n| n.to_str()).unwrap_or_default();
+  let original = downloads::before_webkit_numbering(suggested, |n| dir.join(n).exists());
+  downloads::free_path(&dir, &downloads::safe(&original))
+}
+
+/// The line at the foot of the dashboard's page.
+fn line(webview: &Webview, key: &str, name: &str) {
+  let _ = webview.eval(downloads::line_call(&crate::words::t(key).replace("{name}", name)));
 }
 
 /// Signs in with the app's account and hands the session to the window. A 401 means the person chose their own

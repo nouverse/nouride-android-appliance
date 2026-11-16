@@ -1,5 +1,5 @@
 {
-  "_note": "Every word a person reads in Nouride Home, written for someone who has never opened a terminal (the home-ui skill). {version} and {percent} are filled in; nothing else is.",
+  "_note": "Every word a person reads in Nouride Home, written for someone who has never opened a terminal (the home-ui skill). {version}, {percent} and {name} are filled in; nothing else is.",
   "app_name": "Nouride Home",
   "app_name_dev": "Nouride Home Dev",
   "off_title": "Nouride is off",
@@ -157,5 +157,8 @@
   "go_connect": "Go to Connect",
   "settings_nouride_title": "Nouride on this computer",
   "settings_nouride_body": "Turn it off when you don't need it. It stays off until you press Start on Home.",
-  "appearance_body": "Nouride Home and Nouride's window look this way."
+  "appearance_body": "Nouride Home and Nouride's window look this way.",
+  "download_started": "Downloading {name}.",
+  "download_saved": "{name} is in Downloads.",
+  "download_failed": "{name} didn't download. Try again."
 }

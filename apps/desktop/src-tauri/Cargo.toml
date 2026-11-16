@@ -21,6 +21,7 @@ daemon.workspace = true
 service.workspace = true
 updates.workspace = true
 link-policy.workspace = true
+downloads.workspace = true
 looks.workspace = true
 serde.workspace = true
 serde_json.workspace = true

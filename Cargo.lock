@@ -2479,6 +2479,7 @@ name = "nouride-home"
 version = "0.2.0"
 dependencies = [
  "daemon",
+ "downloads",
  "libc",
  "link-policy",
  "looks",

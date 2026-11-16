@@ -180,7 +180,10 @@ to turn it into `window.open`, and `link_policy::new_window` decides; a Nouride 
 `/oauth/start`, to Google) leaves for the browser as it redirects, and the page on screen stays. When Nouride does not answer, the leaning cat and "Nouride isn't answering", "It may still be starting, or it
 is turned off. Check Home, then try again." with Try again stand in for the WebView's own error page. The dashboard's
 own back button closes the window (destroying it, as its close button does) and brings Nouride Home forward, made
-again if it was closed.
+again if it was closed. A file the dashboard downloads goes to the person's Downloads under its own name, a second
+copy numbered (`spec/downloads.md`), and a short line at the foot of the page says "Downloading report.pdf.", then
+"report.pdf is in Downloads." or that it did not download (`downloads::LINE_SCRIPT`): the window has no list of
+downloads as a browser does.
 
 ## How it looks
 

@@ -24,7 +24,9 @@ logic in `crates/`, the shared look in `packages/ui-kit`. The rules both apps sh
    `~/Library/LaunchAgents/<label>.plist`. `service::launchctl` builds the `bootstrap`, `bootout`, `kickstart -k` and
    `print` command lines and reads `print`'s answer.
 5. **Opening the dashboard**: `daemon::first_admin` signs in over HTTP, the session cookie is set on the dashboard's
-   window (`set_cookie`), and the window's `on_navigation` asks `link_policy::link` what each load is.
+   window (`set_cookie`), and the window's `on_navigation` asks `link_policy::link` what each load is. Its
+   `on_download` asks `downloads::source` whether a download is kept, names it in Downloads (`downloads::free_path`,
+   after taking back the number wry gives a taken name itself) and shows a line in the page (`downloads::line_call`).
 6. **Nouride's update**: `updates::nouride` reads the control-token routes, `updates::notice` keeps what was heard,
    `updates::stall` restarts a stuck download. The app's own: `tauri-plugin-updater` against this repository's
    Releases.

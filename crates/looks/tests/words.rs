@@ -62,7 +62,7 @@ fn every_menu_item_and_notice_has_words() {
 
 #[test]
 fn only_the_placeholders_the_screens_fill_are_in_the_words() {
-  let filled = ["{version}", "{percent}", "{step}", "{steps}", "{app}", "{nouride}"];
+  let filled = ["{version}", "{percent}", "{step}", "{steps}", "{app}", "{nouride}", "{name}"];
   for (key, value) in words() {
     let Some(text) = value.as_str() else { continue };
     let mut rest = filled.iter().fold(text.to_owned(), |t, p| t.replace(p, ""));
