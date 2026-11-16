@@ -4,6 +4,7 @@ import { Dialog } from "../../commons/components/Dialog";
 import { ipc, type Appearance, type Snapshot } from "../../commons/lib/ipc";
 import { t } from "../../commons/lib/words";
 import { AddressCard } from "../first-run/AddressCard";
+import { pressPlace, shownPlace } from "./placeChoice";
 
 function Choice<T extends string>({ value, options, onPick }: { value: T; options: { value: T; words: string }[]; onPick: (v: T) => void }) {
   return (
@@ -47,15 +48,20 @@ export function SettingsScreen({ s }: { s: Snapshot }) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="min-w-0 flex-1 basis-56 text-base-content/80">{t(s.place === "remote" ? "place_remote_body" : "place_here_body")}</p>
           <Choice
-            value={s.place ?? "here"}
+            value={shownPlace(s.place, asking)}
             options={[
               { value: "here", words: "place_here" },
               { value: "remote", words: "place_remote" },
             ]}
-            onPick={(v) => (v === "here" ? s.place !== "here" && ipc.chooseHere() : setAsking(true))}
+            onPick={(v) => {
+              const press = pressPlace(s.place, v);
+              setAsking(press.asking);
+              if (press.chooseHere) ipc.chooseHere();
+            }}
           />
         </div>
-        {s.place === "remote" && s.address && (
+        {asking && <AddressCard s={s} onClose={() => setAsking(false)} frame="section" />}
+        {!asking && s.place === "remote" && s.address && (
           <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-base-300 pt-4">
             <span className="min-w-0 font-mono text-sm break-all">{s.address}</span>
             <TextButton onClick={() => setAsking(true)}>{t("place_change_address")}</TextButton>
@@ -86,7 +92,7 @@ export function SettingsScreen({ s }: { s: Snapshot }) {
           </div>
         </Group>
       )}
-      {asking && <AddressCard s={s} onClose={() => setAsking(false)} />}
+      {/* The one modal: a confirmation. Everything else opens in the page. */}
       {confirmOff && (
         <Dialog onClose={() => setConfirmOff(false)}>
           <h2 className="font-display text-xl tracking-tight">{t("turn_off_title")}</h2>

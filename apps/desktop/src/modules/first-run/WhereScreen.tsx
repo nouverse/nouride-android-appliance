@@ -38,7 +38,7 @@ export function WhereScreen({ s, mac }: { s: Snapshot; mac: boolean }) {
           <p className="max-w-[48ch] text-base-content/75">{t("where_body")}</p>
         </div>
         {asking ? (
-          <AddressCard s={s} onClose={() => setAsking(false)} inline />
+          <AddressCard s={s} onClose={() => setAsking(false)} frame="card" />
         ) : (
           <div className="grid gap-4 @min-[460px]:grid-cols-2">
             {/* The press is the person asking for it: the first setup starts at once. */}
