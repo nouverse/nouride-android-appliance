@@ -1,0 +1,13 @@
+[package]
+name = "backup"
+description = "Nouride's files as one zip: what stays out, the database snapshot, the zip itself"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde_json.workspace = true
+zip = { version = "9.6.0", default-features = false, features = ["deflate", "chrono"] }
+chrono = { version = "0.4.45", default-features = false, features = ["clock"] }

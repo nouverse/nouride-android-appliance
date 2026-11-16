@@ -12,6 +12,7 @@ here is checked against both apps on the next test run.
 | [link-policy.md](link-policy.md) | `fixtures/link-policy.json` | `ui/LinkPolicy.kt` | `crates/link-policy` |
 | [update-feed.md](update-feed.md) | `fixtures/versions.json` | `update/UpdateFeed.kt` | `crates/shared/src/version.rs` |
 | [downloads.md](downloads.md) | `fixtures/downloads.json` | `download/Downloads.kt` | `crates/downloads` |
+| [backup.md](backup.md) | `fixtures/backup.json` | `backup/Backup.kt` | `crates/backup` |
 
 ## Reading a case
 
