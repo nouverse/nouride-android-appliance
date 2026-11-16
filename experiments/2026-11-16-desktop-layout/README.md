@@ -28,8 +28,9 @@ cd ../.. && node experiments/2026-11-16-desktop-layout/render.mjs
 - `invoke("qr")` answers a code drawn ahead of time by the same `qrcode` crate and settings as the app's `qr`
   command, for the two fixture addresses. `invoke("logs")` answers made-up log lines. Every action does nothing.
 - Not in the pictures: macOS's window buttons and its title bar overlay (drawn by macOS, not by the page), the
-  tooltips of the icon rail (they show on hover), and the dialogs (the address card over Settings, Turn off's
-  question).
+  tooltips of the icon rail (they show on hover), and Turn off's question, the one dialog left.
+- `render.mjs` can press a radio button before the picture (the sixth column): 23 to 26 press Another computer in
+  Settings, which opens the address section under the choice.
 
 ## The pictures
 
@@ -49,6 +50,8 @@ cd ../.. && node experiments/2026-11-16-desktop-layout/render.mjs
 | 16 to 19 | Home, Connect, Settings, first run | 980 x 640 | dark |
 | 20 | Home, Nouride off | 560 x 520 (rail) | dark |
 | 21, 22 | First run, Settings | 560 x 520 | light |
+| 23, 24 | Settings, Another computer pressed: the address section open, the pink warning (Nouride runs here) | 980 x 640 | light, dark |
+| 25, 26 | The same | 560 x 520 (rail) | light, dark |
 
 Each was looked at. Fixed on the way: "Versions and updates" cut in the sidebar (wider sidebar, the dot moved
 out of the text's way), Home's facts repeating the update card's sentence, the QR code overflowing its white

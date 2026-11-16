@@ -2,7 +2,7 @@
 // 127.0.0.1 and opened in headless Chromium at a Mac's user agent, so the screens leave room for the window buttons
 // as they do on macOS. Run from the repository's root: `node experiments/2026-11-16-desktop-layout/render.mjs`.
 // PLAYWRIGHT names Playwright's module (default: the system's /usr/lib/node_modules/playwright), CHROMIUM the browser
-// (default: /usr/bin/chromium).
+// (default: /usr/bin/chromium). Numbers given as arguments draw only those pictures (`render.mjs 23 24`).
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { extname, join, resolve } from "node:path";
@@ -25,7 +25,7 @@ const base = `http://127.0.0.1:${server.address().port}/`;
 const MAC_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15";
 const SIZES = { xl: [1200, 760], default: [980, 640], medium: [820, 560], min: [560, 520] };
 
-// [file, fixture, section, size, theme]
+// [file, fixture, section, size, theme, the name of a radio button pressed first]
 const SHOTS = [
   ["01-first-run", "first-run", null, "default", "light"],
   ["02-setting-up", "setting-up", null, "default", "light"],
@@ -49,10 +49,16 @@ const SHOTS = [
   ["20-home-off", "home-off", "home", "min", "dark"],
   ["21-first-run", "first-run", null, "min", "light"],
   ["22-settings", "home-here", "settings", "min", "light"],
+  ["23-settings-address", "home-here", "settings", "default", "light", "Another computer"],
+  ["24-settings-address", "home-here", "settings", "default", "dark", "Another computer"],
+  ["25-settings-address", "home-here", "settings", "min", "light", "Another computer"],
+  ["26-settings-address", "home-here", "settings", "min", "dark", "Another computer"],
 ];
+const only = process.argv.slice(2);
 
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM ?? "/usr/bin/chromium" });
-for (const [name, fixture, section, size, theme] of SHOTS) {
+for (const [name, fixture, section, size, theme, press] of SHOTS) {
+  if (only.length && !only.some((n) => name.startsWith(n))) continue;
   const [width, height] = SIZES[size];
   const context = await browser.newContext({
     viewport: { width, height },
@@ -66,6 +72,10 @@ for (const [name, fixture, section, size, theme] of SHOTS) {
   await page.goto(`${base}?${query}`);
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(400);
+  if (press) {
+    await page.getByRole("radio", { name: press }).click();
+    await page.waitForTimeout(400);
+  }
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   const file = `${name}-${width}x${height}-${theme}.png`;
   await page.screenshot({ path: join(out, file) });
