@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { report } from "../src/commons/lib/report";
-import { dotted, isMac, type Keys, SECTIONS, sectionOf, shortcut, sidebarShape, sidebarShown } from "../src/commons/lib/sections";
+import { dotted, isMac, type Keys, SECTIONS, sectionOf, shortcut, sidebarShape, sidebarShown, startSection } from "../src/commons/lib/sections";
 
 const key = (k: string, mods: Partial<Keys> = {}): Keys => ({ key: k, metaKey: false, ctrlKey: false, altKey: false, shiftKey: false, ...mods });
 
@@ -69,4 +69,11 @@ test("the copied report has each part under its heading, an empty one said as su
   expect(report({ summary: "Where: here", parts: [{ name: "Nouride", text: "ready" }, { name: "Installer", text: "  " }] })).toBe(
     "Where: here\n\n== Nouride ==\nready\n\n== Installer ==\n(empty)",
   );
+});
+
+test("a window made again opens at the section its address names, or Home", () => {
+  expect(startSection("")).toBe("home");
+  expect(startSection("#/versions")).toBe("versions");
+  expect(startSection("#/settings")).toBe("settings");
+  expect(startSection("#/more")).toBe("home");
 });

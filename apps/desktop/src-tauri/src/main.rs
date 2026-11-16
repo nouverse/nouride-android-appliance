@@ -18,7 +18,7 @@ use std::sync::Arc;
 
 use daemon::Layout;
 use shared::Build;
-use tauri::{Manager, RunEvent, WindowEvent};
+use tauri::{Manager, RunEvent};
 
 use crate::state::App;
 
@@ -69,15 +69,6 @@ fn main() {
       });
       Ok(())
     })
-    .on_window_event(|window, event| {
-      // Closing the window keeps the app in the menu bar; Nouride keeps running either way.
-      if let WindowEvent::CloseRequested { api, .. } = event {
-        if window.label() == windows::main::LABEL || window.label() == windows::dashboard::LABEL {
-          api.prevent_close();
-          let _ = window.hide();
-        }
-      }
-    })
     .invoke_handler(tauri::generate_handler![
       commands::state,
       commands::choose_here,
@@ -100,7 +91,14 @@ fn main() {
     .build(tauri::generate_context!())
     .expect("Nouride Home could not start")
     .run(|handle, event| {
-      // The Dock icon clicked with no window shown brings the app's window back.
+      // A closed window is destroyed with its WebKit processes (`windows::main`); closing the last one asks the app
+      // to exit with no code, and the app stays in the menu bar. Quit gives a code.
+      if let RunEvent::ExitRequested { code, api, .. } = &event {
+        if !looks::window::exits(*code) {
+          api.prevent_exit();
+        }
+      }
+      // The Dock icon clicked with no window shown makes the app's window again.
       #[cfg(target_os = "macos")]
       if let RunEvent::Reopen { has_visible_windows: false, .. } = event {
         windows::main::show(handle);

@@ -42,9 +42,10 @@ pub fn handle(handle: &AppHandle, app: &Arc<App>, argv: &[String]) {
         }
       }
       "show" => windows::main::show_at(&h, if arg.is_empty() { "home" } else { &arg }),
-      "hide" => {
+      // As the window's close button: the window is destroyed, the app stays in the menu bar.
+      "close-main" => {
         if let Some(w) = h.get_webview_window(windows::main::LABEL) {
-          w.hide().map_err(|e| e.to_string())?;
+          w.close().map_err(|e| e.to_string())?;
         }
       }
       "tray" => tray::press(&h, &a, &arg),

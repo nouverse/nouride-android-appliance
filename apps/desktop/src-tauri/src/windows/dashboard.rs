@@ -76,8 +76,10 @@ pub fn open(handle: &AppHandle, app: &Arc<App>) {
   let _ = window.set_focus();
 }
 
-/// The window outlives a change of place (closing it hides it), so which Nouride is "here" is read at each navigation,
-/// never kept from when the window was made: kept, the other computer's dashboard went to the browser.
+/// Made each time it is opened after a close, which destroys it with its WebKit processes (the app's session cookie
+/// stays in WebKit's store, and `open` signs in again). It may stay open across a change of place, so which Nouride
+/// is "here" is read at each navigation, never kept from when the window was made: kept, the other computer's
+/// dashboard went to the browser.
 fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
   let nav_handle = handle.clone();
   let nav_app = app.clone();
@@ -101,7 +103,7 @@ fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
           let h = nav_handle.clone();
           std::thread::spawn(move || {
             if let Some(w) = h.get_webview_window(LABEL) {
-              let _ = w.hide();
+              let _ = w.close();
             }
             windows::main::show(&h);
           });

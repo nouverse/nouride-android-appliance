@@ -3,7 +3,7 @@ import { Sidebar } from "./commons/components/Sidebar";
 import { useSnapshot } from "./commons/hooks/useSnapshot";
 import { useWindowWidth } from "./commons/hooks/useWindowWidth";
 import { ipc } from "./commons/lib/ipc";
-import { isMac, type Section, sectionOf, shortcut, sidebarShape, sidebarShown } from "./commons/lib/sections";
+import { isMac, type Section, sectionOf, shortcut, sidebarShape, sidebarShown, startSection } from "./commons/lib/sections";
 import { ConnectScreen } from "./modules/connect/ConnectScreen";
 import { WhereScreen } from "./modules/first-run/WhereScreen";
 import { HomeScreen } from "./modules/home/HomeScreen";
@@ -15,7 +15,7 @@ const MAC = isMac(navigator.userAgent);
 
 export function App() {
   const s = useSnapshot();
-  const [section, setSection] = useState<Section>("home");
+  const [section, setSection] = useState<Section>(() => startSection(location.hash));
   const width = useWindowWidth();
   const shown = s ? sidebarShown(s) : false;
 

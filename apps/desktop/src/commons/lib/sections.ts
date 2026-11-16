@@ -60,6 +60,14 @@ export function sectionOf(name: string): Section | null {
   return SECTIONS.some((item) => item.section === name) ? (name as Section) : null;
 }
 
+/**
+ * The section a new window opens at: the one its address names (`#/versions`, when the menu bar made the window again
+ * to show it, `looks::window::main_page`), or Home.
+ */
+export function startSection(hash: string): Section {
+  return sectionOf(hash.replace(/^#\//, "")) ?? "home";
+}
+
 /** macOS draws its window buttons over the sidebar (`titleBarStyle: Overlay`); Linux keeps its own title bar. */
 export function isMac(userAgent: string): boolean {
   return /Macintosh|Mac OS X/.test(userAgent);
