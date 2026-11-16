@@ -2,8 +2,8 @@ build/
 .gradle/
 local.properties
 */build/
-app/src/main/jniLibs/
-app/src/main/assets/rootfs.tgz
+apps/android/app/src/main/jniLibs/
+apps/android/app/src/main/assets/rootfs.tgz
 .idea/
 *.iml
 *.jks
