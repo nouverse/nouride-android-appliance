@@ -1,11 +1,60 @@
+<div align="center">
+
+<img src="packages/ui-kit/src/mascot/hello.webp" alt="The Nouride cat, waving hello" width="180">
+
 # Nouride Home
 
-Nouride Home makes a phone or a computer the home of Nouride: the device runs Nouride itself and keeps it running, or
-it opens a Nouride that already runs on another computer. Two apps, Android and desktop, in one repository with one
-version (`VERSION`): a release `vX.Y.Z` is both.
+### Nouride on your phone or your computer, no terminal needed
 
-**Who it is for:** people who are not technical. Everything a person sees in either app is written for them, not for a
-developer: see `AGENTS.md` and the `home-ui` skill.
+Nouride Home runs [Nouride](https://github.com/nouverse/nouride) on an Android phone or a Mac and keeps it running,<br>
+or opens a Nouride that already runs on another computer.
+
+[**Nouride**](https://nouride.com) · [**Guide**](https://nouride.com/en/docs/deployment/nouride-home/) · [**Releases**](https://github.com/nouverse/nouride-home/releases) · [**Nouride's source**](https://github.com/nouverse/nouride)
+
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg?style=flat-square)](#licence)
+[![Release](https://img.shields.io/github/v/release/nouverse/nouride-home?style=flat-square&label=Release)](https://github.com/nouverse/nouride-home/releases)
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=flat-square&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/gadingnst)
+[![Ko-fi](https://img.shields.io/badge/Support-Ko--fi-29abe0?style=flat-square&logo=kofi&logoColor=white)](https://ko-fi.com/gadingnst)
+[![Trakteer](https://img.shields.io/badge/Support-Trakteer-red?style=flat-square)](https://trakteer.id/gadingnst)
+[![KaryaKarsa](https://img.shields.io/badge/Support-KaryaKarsa-ffb800?style=flat-square)](https://karyakarsa.com/gadingnst)
+
+<br>
+
+<img src="docs/media/desktop-home.png" alt="Nouride Home on a Mac: Nouride is running, a new Nouride is ready, and where Nouride runs" width="880">
+
+</div>
+
+<br>
+
+## What it does
+
+<table>
+<tr>
+<td width="110" align="center"><img src="packages/ui-kit/src/mascot/ride.webp" alt="" width="96"></td>
+<td><b>Your phone or your computer becomes Nouride's home.</b> The app installs Nouride with its official installer and
+keeps it running, with the screen off on a phone and with the window closed on a Mac. An old phone in a drawer is
+enough.</td>
+</tr>
+<tr>
+<td align="center"><img src="packages/ui-kit/src/mascot/pointing.webp" alt="" width="96"></td>
+<td><b>Or open the Nouride you already have.</b> Give the HTTPS address of a Nouride on another computer once, and the
+app opens its dashboard. Nothing runs on the device itself.</td>
+</tr>
+<tr>
+<td align="center"><img src="packages/ui-kit/src/mascot/update.webp" alt="" width="96"></td>
+<td><b>Updates without a terminal.</b> The app says when a new Nouride is ready and puts it in, and the Android app
+updates itself from this repository's releases. Your agents, chats and settings stay as they are.</td>
+</tr>
+<tr>
+<td align="center"><img src="packages/ui-kit/src/mascot/thumbs.webp" alt="" width="96"></td>
+<td><b>Made for people who are not technical.</b> Every screen is written for the person holding the phone or sitting
+at the computer. Logs and the rest live on one screen of their own, Technical Logs, for whoever helps them.</td>
+</tr>
+</table>
+
+## Two apps, one release
+
+Android and desktop live in this repository with one version (`VERSION`): a release `vX.Y.Z` is both.
 
 | | Android | Desktop |
 | --- | --- | --- |
@@ -27,7 +76,6 @@ The question is asked once, on the first screen of a phone without Nouride, and 
 computer the app runs nothing of its own; the Debian and Nouride this phone may already hold stay where they are, so
 choosing this phone again picks the install up as it was.
 
-An old phone in a drawer becomes the home of its owner's AI assistant.
 
 ### What it does
 
@@ -184,3 +232,22 @@ contributing skill).
 
 Read `AGENTS.md` first. The skills in `.agents/skills/` hold the detail: `home-ui` for anything a person sees,
 `home-contributing` for building, testing and the rules of the code, each with a page per app in `references/`.
+
+## Licence
+
+Nouride Home is licensed under the [GNU Affero General Public License v3.0 only](./LICENSE) (`AGPL-3.0-only`). You may
+use, change and share it; a changed version you give to others, or let others use over a network, comes with its
+source under the same licence.
+
+Nouride itself, which the apps install and run, is a separate program with its own licence (`FSL-1.1-ALv2`, see
+[its repository](https://github.com/nouverse/nouride)). The Nouride name, the Nouride Home name, the cat and the logo
+are trademarks of Nouverse and are not licensed: a changed copy is not called Nouride or Nouride Home. The licence text
+governs; this summary does not replace it.
+
+<br>
+
+<div align="center">
+<img src="packages/ui-kit/src/mascot/thumbs.webp" alt="The Nouride cat, thumbs up" width="120">
+<br>
+<sub>Made by <a href="https://nouverse.com">Nouverse</a>.</sub>
+</div>
