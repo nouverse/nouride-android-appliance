@@ -2478,6 +2478,7 @@ dependencies = [
 name = "nouride-home"
 version = "0.2.0"
 dependencies = [
+ "backup",
  "daemon",
  "downloads",
  "libc",

@@ -4,6 +4,7 @@
 //! Pure, so a new state cannot ship without its words: the `match`es below do not compile until it has them. The
 //! words themselves are keys into `packages/ui-kit/src/words.json`, and a test holds every key to that file.
 
+pub mod backup;
 pub mod connect;
 pub mod notices;
 pub mod sidebar;

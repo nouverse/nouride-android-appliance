@@ -62,6 +62,14 @@ pub fn zip_name(date: &str) -> String {
   format!("nouride-backup-{date}.zip")
 }
 
+/// Left free for the device itself: a zip that would fill it is said not to fit (Android's `DownloadsFolder.HEADROOM`).
+pub const HEADROOM: u64 = 64 * 1024 * 1024;
+
+/// Whether a zip of `bytes` fits where `free` bytes are left, with [`HEADROOM`] to spare.
+pub fn fits(bytes: u64, free: u64) -> bool {
+  free.checked_sub(HEADROOM).is_some_and(|room| bytes <= room)
+}
+
 /// The zip's name today, by this computer's clock.
 pub fn zip_name_today() -> String {
   zip_name(&chrono::Local::now().format("%Y-%m-%d").to_string())
@@ -219,6 +227,13 @@ mod tests {
       fs::write(file, text).unwrap();
     }
     root
+  }
+
+  #[test]
+  fn a_zip_fits_only_with_room_to_spare() {
+    assert!(fits(10, 10 + HEADROOM));
+    assert!(!fits(11, 10 + HEADROOM));
+    assert!(!fits(u64::MAX, u64::MAX));
   }
 
   #[test]

@@ -37,6 +37,19 @@ export interface VersionCard {
   progress: boolean;
 }
 
+/** Settings' "Nouride's files" (`looks::backup` in Rust). `sizeWords` and `result` are keys of words. */
+export interface BackupLook {
+  shown: boolean;
+  secrets: string;
+  sizeWords: string;
+  size: number | null;
+  button: boolean;
+  bar: boolean;
+  percent: number | null;
+  result: string | null;
+  name: string | null;
+}
+
 export interface Snapshot {
   appName: string;
   appVersion: string;
@@ -77,6 +90,7 @@ export interface Snapshot {
   /** Home's versions line when something waits, or `null` for the versions themselves. */
   versionsRow: string | null;
   appearance: Appearance;
+  backup: BackupLook;
   versions: { app: VersionCard; nouride: VersionCard };
 }
 
@@ -100,6 +114,9 @@ export const ipc = {
   openDashboard: () => invoke<void>("open_dashboard"),
   setAccess: (open: boolean) => invoke<void>("set_access", { open }),
   setAppearance: (appearance: Appearance) => invoke<void>("set_appearance", { appearance }),
+  /** What "Download Nouride's files" would weigh, counted again. */
+  backupCount: () => invoke<void>("backup_count"),
+  backupStart: () => invoke<void>("backup_start"),
   checkApp: () => invoke<void>("check_app"),
   updateApp: () => invoke<void>("update_app"),
   checkNouride: () => invoke<void>("check_nouride"),
