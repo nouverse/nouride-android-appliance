@@ -107,6 +107,11 @@ impl Layout {
     self.data.join("admin.secret")
   }
 
+  /// The dashboard's device token (`device_sign_in`), kept by the app alone (0600), never shown.
+  pub fn device_token(&self) -> PathBuf {
+    self.data.join("device.token")
+  }
+
   pub fn is_inside(&self, path: &Path) -> bool {
     path.starts_with(&self.data)
   }
@@ -134,6 +139,7 @@ mod tests {
       layout.app_log(),
       layout.prefs(),
       layout.admin_secret(),
+      layout.device_token(),
     ] {
       assert!(layout.is_inside(&path), "{}", path.display());
     }

@@ -114,9 +114,10 @@ pub fn run(
     progress.line("waiting");
     report.progress(&progress);
   }
-  // The account exists now: the file should not keep a password it no longer needs.
+  // The account exists now: neither the file nor the app should keep a password nothing signs in with.
   env_file::rewrite(&layout.env_file(), first_admin::without_account)?;
-  report.log("Nouride answers; the first account's lines are out of .env");
+  forget_password(layout)?;
+  report.log("Nouride answers; the first account's lines are out of .env, its password forgotten");
   Ok(())
 }
 
@@ -137,12 +138,7 @@ pub fn admin_password(layout: &Layout) -> io::Result<String> {
   Ok(password)
 }
 
-/// The app's own password, or `None` once it was forgotten (the person chose their own).
-pub fn kept_password(layout: &Layout) -> Option<String> {
-  fs::read_to_string(layout.admin_secret()).ok().map(|s| s.trim().to_owned()).filter(|s| !s.is_empty())
-}
-
-/// Forgets the app's password: a 401 means the person chose their own.
+/// Forgets the first account's password: once the account exists, nothing needs it.
 pub fn forget_password(layout: &Layout) -> io::Result<()> {
   match fs::remove_file(layout.admin_secret()) {
     Err(e) if e.kind() != io::ErrorKind::NotFound => Err(e),
@@ -306,6 +302,8 @@ mod tests {
     assert!(fx.env_at_agent.borrow().contains("INITIAL_ADMIN_PASSWORD="));
     let env = fs::read_to_string(fx.layout.env_file()).unwrap();
     assert_eq!(env, "PORT=18264\nHOST=127.0.0.1\n");
+    // Nothing signs in with that password: the app does not keep it either.
+    assert!(!fx.layout.admin_secret().exists());
     // The Dev build's gateway is on its own port.
     let toml = fs::read_to_string(fx.layout.config_toml()).unwrap();
     assert!(toml.contains("port = 18266"), "{toml}");
@@ -356,9 +354,8 @@ mod tests {
       use std::os::unix::fs::PermissionsExt;
       assert_eq!(fs::metadata(fx.layout.admin_secret()).unwrap().permissions().mode() & 0o777, 0o600);
     }
-    assert_eq!(kept_password(&fx.layout).as_deref(), Some(one.as_str()));
     forget_password(&fx.layout).unwrap();
-    assert_eq!(kept_password(&fx.layout), None);
+    assert!(!fx.layout.admin_secret().exists());
     forget_password(&fx.layout).unwrap();
   }
 }

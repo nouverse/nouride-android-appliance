@@ -1,9 +1,7 @@
 package tech.nouverse.nouride.android.server
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -42,21 +40,5 @@ class FirstAdminTest {
     val one = FirstAdmin.newPassword()
     assertTrue(one, Regex("[0-9a-f]{24}").matches(one))
     assertNotEquals(one, FirstAdmin.newPassword())
-  }
-
-  @Test
-  fun `the password is forgotten once the daemon refuses it, and kept through anything that may pass`() {
-    assertTrue(FirstAdmin.forgets(401))
-    for (code in listOf(200, 400, 403, 429, 500, 501, 503)) assertFalse("$code", FirstAdmin.forgets(code))
-  }
-
-  @Test
-  fun `the session cookie is found among a sign-in's headers`() {
-    val cookie = FirstAdmin.sessionCookie(
-      listOf("other=1; Path=/", "nouride_session=tok%2Ben12345; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000"),
-    )
-    assertEquals("nouride_session=tok%2Ben12345", cookie)
-    assertNull(FirstAdmin.sessionCookie(listOf("nouride_session=; Max-Age=0")))
-    assertNull(FirstAdmin.sessionCookie(emptyList()))
   }
 }

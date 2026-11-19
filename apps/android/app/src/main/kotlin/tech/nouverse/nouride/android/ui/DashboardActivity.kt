@@ -22,26 +22,23 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
-import org.json.JSONObject
 import tech.nouverse.nouride.android.Nouride
 import tech.nouverse.nouride.android.R
-import tech.nouverse.nouride.android.server.FirstAdmin
 import tech.nouverse.nouride.android.server.Place
 import tech.nouverse.nouride.android.server.RemoteHost
-import tech.nouverse.nouride.android.server.ServerService
 import tech.nouverse.nouride.android.signin.CallbackCatcher
+import tech.nouverse.nouride.android.signin.DeviceSignIn
+import tech.nouverse.nouride.android.signin.LocalDevice
 import tech.nouverse.nouride.android.signin.LoopbackSignIn
-import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.URL
 import kotlin.concurrent.thread
 
 /**
- * The daemon's own dashboard, from the loopback address, already signed in: the app signs in with the account it made
- * on the first start (`FirstAdmin`) and hands the session cookie to the WebView. While Nouride lives on another
- * machine (`server/Place`), the same screen shows that machine's dashboard instead, over https, with its own login page
- * as the way in: a session there is the person's, not this app's to make. When that fails (the person changed
- * the password, or the install is older than the account) the dashboard shows its own login page, as anywhere else.
+ * The daemon's own dashboard, from the loopback address, always signed in: the app trades its device token for a
+ * session and hands the cookie to the WebView when the screen opens, and again whenever the dashboard reaches its
+ * sign-in page, whatever ended the session (`signin/DeviceSignIn`). While Nouride lives on another machine
+ * (`server/Place`), the same screen shows that machine's dashboard instead, over https, with its own login page as the
+ * way in: a session there is the person's, not this app's to make. When the device's sign-in gives up (a Nouride before
+ * 0.8.40, which has none) the dashboard shows its own login page, as anywhere else.
  *
  * A file the dashboard downloads is kept in the phone's Downloads (`DashboardDownloads`).
  *
@@ -66,6 +63,9 @@ class DashboardActivity : Activity() {
   private lateinit var origin: String
   private lateinit var start: String
 
+  /** This phone's own Nouride: the only one the app signs in to. */
+  private var local = false
+
   /** In the appearance chosen on the More tab (`Appearances`). */
   override fun attachBaseContext(base: Context) = super.attachBaseContext(Appearances.wrap(base))
 
@@ -77,6 +77,7 @@ class DashboardActivity : Activity() {
     val remote = Place(this).address()
     start = remote?.let(RemoteHost::dashboard) ?: Nouride.DASHBOARD_URL
     origin = remote ?: Nouride.ORIGIN
+    local = remote == null
     web = WebView(this)
     web.settings.javaScriptEnabled = true
     web.settings.domStorageEnabled = true
@@ -131,22 +132,50 @@ class DashboardActivity : Activity() {
       return
     }
     // A machine of the person's own: nothing to sign in with here, and its login page is the way in.
-    val password = if (remote != null) null
-    else getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).getString(ServerService.PREF_ADMIN_PASSWORD, null)
-    if (password == null) {
+    if (!local) {
       web.loadUrl(start)
       return
     }
+    signIn(onOpen = true) { web.loadUrl(start) }
+  }
+
+  /**
+   * One round with the app's device token, off the main thread, the session handed to the WebView; then [then] on the
+   * main thread, with whether it signed in. A round on opening that Nouride answered and that gave up counts for
+   * [DeviceSignIn.again], so the sign-in page it leaves is not tried again at once; one that nothing answered (Nouride
+   * still starting) does not, so the round after Try again can sign in.
+   */
+  private fun signIn(onOpen: Boolean, then: (signedIn: Boolean) -> Unit) {
+    val device = LocalDevice(applicationContext)
     thread(name = "dashboard-sign-in") {
-      val cookie = signIn(password)
+      val started = System.currentTimeMillis()
+      val outcome = device.signIn()
       runOnUiThread {
         if (isDestroyed) return@runOnUiThread
-        if (cookie != null) {
-          CookieManager.getInstance().setCookie(Nouride.ORIGIN, cookie)
-          CookieManager.getInstance().flush()
+        when (outcome) {
+          is DeviceSignIn.Outcome.SignedIn -> {
+            CookieManager.getInstance().setCookie(Nouride.ORIGIN, outcome.cookie)
+            CookieManager.getInstance().flush()
+          }
+          is DeviceSignIn.Outcome.GaveUp -> if (onOpen && DeviceSignIn.gaveUpCounts(outcome.code)) lastRound = started
         }
-        web.loadUrl(start)
+        then(outcome is DeviceSignIn.Outcome.SignedIn)
       }
+    }
+  }
+
+  /**
+   * The dashboard reached its sign-in page on this phone's Nouride: its session ended (its week ran out, it was ended
+   * elsewhere or revoked, Sign out, the WebView's data cleared). Unless a round from it ran seconds ago, sign in again
+   * behind the cat and go back where the person was; a round that gives up leaves the page on screen.
+   */
+  private fun signInAgain(url: String) {
+    val now = System.currentTimeMillis()
+    if (!DeviceSignIn.again(lastRound, now)) return
+    lastRound = now
+    opening.visibility = View.VISIBLE
+    signIn(onOpen = false) { signedIn ->
+      if (signedIn) web.loadUrl(DeviceSignIn.afterSignIn(url, Nouride.ORIGIN)) else opening.visibility = View.GONE
     }
   }
 
@@ -174,6 +203,11 @@ class DashboardActivity : Activity() {
 
   /** Nouride's pages stay; anything else goes out, redirects too: `/oauth/start` answers with Google's page. */
   private inner class Guard : WebViewClient() {
+    /** Every move of the page's address, its router's included: how the dashboard reaches its sign-in page. */
+    override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
+      if (local && DeviceSignIn.signInPage(url, Nouride.ORIGIN)) signInAgain(url)
+    }
+
     override fun onPageCommitVisible(view: WebView, url: String) {
       if (LinkPolicy.inApp(url, origin) && url != "about:blank") {
         opening.visibility = View.GONE
@@ -255,34 +289,6 @@ class DashboardActivity : Activity() {
     }
   }
 
-  /** The session cookie for the app's account, or null when the sign-in did not work. Never logs the password. */
-  private fun signIn(password: String): String? {
-    val connection = try {
-      URL(Nouride.LOGIN_URL).openConnection() as HttpURLConnection
-    } catch (e: IOException) {
-      return null
-    }
-    return try {
-      connection.requestMethod = "POST"
-      connection.connectTimeout = 5_000
-      connection.readTimeout = 10_000
-      connection.doOutput = true
-      connection.setRequestProperty("content-type", "application/json")
-      val body = JSONObject().put("username", FirstAdmin.USERNAME).put("password", password).toString()
-      connection.outputStream.use { it.write(body.toByteArray()) }
-      val code = connection.responseCode
-      if (FirstAdmin.forgets(code)) {
-        getSharedPreferences(ServerService.PREFS, MODE_PRIVATE).edit().remove(ServerService.PREF_ADMIN_PASSWORD).apply()
-      }
-      if (code != 200) null
-      else FirstAdmin.sessionCookie(connection.headerFields.entries.filter { it.key.equals("set-cookie", true) }.flatMap { it.value })
-    } catch (e: IOException) {
-      null
-    } finally {
-      connection.disconnect()
-    }
-  }
-
   override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     if (requestCode == DashboardDownloads.PERMISSION_REQUEST) {
@@ -323,5 +329,11 @@ class DashboardActivity : Activity() {
   override fun onDestroy() {
     web.destroy()
     super.onDestroy()
+  }
+
+  companion object {
+    /** When the last round from the sign-in page, or the last on opening that gave up, started (`DeviceSignIn.again`). */
+    @Volatile
+    private var lastRound: Long? = null
   }
 }

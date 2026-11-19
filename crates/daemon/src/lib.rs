@@ -3,6 +3,7 @@
 //! account, `/health`, and the phase Home shows. No Tauri; tested on Linux.
 
 pub mod config;
+pub mod device_sign_in;
 pub mod env_file;
 pub mod first_admin;
 pub mod health;

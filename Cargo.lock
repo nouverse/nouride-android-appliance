@@ -744,6 +744,7 @@ dependencies = [
  "serde_json",
  "shared",
  "ureq",
+ "url",
 ]
 
 [[package]]

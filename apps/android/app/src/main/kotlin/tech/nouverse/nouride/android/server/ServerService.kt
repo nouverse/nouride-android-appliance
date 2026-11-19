@@ -200,7 +200,7 @@ class ServerService : Service() {
     if (code != 0 || !layout.installed) throw IOException("the installer exited with $code; see install.log")
   }
 
-  /** The account the dashboard on the phone signs in with (`FirstAdmin`): only on the install that makes it. */
+  /** The first dashboard account (`FirstAdmin`): only on the install that makes it. */
   private fun giveAccount() {
     val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
     val password = prefs.getString(PREF_ADMIN_PASSWORD, null) ?: FirstAdmin.newPassword().also {
@@ -212,8 +212,12 @@ class ServerService : Service() {
     event("dashboard account handed to the daemon")
   }
 
-  /** Once the daemon is ready the account exists, so the password leaves its `.env`. */
+  /**
+   * Once the daemon is ready the account exists: the password leaves its `.env`, and the app forgets it, as nothing
+   * signs in with it (the dashboard uses a device token, `signin/DeviceSignIn`).
+   */
   private fun takeAccountBack() {
+    getSharedPreferences(PREFS, MODE_PRIVATE).edit().remove(PREF_ADMIN_PASSWORD).apply()
     val env = layout.installEnv
     if (!env.isFile) return
     val text = env.readText()
