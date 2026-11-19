@@ -69,7 +69,8 @@ another computer is never one: the dashboard's sign-in page of the local Nouride
 without a slash after it and with any query or fragment. The dashboard reaches it inside the page (its router, after
 an API answered 401 or after Sign out), not as a new page load, so each app watches the page's address where the page
 itself moves: Android's `doUpdateVisitedHistory`; on desktop, a script in the window turns an arrival on that page
-into a page load, which `on_navigation` sees and cancels.
+into a page load, which `on_navigation` sees and cancels; the script hides the page first, so the sign-in form never
+shows while the app signs in again.
 
 `after_sign_in(url, origin)`: where the window goes once signed in again. The page names it in `next`
 (`/dashboard/login?next=%2Fagents`, a path inside the dashboard): `<origin>/dashboard` and that path, when it starts

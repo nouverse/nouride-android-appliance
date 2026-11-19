@@ -22,9 +22,6 @@ use crate::windows;
 
 pub const LABEL: &str = "dashboard";
 
-/// The app's own page with the cat, shown while the window signs in again.
-const OPENING: &str = "tauri://localhost/index.html#/opening";
-
 /// When the last round from the sign-in page, or the last on opening that gave up, started (`device_sign_in::again`).
 static LAST_ROUND: Mutex<Option<u64>> = Mutex::new(None);
 /// The next load of the sign-in page is let through: a round from it gave up, and the page is what is left.
@@ -212,8 +209,9 @@ fn local(app: &App) -> bool {
 }
 
 /// The sign-in page of this computer's Nouride is on its way into the window: unless a round from it just ran, or the
-/// last gave up and left the page to show, cancel it, sign in again with the cat on screen, and go back where the
-/// person was. A page load that is let through returns true.
+/// last gave up and left the page to show, cancel it, sign in again, and go back where the person was. The page stays
+/// hidden meanwhile (`device_sign_in::watch_script`). Never through the app's own opening page: a load of it right
+/// before the dashboard's won the race on a Mac and left the window on the cat. A page load let through returns true.
 fn sign_in_again(handle: &AppHandle, app: &Arc<App>, url: &Url) -> bool {
   if SHOW_SIGN_IN.swap(false, Ordering::SeqCst) {
     return true;
@@ -230,7 +228,6 @@ fn sign_in_again(handle: &AppHandle, app: &Arc<App>, url: &Url) -> bool {
   let (h, app, url) = (handle.clone(), app.clone(), url.clone());
   std::thread::spawn(move || {
     let Some(window) = h.get_webview_window(LABEL) else { return };
-    let _ = window.navigate(Url::parse(OPENING).expect("a fixed URL"));
     let target = if sign_in(&app, &window).is_ok() {
       device_sign_in::after_sign_in(url.as_str(), &app.build.origin())
     } else {

@@ -185,8 +185,9 @@ pub fn again(last: Option<u64>, now: u64) -> bool {
 
 /// A script for the dashboard's window on this computer's Nouride. The dashboard moves to its sign-in page inside the
 /// page (its router, after an API answered 401 or after Sign out), which the window's navigation handler never sees:
-/// this turns that arrival into a page load, which it does. A load of the sign-in page itself is left alone, so a
-/// round given up shows the page once, not for ever.
+/// this turns that arrival into a page load, which it does. The page is hidden first, so its sign-in form never shows
+/// while the app signs in again (the next load, the dashboard or the sign-in page after a round given up, is a new
+/// page). A load of the sign-in page itself is left alone, so a round given up shows the page once, not for ever.
 pub fn watch_script(origin: &str) -> String {
   let origin = serde_json::to_string(origin.trim_end_matches('/')).expect("a string");
   format!(
@@ -196,7 +197,10 @@ pub fn watch_script(origin: &str) -> String {
   let shown = onSignIn();
   const check = () => {{
     const now = onSignIn();
-    if (now && !shown) location.replace(location.href);
+    if (now && !shown) {{
+      document.documentElement.style.visibility = "hidden";
+      location.replace(location.href);
+    }}
     shown = now;
   }};
   for (const name of ["pushState", "replaceState"]) {{
@@ -325,6 +329,7 @@ mod tests {
     assert!(script.contains(r#"location.origin !== "http://127.0.0.1:18264""#), "{script}");
     assert!(script.contains(r#"=== "/dashboard/login""#), "{script}");
     assert!(script.contains("location.replace(location.href)"));
+    assert!(script.contains(r#"style.visibility = "hidden""#), "{script}");
   }
 
   #[test]
