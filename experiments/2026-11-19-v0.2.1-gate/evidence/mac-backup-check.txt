@@ -1,0 +1,19 @@
+# 2026-11-20 00:37 +0700, Mac, Home Dev 0.2.1 (79cfff1), Nouride 0.8.40
+# backup-count: size 16920903 (backup_size), secrets backup_unsealed; backup-start: result backup_saved
+# nouride-backup-2026-11-20.zip, 15617392 bytes
+# backup-check.py ../../../../spec/fixtures/backup.json <zip> <find . -type f -o -type l in .nouride>
+entries: 60; outside .nouride/: 0
+snapshot .nouride/data/nouride.db: yes
+entries matching an out pattern: 0
+files in the folder: 5626; matched by out and left out:
+  **/node_modules/: 651 file(s), e.g. workspace/private/nourider/browser/node_modules/@playwright/cli/LICENSE
+  bin/: 3 file(s), e.g. bin/node
+  data/.control-token: 1 file(s), e.g. data/.control-token
+  data/backups/: 11 file(s), e.g. data/backups/memory/2026-11-15-20-15-22/.nouride-vault.json
+  data/nouride.*: 6 file(s), e.g. data/nouride.db.epoch
+  data/secrets.enc: 1 file(s), e.g. data/secrets.enc
+  nougate/: 9 file(s), e.g. nougate/data/calibration.json
+  opt/: 4885 file(s), e.g. opt/node-v22.11.0-darwin-arm64/LICENSE
+files in the folder not excluded but missing from the zip: 0
+# unzip -tq: No errors detected in compressed data
+# nouride db verify <zip>/.nouride/data/nouride.db: checks out

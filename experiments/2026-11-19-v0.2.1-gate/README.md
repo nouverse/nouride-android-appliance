@@ -52,14 +52,14 @@ account is past that page, so its real buttons were used.
 | 6 | Remote mode | PASS after fix | `nouride.example.com:99999` refused ("That doesn't look like an address"). The tunnel's address: Home said "It runs on another computer", the phone's own Nouride stopped, the dashboard opened on that Nouride's own sign-in page; a password sign-in there, and its device list stayed empty. Back to This phone: Nouride started, the dashboard signed in with the device token. Two bugs found on the way (below) |
 | 8 | Bottom bar, More dot, notice cards | PASS, cards not seen | The three tabs, More's dot while "Keep Nouride running" waits (battery not exempt), gone in remote mode. Neither notice card could show, for the reason in case 5 |
 
-### MacBook Air (2026-11-19, 19:10 to 19:26 +0700)
+### MacBook Air (2026-11-19, 19:10 to 19:26 +0700; cases 3 and 4 on 2026-11-20, 00:36 to 00:38)
 
 | # | Case | Result | Seen |
 | --- | --- | --- | --- |
 | 1 | Install over the previous build | PASS | Built over the previous Home Dev (`target/` kept), the old app quit with `--e2e quit`, the new one opened: 0.2.1, place here, Nouride 0.8.40 running under its own label (it was not stopped). `open-dashboard`: one device `login` with the same token, Overview signed in |
 | 2 | Device sign-in | PASS | Logout in the page then reload, the sidebar's Sign out and its dialog, quit and reopen: one `login` each, same token. Users → "Devices that stay signed in" → Revoke, confirmed: `device_token_revoked`; then, on a reload, exactly one `device_login_failed`, a new token `dev_54dd…` and its `login`, the window still on `/dashboard/users` (`evidence/mac-audit.txt`) |
-| 3 | Dashboard downloads | Not run live | Needs the macOS Downloads permission, and nobody was at the Mac. Two tries (19:16, 19:23): no file in Downloads after 30 s, and the app stopped answering its hooks, as `references/desktop.md` says happens while macOS asks. Each time the app was quit and opened again, without the question. A rebuilt ad-hoc Dev app is asked again. Passed on this Mac on 2026-11-17 (`2026-11-16-downloads-and-backup`) |
-| 4 | Download Nouride's files | Not run live | Same reason: the zip is written to Downloads. Passed on this Mac on 2026-11-17 (`2026-11-16-downloads-and-backup`) |
+| 3 | Dashboard downloads | PASS | Two tries on 2026-11-19 (19:16, 19:23) with nobody at the Mac: no file after 30 s and the app stopped answering its hooks, as `references/desktop.md` says happens while macOS asks for the Downloads folder; each time the app was quit and opened again. On 2026-11-20 00:36, with the owner at the Mac and the folder allowed, the same build: `config.toml` then `config (1).toml`, both with the install's sha256; the 300 000-byte blob twice as `gate-blob.tar.gz`, `gate-blob (1).tar.gz`, byte for byte; the dashboard's line "gate-blob (1).tar.gz is in Downloads." |
+| 4 | Download Nouride's files | PASS | `backup-count`: about 16.9 MB, no backup password (`backup_unsealed`); `backup-start`: `nouride-backup-2026-11-20.zip`, 15 617 392 bytes, 60 entries. Against `spec/fixtures/backup.json`: nothing excluded inside; left out, among 5 626 files in the folder: `data/.control-token`, `data/secrets.enc`, the live database, `data/backups/`, `nougate/`, `bin/`, `opt/`, every `node_modules/`; nothing else missing. `unzip -t` clean; `nouride db verify` on the zipped database: checks out (`evidence/mac-backup-check.txt`) |
 | 5 | Modals only for a confirmation | Not seen live | The app's own window pictures (`--e2e shot`) failed, the display asleep and then awake: the new ad-hoc build is likely without Screen Recording. No picture of the whole screen was taken. `bun test` covers it: "the only modal is Settings' Turn off confirmation", "nothing else covers the window", "the address for another computer is a card on the first screen and a section in Settings" |
 | 6 | Remote mode | PASS | `place-remote nouride.example.com:99999`: `where_not_an_address`, nothing changed. The tunnel's address: the app's Nouride stopped; Open Nouride loaded that Nouride's sign-in page, a password sign-in there, its device list empty. `place-here`: running again, the dashboard signed in with the device token |
 | 7 | Windows, tray, browser | PASS | Opening the dashboard added one WebContent process (93 MB RSS); `close-dashboard` ended it (8 → 7 WebKit processes). `close-main` ended one more; the app alone then 111 MB. The tray's Open Nouride Home and Open Nouride made each window again. With `e2e/no-browser`, a `target="_blank"` link and a `window.open` to outside pages were logged as "would go to the browser". Then, the marker removed, one `target="_blank"` link to nouride.com went to the browser for real ("went to the browser"): the only time the browser was opened |
@@ -104,12 +104,12 @@ account is past that page, so its real buttons were used.
   covered by unit tests (`UpdateLooks`, `UpdateNotices`, `VersionLooks`).
 - Nouride's update notice: 0.8.40 is the newest release, so nothing was there to offer.
 - A fresh install from nothing on either device: both were installs over the previous build, as the case asks.
-- On the Mac: downloads, the zip of Nouride's files and the window pictures (cases 3 to 5), for the reasons in the
-  table. On the Mac a dashboard revoke was noticed after a reload, not on coming back to the window: the window was
+- On the Mac: the window pictures (case 5), for the reason in the table. On the Mac a dashboard revoke was noticed after a reload, not on coming back to the window: the window was
   hidden (display asleep, `visibilityState` hidden) and the dashboard does not ask `/auth/me` again while hidden. The
   earlier record saw the return path on this Mac.
 
 ## The owner's own Nouride on the Mac
 
 `scripts/mac-guard.sh` before and after: `unchanged: plist=24389671b395…46f0 pid=85900` (started 2026-11-18 02:12, not
-restarted). Home Dev was left running on both devices, on its own Nouride; nothing was added to the Mac's Downloads.
+restarted), checked again after cases 3 and 4. Home Dev was left running on both devices, on its own Nouride; the test
+files were removed from both devices' Downloads.
