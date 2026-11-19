@@ -24,6 +24,13 @@ class LinkPolicyTest {
   }
 
   @Test
+  fun `never a page back from the first password, which the page before sends the person back to`() {
+    assertFalse(LinkPolicy.backInside(listOf(dashboard, page("welcome")), current = 1))
+    assertEquals(LinkPolicy.Back.ASK, LinkPolicy.back(listOf(dashboard, page("welcome")), current = 1, dashboardShown = true))
+    assertFalse(LinkPolicy.backInside(listOf(page("agents"), page("login?next=%2Fagents")), current = 1))
+  }
+
+  @Test
   fun `never back onto the sign-in, the first password or the setup wizard`() {
     for (once in listOf("login", "login?next=%2Fagents", "welcome", "setup", "oauth/mcp/callback?code=x")) {
       assertFalse(once, LinkPolicy.backInside(listOf(page(once), dashboard), current = 1))

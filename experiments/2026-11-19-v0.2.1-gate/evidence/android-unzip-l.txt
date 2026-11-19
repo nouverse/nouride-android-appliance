@@ -1,0 +1,10 @@
+Archive:  zips/android.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+       41  2026-11-16 10:48   .nouride/config.toml
+        7  2026-11-19 18:49   .nouride/data/last-run-version
+       14  2026-11-16 10:48   .nouride/memory/.nouride-vault.json
+      164  2026-11-16 10:48   .nouride/people/admin.toml
+   819200  2026-11-19 18:52   .nouride/data/nouride.db
+---------                     -------
+   819426                     5 files

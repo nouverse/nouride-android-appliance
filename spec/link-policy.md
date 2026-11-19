@@ -25,7 +25,9 @@ another port, or over the other scheme, is another server. `about:blank` is in a
 
 `back_inside(history, current, origin)` is true only when the page before `current` is an ordinary page of that
 Nouride: not `about:blank`, in app, and not a page a person passes once on the way in (`/dashboard/login`,
-`/welcome`, `/setup`, `/oauth`, and anything under them; `/setupguide` is an ordinary page).
+`/welcome`, `/setup`, `/oauth`, and anything under them; `/setupguide` is an ordinary page). And never from one of
+those pages: until that step is done, the dashboard sends every other page back to it, so a page back from the
+first password landed on `/dashboard/`, which put the person on `/welcome` again, and Back never left.
 
 `back(history, current, dashboard_shown, origin)`:
 

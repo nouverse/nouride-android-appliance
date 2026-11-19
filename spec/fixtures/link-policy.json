@@ -201,6 +201,33 @@
       "current": 0,
       "origin": "https://nouride.example.com",
       "expect": false
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/",
+        "http://127.0.0.1:18264/dashboard/welcome"
+      ],
+      "current": 1,
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/agents",
+        "http://127.0.0.1:18264/dashboard/login?next=%2Fagents"
+      ],
+      "current": 1,
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/agents",
+        "http://127.0.0.1:18264/dashboard/setup"
+      ],
+      "current": 1,
+      "origin": "http://127.0.0.1:18264",
+      "expect": false
     }
   ],
   "back": [
@@ -227,6 +254,16 @@
       "history": [
         "http://127.0.0.1:18264/dashboard/setup",
         "http://127.0.0.1:18264/dashboard/"
+      ],
+      "current": 1,
+      "dashboard_shown": true,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "ask"
+    },
+    {
+      "history": [
+        "http://127.0.0.1:18264/dashboard/",
+        "http://127.0.0.1:18264/dashboard/welcome"
       ],
       "current": 1,
       "dashboard_shown": true,

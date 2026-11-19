@@ -25,7 +25,6 @@ import android.widget.Toast
 import tech.nouverse.nouride.android.Nouride
 import tech.nouverse.nouride.android.R
 import tech.nouverse.nouride.android.server.Place
-import tech.nouverse.nouride.android.server.RemoteHost
 import tech.nouverse.nouride.android.signin.CallbackCatcher
 import tech.nouverse.nouride.android.signin.DeviceSignIn
 import tech.nouverse.nouride.android.signin.LocalDevice
@@ -60,11 +59,15 @@ class DashboardActivity : Activity() {
   private lateinit var downloads: DashboardDownloads
 
   /** The Nouride this screen shows: this phone's own, or the machine a person pointed the app at (`server/Place`). */
-  private lateinit var origin: String
-  private lateinit var start: String
+  private lateinit var aim: DashboardAim
+  private val origin get() = aim.origin
+  private val start get() = aim.start
 
   /** This phone's own Nouride: the only one the app signs in to. */
-  private var local = false
+  private val local get() = aim.local
+
+  /** The screen was pointed at another Nouride: what came before is the other one's, and Back must not reach it. */
+  private var forgetHistory = false
 
   /** In the appearance chosen on the More tab (`Appearances`). */
   override fun attachBaseContext(base: Context) = super.attachBaseContext(Appearances.wrap(base))
@@ -74,10 +77,7 @@ class DashboardActivity : Activity() {
     super.onCreate(savedInstanceState)
     // Nouride on another machine: that machine's session is its own, so the app signs in with nothing and the
     // dashboard's own login page takes over, as it does on any other device.
-    val remote = Place(this).address()
-    start = remote?.let(RemoteHost::dashboard) ?: Nouride.DASHBOARD_URL
-    origin = remote ?: Nouride.ORIGIN
-    local = remote == null
+    aim = DashboardAim.of(Place(this).address())
     web = WebView(this)
     web.settings.javaScriptEnabled = true
     web.settings.domStorageEnabled = true
@@ -131,12 +131,12 @@ class DashboardActivity : Activity() {
       web.restoreState(savedInstanceState)
       return
     }
-    // A machine of the person's own: nothing to sign in with here, and its login page is the way in.
-    if (!local) {
-      web.loadUrl(start)
-      return
-    }
-    signIn(onOpen = true) { web.loadUrl(start) }
+    load()
+  }
+
+  /** A machine of the person's own: nothing to sign in with here, and its login page is the way in. */
+  private fun load() {
+    if (!local) web.loadUrl(start) else signIn(onOpen = true) { web.loadUrl(start) }
   }
 
   /**
@@ -193,12 +193,24 @@ class DashboardActivity : Activity() {
 
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
+    DashboardAim.onOpen(aim, Place(this).address())?.let { return aimAt(it) }
     // Not a reload: the setup wizard keeps where the person is in memory, and a reload put them back on its first
     // step. The dashboard asks again for what it shows when the page becomes visible (react-query's refetch on
     // focus), and this says so in case the WebView did not.
     if (intent.data?.toString() == CallbackCatcher.BACK) {
       web.evaluateJavascript("document.dispatchEvent(new Event('visibilitychange'))", null)
     }
+  }
+
+  /** Where Nouride lives changed since this screen was made: the other one's dashboard, from its first page. */
+  private fun aimAt(next: DashboardAim) {
+    aim = next
+    failed = null
+    web.stopLoading()
+    forgetHistory = true
+    unreachable.visibility = View.GONE
+    opening.visibility = View.VISIBLE
+    load()
   }
 
   /** Nouride's pages stay; anything else goes out, redirects too: `/oauth/start` answers with Google's page. */
@@ -217,7 +229,12 @@ class DashboardActivity : Activity() {
 
     /** Again once the page is whole: a page restored from its saved state may show no commit. */
     override fun onPageFinished(view: WebView, url: String) {
-      if (LinkPolicy.inApp(url, origin)) downloads.inject()
+      if (!LinkPolicy.inApp(url, origin)) return
+      downloads.inject()
+      if (forgetHistory && url != "about:blank") {
+        view.clearHistory()
+        forgetHistory = false
+      }
     }
 
     override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
