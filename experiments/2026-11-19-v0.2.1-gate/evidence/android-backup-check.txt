@@ -1,0 +1,9 @@
+entries: 5; outside .nouride/: 0
+snapshot .nouride/data/nouride.db: yes
+entries matching an out pattern: 0
+files in the folder: 22; matched by out and left out:
+  data/.control-token: 1 file(s), e.g. data/.control-token
+  data/backups/: 7 file(s), e.g. data/backups/db/nouride-2026-11-16-03-48-05.db
+  data/nouride.*: 5 file(s), e.g. data/nouride.lock
+  nougate/: 5 file(s), e.g. nougate/data/nougate.db
+files in the folder not excluded but missing from the zip: 0

@@ -1,0 +1,15 @@
+18:46:27 login admin {"device": "dev_b9f0aef0e1404a7c917f"}
+18:46:46 login admin {"device": "dev_b9f0aef0e1404a7c917f"}
+18:47:41 login admin {"device": "dev_b9f0aef0e1404a7c917f"}
+18:47:54 login admin {"device": "dev_b9f0aef0e1404a7c917f"}
+18:48:07 device_token_revoked cli {"id": "dev_b9f0aef0e1404a7c917f"}
+18:48:48 device_login_failed device {}
+18:48:48 device_token_created cli {"id": "dev_31331bc1639048be92bf", "label": "Nouride Home (Redmi Note 12)", "user": "admin"}
+18:48:48 login admin {"device": "dev_31331bc1639048be92bf"}
+18:50:42 login admin {"device": "dev_31331bc1639048be92bf"}
+18:57:23 daemon_stopped system null
+19:05:28 login admin {"device": "dev_31331bc1639048be92bf"}
+19:06:37 login admin {"device": "dev_31331bc1639048be92bf"}
+19:07:16 daemon_stopped system null
+19:08:31 login admin {"device": "dev_31331bc1639048be92bf"}
+19:09:09 daemon_stopped system null

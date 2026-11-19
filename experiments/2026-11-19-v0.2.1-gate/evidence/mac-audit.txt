@@ -1,0 +1,12 @@
+19:11:33 login <admin> {"device": "dev_6c505efaf2874b8eb2af"}
+19:11:57 login <admin> {"device": "dev_6c505efaf2874b8eb2af"}
+19:12:49 login <admin> {"device": "dev_6c505efaf2874b8eb2af"}
+19:13:15 login <admin> {"device": "dev_6c505efaf2874b8eb2af"}
+19:13:41 device_token_revoked <admin> {"id": "dev_6c505efaf2874b8eb2af"}
+19:15:33 device_login_failed device {}
+19:15:33 device_token_created cli {"id": "dev_54dd1a7404634beaab66", "label": "Nouride Home (<mac>)", "user": "<admin>"}
+19:15:33 login <admin> {"device": "dev_54dd1a7404634beaab66"}
+19:17:22 login <admin> {"device": "dev_54dd1a7404634beaab66"}
+19:18:15 login <admin> {"device": "dev_54dd1a7404634beaab66"}
+19:18:49 daemon_stopped system null
+19:19:48 login <admin> {"device": "dev_54dd1a7404634beaab66"}
