@@ -75,10 +75,13 @@ pub fn unreachable(is_for_main_frame: bool, url: &str, origin: &str) -> bool {
 
 /// Whether Back goes back a page inside the dashboard: only onto an ordinary page of Nouride's, never onto one a
 /// person passes once on the way in (the sign-in, choosing their first password, the setup wizard), never out of
-/// Nouride, never past the first page. `history` is the window's, oldest first, and `current` the page on screen.
+/// Nouride, never past the first page. Never from one of those pages either: until that step is done the dashboard
+/// sends every other page back to it, so Back from the first password went to `/dashboard/`, which put the person on
+/// it again. `history` is the window's, oldest first, and `current` the page on screen.
 pub fn back_inside(history: &[&str], current: usize, origin: &str) -> bool {
   let Some(previous) = current.checked_sub(1).and_then(|i| history.get(i)) else { return false };
-  *previous != "about:blank" && in_app(previous, origin) && !passed_once(previous)
+  let on_screen = history.get(current).copied().unwrap_or("about:blank");
+  !passed_once(on_screen) && *previous != "about:blank" && in_app(previous, origin) && !passed_once(previous)
 }
 
 pub fn back(history: &[&str], current: usize, dashboard_shown: bool, origin: &str) -> Back {
@@ -136,6 +139,15 @@ mod tests {
     let history = [DASHBOARD, &a, &b];
     assert!(back_inside(&history, 2, ORIGIN));
     assert!(back_inside(&history, 1, ORIGIN));
+  }
+
+  #[test]
+  fn never_a_page_back_from_the_first_password_which_the_page_before_sends_the_person_back_to() {
+    let welcome = page("welcome");
+    assert!(!back_inside(&[DASHBOARD, &welcome], 1, ORIGIN));
+    assert_eq!(back(&[DASHBOARD, &welcome], 1, true, ORIGIN), Back::Ask);
+    let (agents, login) = (page("agents"), page("login?next=%2Fagents"));
+    assert!(!back_inside(&[&agents, &login], 1, ORIGIN));
   }
 
   #[test]

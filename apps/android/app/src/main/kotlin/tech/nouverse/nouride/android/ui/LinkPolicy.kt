@@ -49,11 +49,14 @@ object LinkPolicy {
    * browser does (the owner, 2026-11-09), rather than leaving it for the app's own screen. Only onto an ordinary page
    * of Nouride's: never onto one a person passes once on the way in, the sign-in, choosing their first password or
    * the setup wizard, which is where walking the history like a browser once took a person; never out of Nouride, and
-   * never past the first page. [history] is the WebView's, oldest first, and [current] the page on screen.
+   * never past the first page. Never from one of those pages either: until that step is done the dashboard sends every
+   * other page back to it, so Back from the first password went to `/dashboard/`, which put the person on it again, and
+   * Back never left. [history] is the WebView's, oldest first, and [current] the page on screen.
    */
   fun backInside(history: List<String>, current: Int, origin: String = Nouride.ORIGIN): Boolean {
     val previous = history.getOrNull(current - 1) ?: return false
-    return previous != "about:blank" && inApp(previous, origin) && !passedOnce(previous)
+    val onScreen = history.getOrNull(current) ?: "about:blank"
+    return !passedOnce(onScreen) && previous != "about:blank" && inApp(previous, origin) && !passedOnce(previous)
   }
 
   /** What the system's Back does on the dashboard's screen. */
