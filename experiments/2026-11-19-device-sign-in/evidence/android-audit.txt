@@ -1,0 +1,13 @@
+2026-11-19T11:07:00Z daemon_update_download cli {"to": "v0.8.40"}
+2026-11-19T11:07:43Z daemon_update cli {"to": "v0.8.40"}
+2026-11-19T11:07:44Z daemon_stopped system {}
+2026-11-19T11:08:29Z device_token_created cli {"id": "dev_31384000adf041e59d80", "label": "Nouride Home (Redmi Note 12)", "user": "admin"}
+2026-11-19T11:08:29Z login admin {"device": "dev_31384000adf041e59d80"}
+2026-11-19T11:09:43Z login admin {"device": "dev_31384000adf041e59d80"}
+2026-11-19T11:10:26Z login admin {"device": "dev_31384000adf041e59d80"}
+2026-11-19T11:10:41Z device_token_revoked cli {"id": "dev_31384000adf041e59d80"}
+2026-11-19T11:11:41Z device_login_failed device {}
+2026-11-19T11:11:41Z device_token_created cli {"id": "dev_b9f0aef0e1404a7c917f", "label": "Nouride Home (Redmi Note 12)", "user": "admin"}
+2026-11-19T11:11:41Z login admin {"device": "dev_b9f0aef0e1404a7c917f"}
+2026-11-19T11:11:59Z login admin {"device": "dev_b9f0aef0e1404a7c917f"}
+2026-11-19T11:12:32Z login admin {"device": "dev_b9f0aef0e1404a7c917f"}

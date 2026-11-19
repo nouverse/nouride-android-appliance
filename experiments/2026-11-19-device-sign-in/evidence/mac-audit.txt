@@ -1,0 +1,15 @@
+2026-11-19T11:03:25Z daemon_update_download cli {"to": "v0.8.40"}
+2026-11-19T11:03:46Z daemon_update cli {"to": "v0.8.40"}
+2026-11-19T11:03:47Z daemon_stopped system {}
+2026-11-19T11:13:25Z device_token_created cli {"id": "dev_af2668e429954d29b0ec", "label": "Nouride Home (<the Mac's name>)", "user": "<admin>"}
+2026-11-19T11:13:25Z login <admin> {"device": "dev_af2668e429954d29b0ec"}
+2026-11-19T11:13:50Z login <admin> {"device": "dev_af2668e429954d29b0ec"}
+2026-11-19T11:14:44Z login <admin> {"device": "dev_af2668e429954d29b0ec"}
+2026-11-19T11:16:39Z login <admin> {"device": "dev_af2668e429954d29b0ec"}
+2026-11-19T11:16:56Z login <admin> {"device": "dev_af2668e429954d29b0ec"}
+2026-11-19T11:17:17Z login <admin> {"device": "dev_af2668e429954d29b0ec"}
+2026-11-19T11:18:29Z device_token_revoked <admin> {"id": "dev_af2668e429954d29b0ec"}
+2026-11-19T11:18:58Z device_login_failed device {}
+2026-11-19T11:18:58Z device_token_created cli {"id": "dev_6c505efaf2874b8eb2af", "label": "Nouride Home (<the Mac's name>)", "user": "<admin>"}
+2026-11-19T11:18:58Z login <admin> {"device": "dev_6c505efaf2874b8eb2af"}
+2026-11-19T11:19:23Z daemon_stopped system {}
