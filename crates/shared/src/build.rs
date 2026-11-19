@@ -68,10 +68,6 @@ impl Build {
   pub fn dashboard_url(&self) -> String {
     format!("{}/dashboard/", self.origin())
   }
-
-  pub fn login_url(&self) -> String {
-    format!("{}/api/control/auth/login", self.origin())
-  }
 }
 
 #[cfg(test)]
@@ -107,7 +103,6 @@ mod tests {
   fn addresses_follow_the_port() {
     assert_eq!(Build::DEV.health_url(), "http://127.0.0.1:18264/health");
     assert_eq!(Build::DEV.dashboard_url(), "http://127.0.0.1:18264/dashboard/");
-    assert_eq!(Build::DEV.login_url(), "http://127.0.0.1:18264/api/control/auth/login");
   }
 
   #[test]

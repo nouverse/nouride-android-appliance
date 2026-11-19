@@ -13,6 +13,7 @@ here is checked against both apps on the next test run.
 | [update-feed.md](update-feed.md) | `fixtures/versions.json` | `update/UpdateFeed.kt` | `crates/shared/src/version.rs` |
 | [downloads.md](downloads.md) | `fixtures/downloads.json` | `download/Downloads.kt` | `crates/downloads` |
 | [backup.md](backup.md) | `fixtures/backup.json` | `backup/Backup.kt` | `crates/backup` |
+| [device-sign-in.md](device-sign-in.md) | `fixtures/device-sign-in.json` | `signin/DeviceSignIn.kt` | `crates/daemon/src/device_sign_in.rs` |
 
 ## Reading a case
 

@@ -23,8 +23,11 @@ logic in `crates/`, the shared look in `packages/ui-kit`. The rules both apps sh
    makes Nouride's own plist in the install folder, and `service::agent` gives it the app's label and writes it to
    `~/Library/LaunchAgents/<label>.plist`. `service::launchctl` builds the `bootstrap`, `bootout`, `kickstart -k` and
    `print` command lines and reads `print`'s answer.
-5. **Opening the dashboard**: `daemon::first_admin` signs in over HTTP, the session cookie is set on the dashboard's
-   window (`set_cookie`), and the window's `on_navigation` asks `link_policy::link` what each load is. Its
+5. **Opening the dashboard**: `daemon::device_sign_in` trades the app's device token for a session over HTTP (making
+   one with the control token first when there is none or it was refused, `spec/device-sign-in.md`), the session
+   cookie is set on the dashboard's window (`set_cookie`), and the window's `on_navigation` asks `link_policy::link`
+   what each load is. A script in the window (`device_sign_in::watch_script`) turns the dashboard's in-page move to its
+   sign-in page into a load, which `on_navigation` cancels to sign in again. Its
    `on_download` asks `downloads::source` whether a download is kept, names it in Downloads (`downloads::free_path`,
    after taking back the number wry gives a taken name itself) and shows a line in the page (`downloads::line_call`).
 6. **Nouride's update**: `updates::nouride` reads the control-token routes, `updates::notice` keeps what was heard,

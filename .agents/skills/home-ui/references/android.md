@@ -82,8 +82,10 @@ Nouride answers. A later start is seconds long and only says it is busy.
 Under the main state, only what a person acts on:
 
 - **Open Nouride**: the dashboard inside the app, already signed in. Not a URL to copy, and never a login page on
-  the phone: the app makes the dashboard account on the first start and signs in with it (`server/FirstAdmin.kt`).
-  The password is never shown; a person who wants the dashboard elsewhere sets their own in the dashboard. A file the
+  the phone: the app makes the dashboard account on the first start (`server/FirstAdmin.kt`) and keeps the dashboard
+  signed in with a device token, again whenever it reaches its sign-in page, Sign out included
+  (`signin/DeviceSignIn.kt`, `spec/device-sign-in.md`). No password is ever shown; a person who wants the dashboard
+  elsewhere sets their own in the dashboard. A file the
   dashboard downloads goes to the phone's Downloads under its own name (`ui/DashboardDownloads.kt`,
   `spec/downloads.md`), with a short line when it is there, did not download, or does not fit.
 - **A new version of Nouride** (`ui/NourideUpdateCard.kt`, `update/NourideNotice.kt`): while this phone's Nouride

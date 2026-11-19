@@ -1,0 +1,156 @@
+{
+  "about": "The dashboard signed in on its own device with Nouride's device token: the label, what each answer leads to, whole rounds, the sign-in page, where the window goes after it, and how often a round may start from it. See spec/device-sign-in.md. A case's `expect` is both apps' answer; `android` or `desktop`, when present, is that app's own answer where the two differ today.",
+  "label": [
+    { "name": "Redmi Note 12", "expect": "Nouride Home (Redmi Note 12)" },
+    { "name": "Gading’s MacBook Pro", "expect": "Nouride Home (Gading's MacBook Pro)" },
+    { "name": "SM-S918B", "expect": "Nouride Home (SM-S918B)" },
+    { "name": "  Pixel   8  Pro ", "expect": "Nouride Home (Pixel 8 Pro)" },
+    { "name": "Mira's Mac mini (2)", "expect": "Nouride Home (Mira's Mac mini (2))" },
+    { "name": "Café — Kitchen/iMac", "expect": "Nouride Home (Caf Kitchen iMac)" },
+    { "name": "Ponsel Budi \"utama\" #1", "expect": "Nouride Home (Ponsel Budi utama 1)" },
+    { "name": "日本語のパソコン", "expect": "Nouride Home" },
+    { "name": "", "expect": "Nouride Home" },
+    { "name": "   ", "expect": "Nouride Home" },
+    {
+      "name": "A very long computer name that goes on and on past what Nouride takes",
+      "expect": "Nouride Home (A very long computer name that goes on and on)"
+    },
+    {
+      "name": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghij",
+      "expect": "Nouride Home (abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrs)"
+    },
+    { "name": "The family computer in the living room of my house", "expect": "Nouride Home (The family computer in the living room of my)" }
+  ],
+  "answers": [
+    { "call": "trade", "code": 200, "cookie": true, "expect": { "do": "signed_in" } },
+    { "call": "trade", "code": 200, "cookie": false, "expect": { "do": "give_up" } },
+    { "call": "trade", "code": 401, "minted": false, "expect": { "do": "mint" } },
+    { "call": "trade", "code": 401, "minted": true, "expect": { "do": "give_up" } },
+    { "call": "trade", "code": 429, "retry_after": "7", "expect": { "do": "wait", "ms": 7000, "then": "trade" } },
+    { "call": "trade", "code": 429, "expect": { "do": "wait", "ms": 60000, "then": "trade" } },
+    { "call": "trade", "code": 429, "retry_after": "soon", "expect": { "do": "wait", "ms": 60000, "then": "trade" } },
+    { "call": "trade", "code": 404, "expect": { "do": "give_up" } },
+    { "call": "trade", "code": 409, "expect": { "do": "give_up" } },
+    { "call": "trade", "code": 500, "expect": { "do": "give_up" } },
+    { "call": "trade", "code": 501, "expect": { "do": "give_up" } },
+    { "call": "trade", "code": 0, "expect": { "do": "give_up" } },
+    { "call": "mint", "code": 201, "value": true, "expect": { "do": "trade" } },
+    { "call": "mint", "code": 201, "value": false, "expect": { "do": "give_up" } },
+    { "call": "mint", "code": 409, "expect": { "do": "wait", "ms": 2000, "then": "mint" } },
+    { "call": "mint", "code": 429, "retry_after": "3", "expect": { "do": "wait", "ms": 3000, "then": "mint" } },
+    { "call": "mint", "code": 404, "expect": { "do": "give_up" } },
+    { "call": "mint", "code": 401, "expect": { "do": "give_up" } },
+    { "call": "mint", "code": 403, "expect": { "do": "give_up" } },
+    { "call": "mint", "code": 400, "expect": { "do": "give_up" } },
+    { "call": "mint", "code": 501, "expect": { "do": "give_up" } },
+    { "call": "mint", "code": 0, "expect": { "do": "give_up" } }
+  ],
+  "rounds": [
+    {
+      "about": "a token kept and good: one trade",
+      "kept": "ndev_kept",
+      "answers": [{ "code": 200 }],
+      "expect": { "calls": ["trade ndev_kept"], "outcome": "signed_in", "kept": "ndev_kept" }
+    },
+    {
+      "about": "no token yet: mint one, keep it, trade it",
+      "kept": null,
+      "answers": [{ "code": 201, "value": "ndev_new" }, { "code": 200 }],
+      "expect": { "calls": ["mint", "trade ndev_new"], "outcome": "signed_in", "kept": "ndev_new" }
+    },
+    {
+      "about": "the kept token was revoked: one failed trade, a new token, one trade",
+      "kept": "ndev_revoked",
+      "answers": [{ "code": 401 }, { "code": 201, "value": "ndev_new" }, { "code": 200 }],
+      "expect": { "calls": ["trade ndev_revoked", "mint", "trade ndev_new"], "outcome": "signed_in", "kept": "ndev_new" }
+    },
+    {
+      "about": "a new token refused too: never a second mint, never a third trade",
+      "kept": "ndev_revoked",
+      "answers": [{ "code": 401 }, { "code": 201, "value": "ndev_new" }, { "code": 401 }],
+      "expect": { "calls": ["trade ndev_revoked", "mint", "trade ndev_new"], "outcome": "give_up", "kept": "ndev_new" }
+    },
+    {
+      "about": "a fresh install still making its admin: mint again every 2 seconds",
+      "kept": null,
+      "answers": [{ "code": 409 }, { "code": 409 }, { "code": 201, "value": "ndev_new" }, { "code": 200 }],
+      "expect": { "calls": ["mint", "wait 2000", "mint", "wait 2000", "mint", "trade ndev_new"], "outcome": "signed_in", "kept": "ndev_new" }
+    },
+    {
+      "about": "rate limited: wait as long as Nouride says, then the same trade",
+      "kept": "ndev_kept",
+      "answers": [{ "code": 429, "retry_after": "5" }, { "code": 200 }],
+      "expect": { "calls": ["trade ndev_kept", "wait 5000", "trade ndev_kept"], "outcome": "signed_in", "kept": "ndev_kept" }
+    },
+    {
+      "about": "rate limited past what a round waits: give up rather than wait",
+      "kept": "ndev_kept",
+      "answers": [{ "code": 429, "retry_after": "100" }, { "code": 429, "retry_after": "30" }],
+      "expect": { "calls": ["trade ndev_kept", "wait 100000", "trade ndev_kept"], "outcome": "give_up", "kept": "ndev_kept" }
+    },
+    {
+      "about": "Nouride before 0.8.40, with a token kept: give up after one call",
+      "kept": "ndev_kept",
+      "answers": [{ "code": 404 }],
+      "expect": { "calls": ["trade ndev_kept"], "outcome": "give_up", "kept": "ndev_kept" }
+    },
+    {
+      "about": "Nouride before 0.8.40, no token: give up after one call, nothing kept",
+      "kept": null,
+      "answers": [{ "code": 404 }],
+      "expect": { "calls": ["mint"], "outcome": "give_up", "kept": null }
+    },
+    {
+      "about": "Nouride not answering: give up, the token kept",
+      "kept": "ndev_kept",
+      "answers": [{ "code": 0 }],
+      "expect": { "calls": ["trade ndev_kept"], "outcome": "give_up", "kept": "ndev_kept" }
+    }
+  ],
+  "sign_in_page": [
+    { "url": "http://127.0.0.1:18254/dashboard/login", "origin": "http://127.0.0.1:18254", "expect": true },
+    { "url": "http://127.0.0.1:18254/dashboard/login/", "origin": "http://127.0.0.1:18254", "expect": true },
+    { "url": "http://127.0.0.1:18254/dashboard/login?next=%2Fagents", "origin": "http://127.0.0.1:18254", "expect": true },
+    { "url": "http://127.0.0.1:18254/dashboard/login#top", "origin": "http://127.0.0.1:18254", "expect": true },
+    { "url": "http://127.0.0.1:18264/dashboard/login", "origin": "http://127.0.0.1:18264", "expect": true },
+    { "url": "http://127.0.0.1:18264/dashboard/login", "origin": "http://127.0.0.1:18254", "expect": false },
+    { "url": "http://localhost:18254/dashboard/login", "origin": "http://127.0.0.1:18254", "expect": false },
+    { "url": "http://127.0.0.1:18254/dashboard/", "origin": "http://127.0.0.1:18254", "expect": false },
+    { "url": "http://127.0.0.1:18254/dashboard/welcome", "origin": "http://127.0.0.1:18254", "expect": false },
+    { "url": "http://127.0.0.1:18254/dashboard/login-help", "origin": "http://127.0.0.1:18254", "expect": false },
+    { "url": "http://127.0.0.1:18254/dashboard/agents?q=/dashboard/login", "origin": "http://127.0.0.1:18254", "expect": false },
+    { "url": "http://127.0.0.1:18254/api/control/auth/login", "origin": "http://127.0.0.1:18254", "expect": false },
+    { "url": "http://127.0.0.1:18254/login", "origin": "http://127.0.0.1:18254", "expect": false },
+    { "url": "https://127.0.0.1:18254/dashboard/login", "origin": "http://127.0.0.1:18254", "expect": false },
+    { "url": "https://nouride.example.com/dashboard/login", "origin": "http://127.0.0.1:18254", "expect": false },
+    { "url": "not a url", "origin": "http://127.0.0.1:18254", "expect": false }
+  ],
+  "after_sign_in": [
+    { "url": "http://127.0.0.1:18254/dashboard/login?next=%2Fagents", "origin": "http://127.0.0.1:18254", "expect": "http://127.0.0.1:18254/dashboard/agents" },
+    { "url": "http://127.0.0.1:18254/dashboard/login?next=%2Fchat%2Fs_1%3Ftab%3Dfiles", "origin": "http://127.0.0.1:18254", "expect": "http://127.0.0.1:18254/dashboard/chat/s_1?tab=files" },
+    { "url": "http://127.0.0.1:18254/dashboard/login", "origin": "http://127.0.0.1:18254", "expect": "http://127.0.0.1:18254/dashboard/" },
+    { "url": "http://127.0.0.1:18254/dashboard/login?next=", "origin": "http://127.0.0.1:18254", "expect": "http://127.0.0.1:18254/dashboard/" },
+    { "url": "http://127.0.0.1:18254/dashboard/login?next=%2F", "origin": "http://127.0.0.1:18254", "expect": "http://127.0.0.1:18254/dashboard/" },
+    { "url": "http://127.0.0.1:18254/dashboard/login?next=%2F%2Fevil.example%2Fx", "origin": "http://127.0.0.1:18254", "expect": "http://127.0.0.1:18254/dashboard/" },
+    { "url": "http://127.0.0.1:18254/dashboard/login?next=https%3A%2F%2Fevil.example", "origin": "http://127.0.0.1:18254", "expect": "http://127.0.0.1:18254/dashboard/" },
+    { "url": "http://127.0.0.1:18254/dashboard/login?next=%2F%5Cevil.example", "origin": "http://127.0.0.1:18254", "expect": "http://127.0.0.1:18254/dashboard/" },
+    { "url": "http://127.0.0.1:18254/dashboard/login?next=%2Fa%0Ab", "origin": "http://127.0.0.1:18254", "expect": "http://127.0.0.1:18254/dashboard/" },
+    { "url": "http://127.0.0.1:18254/dashboard/login?next=%2Flogin%3Fnext%3D%252Fagents", "origin": "http://127.0.0.1:18254", "expect": "http://127.0.0.1:18254/dashboard/" },
+    { "url": "http://127.0.0.1:18254/dashboard/login?next=%2FLOGIN", "origin": "http://127.0.0.1:18254", "expect": "http://127.0.0.1:18254/dashboard/" },
+    { "url": "http://127.0.0.1:18254/dashboard/login?next=%2Fwelcome", "origin": "http://127.0.0.1:18254", "expect": "http://127.0.0.1:18254/dashboard/welcome" }
+  ],
+  "gave_up_counts": [
+    { "code": 0, "expect": false },
+    { "code": 401, "expect": true },
+    { "code": 404, "expect": true },
+    { "code": 429, "expect": true },
+    { "code": 500, "expect": true }
+  ],
+  "again": [
+    { "last": null, "now": 1000, "expect": true },
+    { "last": 1000, "now": 1000, "expect": false },
+    { "last": 1000, "now": 10999, "expect": false },
+    { "last": 1000, "now": 11000, "expect": true },
+    { "last": 1000, "now": 500000, "expect": true }
+  ]
+}

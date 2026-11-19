@@ -1,15 +1,12 @@
-//! The dashboard account the app makes for the person, so the dashboard opens signed in. Android's `FirstAdmin`: the
-//! documented way, `INITIAL_ADMIN_USERNAME` and `INITIAL_ADMIN_PASSWORD` in the install's `.env` (`users/bootstrap.ts`
-//! in Nouride), taken out again once Nouride is ready, with `INITIAL_ADMIN_MUST_CHANGE=1` beside them: the dashboard
-//! opens on choosing the person's own username and password (`/welcome`). The app signs in with its password each
-//! time it opens the dashboard; once the person has chosen their own, that fails once with 401 and the app forgets its
-//! password.
-
-use std::time::Duration;
+//! The dashboard account the app makes for the person on a fresh install. Android's `FirstAdmin`: the documented way,
+//! `INITIAL_ADMIN_USERNAME` and `INITIAL_ADMIN_PASSWORD` in the install's `.env` (`users/bootstrap.ts` in Nouride),
+//! taken out again once Nouride is ready, with `INITIAL_ADMIN_MUST_CHANGE=1` beside them: the dashboard opens on
+//! choosing the person's own username and password (`/welcome`). The app never signs in with that password: the
+//! dashboard is signed in with a device token bound to this first admin (`device_sign_in`), and the setup forgets the
+//! password once the account exists.
 
 pub const USERNAME: &str = "admin";
 const PREFIX: &str = "INITIAL_ADMIN_";
-pub const SESSION: &str = "nouride_session";
 
 /// Hex, 24 characters: above Nouride's password floor, and nothing a `.env` parser could misread.
 pub fn new_password() -> String {
@@ -31,48 +28,6 @@ pub fn with_account(env: &str, password: &str) -> String {
 /// The `.env` without any `INITIAL_ADMIN_*` line; every other line exactly as it was.
 pub fn without_account(env: &str) -> String {
   env.split('\n').filter(|line| !line.trim_start().starts_with(PREFIX)).collect::<Vec<_>>().join("\n")
-}
-
-/// Whether the app forgets its password after a sign-in that answered `code`. A 401 means the person chose their own;
-/// kept, every opening of the dashboard was another failed sign-in, spending the allowance the person's own share.
-pub fn forgets(code: u16) -> bool {
-  code == 401
-}
-
-/// The session cookie, `nouride_session=<token>`, from a sign-in's `Set-Cookie` headers; `None` when there is none.
-pub fn session_cookie<'a>(set_cookie: impl IntoIterator<Item = &'a str>) -> Option<String> {
-  set_cookie
-    .into_iter()
-    .map(|header| header.split(';').next().unwrap_or("").trim().to_owned())
-    .find(|pair| pair.starts_with(&format!("{SESSION}=")) && pair.len() > SESSION.len() + 1)
-}
-
-/// What a sign-in answered.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct SignIn {
-  /// 0 when nothing answered.
-  pub code: u16,
-  /// `nouride_session=<token>`.
-  pub cookie: Option<String>,
-}
-
-/// Signs in at `login_url` with the app's account. Blocking.
-pub fn sign_in(login_url: &str, password: &str) -> SignIn {
-  let agent: ureq::Agent = ureq::Agent::config_builder()
-    .timeout_global(Some(Duration::from_secs(10)))
-    .http_status_as_error(false)
-    .build()
-    .into();
-  let body = serde_json::json!({ "username": USERNAME, "password": password }).to_string();
-  match agent.post(login_url).header("Content-Type", "application/json").send(body) {
-    Ok(response) => {
-      let code = response.status().as_u16();
-      let cookies: Vec<String> =
-        response.headers().get_all("set-cookie").iter().filter_map(|v| v.to_str().ok()).map(str::to_owned).collect();
-      SignIn { code, cookie: session_cookie(cookies.iter().map(String::as_str)) }
-    }
-    Err(_) => SignIn { code: 0, cookie: None },
-  }
 }
 
 #[cfg(test)]
@@ -111,21 +66,5 @@ mod tests {
     assert_eq!(one.len(), 24);
     assert!(one.chars().all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase()), "{one}");
     assert_ne!(one, new_password());
-  }
-
-  #[test]
-  fn the_password_is_forgotten_once_nouride_refuses_it_and_kept_through_anything_that_may_pass() {
-    assert!(forgets(401));
-    for code in [0, 200, 400, 403, 429, 500, 501, 503] {
-      assert!(!forgets(code), "{code}");
-    }
-  }
-
-  #[test]
-  fn the_session_cookie_is_found_among_a_sign_ins_headers() {
-    let cookie = session_cookie(["other=1; Path=/", "nouride_session=tok%2Ben12345; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000"]);
-    assert_eq!(cookie.as_deref(), Some("nouride_session=tok%2Ben12345"));
-    assert_eq!(session_cookie(["nouride_session=; Max-Age=0"]), None);
-    assert_eq!(session_cookie([]), None);
   }
 }

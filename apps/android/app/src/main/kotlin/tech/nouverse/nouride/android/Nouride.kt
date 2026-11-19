@@ -97,6 +97,5 @@ object Nouride {
 
   const val HEALTH_URL = "http://127.0.0.1:$PORT/health"
   const val ORIGIN = "http://127.0.0.1:$PORT"
-  const val LOGIN_URL = "$ORIGIN/api/control/auth/login"
   const val DASHBOARD_URL = "http://127.0.0.1:$PORT/dashboard/"
 }

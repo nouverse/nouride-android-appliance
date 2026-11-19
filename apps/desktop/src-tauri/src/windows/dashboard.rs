@@ -1,11 +1,13 @@
-//! The dashboard in a window of the app: signed in with the app's account on this computer's own Nouride, its own
-//! login elsewhere; its user agent marked so the dashboard draws its back button; `link_policy` deciding what stays;
+//! The dashboard in a window of the app: always signed in on this computer's own Nouride, with the app's device token
+//! (`daemon::device_sign_in`), on opening and whenever the dashboard reaches its sign-in page; its own login elsewhere; its user agent marked so the dashboard draws its back button; `link_policy` deciding what stays;
 //! a file it downloads kept in Downloads as `downloads` says, with a line at the foot of the page.
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
+use daemon::device_sign_in::{self, Outcome};
 use downloads::{Source, LINE_SCRIPT};
 use link_policy::{Link, NewWindow, NEW_TABS_SCRIPT, USER_AGENT_MARK};
 use shared::Where;
@@ -19,6 +21,11 @@ use crate::state::App;
 use crate::windows;
 
 pub const LABEL: &str = "dashboard";
+
+/// When the last round from the sign-in page, or the last on opening that gave up, started (`device_sign_in::again`).
+static LAST_ROUND: Mutex<Option<u64>> = Mutex::new(None);
+/// The next load of the sign-in page is let through: a round from it gave up, and the page is what is left.
+static SHOW_SIGN_IN: AtomicBool = AtomicBool::new(false);
 
 /// WebKit's own user agent on a Mac, with the app's mark: the dashboard reads `NourideHome/`.
 fn user_agent() -> String {
@@ -70,7 +77,12 @@ pub fn open(handle: &AppHandle, app: &Arc<App>) {
     let _ = window.navigate(Url::parse("tauri://localhost/index.html#/unreachable").expect("a fixed URL"));
   } else {
     if !remote && app.ours() {
-      sign_in(app, &window);
+      let started = applog::now_ms();
+      // Given up after an answer: the sign-in page it leaves is not tried again at once (`device_sign_in::again`). Not
+      // after none (Nouride still starting), so the round after Try again can sign in.
+      if sign_in(app, &window).is_err_and(device_sign_in::gave_up_counts) {
+        *LAST_ROUND.lock().unwrap_or_else(|e| e.into_inner()) = Some(started);
+      }
     }
     if let Ok(target) = Url::parse(&url) {
       let _ = window.navigate(target);
@@ -80,8 +92,7 @@ pub fn open(handle: &AppHandle, app: &Arc<App>) {
   let _ = window.set_focus();
 }
 
-/// Made each time it is opened after a close, which destroys it with its WebKit processes (the app's session cookie
-/// stays in WebKit's store, and `open` signs in again). It may stay open across a change of place, so which Nouride
+/// Made each time it is opened after a close, which destroys it with its WebKit processes (`open` signs in again). It may stay open across a change of place, so which Nouride
 /// is "here" is read at each navigation, never kept from when the window was made: kept, the other computer's
 /// dashboard went to the browser.
 fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
@@ -102,9 +113,14 @@ fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
     // `window.open`, which `on_new_window` does see.
     .initialization_script(NEW_TABS_SCRIPT)
     .initialization_script(LINE_SCRIPT)
+    // The dashboard reaches its sign-in page inside the page, which this handler never sees: the script makes it a load.
+    .initialization_script(&device_sign_in::watch_script(&app.build.origin()))
     .on_navigation(move |url| {
       if own_page(url) || url.as_str() == "about:blank" {
         return true;
+      }
+      if local(&nav_app) && device_sign_in::sign_in_page(url.as_str(), &nav_app.build.origin()) {
+        return sign_in_again(&nav_handle, &nav_app, url);
       }
       match link_policy::link(url.as_str(), true, &nav_app.dashboard().1) {
         Link::Here => true,
@@ -187,24 +203,70 @@ fn line(webview: &Webview, key: &str, name: &str) {
   let _ = webview.eval(downloads::line_call(&crate::words::t(key).replace("{name}", name)));
 }
 
-/// Signs in with the app's account and hands the session to the window. A 401 means the person chose their own
-/// username and password: the app forgets its own, and their session or the login page takes over.
-fn sign_in(app: &App, window: &WebviewWindow) {
-  let Some(password) = daemon::setup::kept_password(&app.layout) else { return };
-  let answer = daemon::first_admin::sign_in(&app.build.login_url(), &password);
-  if daemon::first_admin::forgets(answer.code) {
-    let _ = daemon::setup::forget_password(&app.layout);
-    applog::write(&app.layout.app_log(), "dashboard sign-in: 401, the app's password is forgotten");
-    return;
+/// Whether the window shows this computer's own Nouride, the one the app installed: the only one it signs in to.
+fn local(app: &App) -> bool {
+  app.ours() && app.where_() != Some(Where::Remote)
+}
+
+/// The sign-in page of this computer's Nouride is on its way into the window: unless a round from it just ran, or the
+/// last gave up and left the page to show, cancel it, sign in again, and go back where the person was. The page stays
+/// hidden meanwhile (`device_sign_in::watch_script`). Never through the app's own opening page: a load of it right
+/// before the dashboard's won the race on a Mac and left the window on the cat. A page load let through returns true.
+fn sign_in_again(handle: &AppHandle, app: &Arc<App>, url: &Url) -> bool {
+  if SHOW_SIGN_IN.swap(false, Ordering::SeqCst) {
+    return true;
   }
-  let Some(pair) = answer.cookie else {
-    applog::write(&app.layout.app_log(), &format!("dashboard sign-in: HTTP {}, no session", answer.code));
-    return;
+  {
+    let mut last = LAST_ROUND.lock().unwrap_or_else(|e| e.into_inner());
+    let now = applog::now_ms();
+    if !device_sign_in::again(*last, now) {
+      applog::write(&app.layout.app_log(), "dashboard sign-in: the sign-in page again within seconds, left on screen");
+      return true;
+    }
+    *last = Some(now);
+  }
+  let (h, app, url) = (handle.clone(), app.clone(), url.clone());
+  std::thread::spawn(move || {
+    let Some(window) = h.get_webview_window(LABEL) else { return };
+    let target = if sign_in(&app, &window).is_ok() {
+      device_sign_in::after_sign_in(url.as_str(), &app.build.origin())
+    } else {
+      SHOW_SIGN_IN.store(true, Ordering::SeqCst);
+      url.to_string()
+    };
+    if let Ok(target) = Url::parse(&target) {
+      let _ = window.navigate(target);
+    }
+  });
+  false
+}
+
+/// One round with the app's device token (`device_sign_in::round`), the session handed to the window; when it gave up,
+/// the last answer's code. Blocking: never on the main thread.
+fn sign_in(app: &App, window: &WebviewWindow) -> Result<(), u16> {
+  let mut nouride = device_sign_in::Local {
+    origin: app.build.origin(),
+    control_token: app.layout.control_token(),
+    token_file: app.layout.device_token(),
+    label: device_sign_in::label(&device_sign_in::computer_name()),
   };
-  let Some((name, value)) = pair.split_once('=') else { return };
+  let pair = match device_sign_in::round(nouride.kept(), &mut nouride) {
+    Outcome::SignedIn(pair) => pair,
+    Outcome::GaveUp(code) => {
+      applog::write(&app.layout.app_log(), &format!("dashboard sign-in: gave up after HTTP {code}"));
+      return Err(code);
+    }
+  };
+  let Some((name, value)) = pair.split_once('=') else { return Err(200) };
   let cookie = Cookie::build((name.to_owned(), value.to_owned())).domain("127.0.0.1").path("/").http_only(true).build();
   match window.set_cookie(cookie) {
-    Ok(()) => applog::write(&app.layout.app_log(), "dashboard sign-in: session handed to the window"),
-    Err(e) => applog::write(&app.layout.app_log(), &format!("dashboard sign-in: could not set the session: {e}")),
+    Ok(()) => {
+      applog::write(&app.layout.app_log(), "dashboard sign-in: session handed to the window");
+      Ok(())
+    }
+    Err(e) => {
+      applog::write(&app.layout.app_log(), &format!("dashboard sign-in: could not set the session: {e}"));
+      Err(200)
+    }
   }
 }
