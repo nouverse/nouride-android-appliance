@@ -19,7 +19,7 @@ change, both when a change touches what they share.
 | --- | --- |
 | `apps/android/` | The Android app, the Gradle project as it is (`app/`, `gradle/`, `gradlew`) |
 | `apps/desktop/` | The desktop app in Tauri's layout: the screens (React, Tailwind) at its root, the binary in `src-tauri/` |
-| `crates/` | The desktop's logic, pure and tested on Linux: `shared`, `place`, `daemon`, `service`, `updates`, `link-policy`, `looks` |
+| `crates/` | The desktop's logic, pure and tested on Linux: `shared`, `place`, `daemon`, `service`, `updates`, `link-policy`, `downloads`, `backup`, `looks` |
 | `packages/ui-kit/` | The desktop's colours, fonts, the cat's poses, shared React pieces, its words |
 | `spec/` | The behaviour both apps share, a page each, and `spec/fixtures/*.json` read by both test suites |
 | `assets/` | Icons and brand, the source for both apps |

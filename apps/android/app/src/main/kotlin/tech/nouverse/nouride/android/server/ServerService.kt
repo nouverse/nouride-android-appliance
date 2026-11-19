@@ -480,7 +480,7 @@ class ServerService : Service() {
       if (Build.VERSION.SDK_INT >= 26) context.startForegroundService(intent) else context.startService(intent)
     }
 
-    private fun readable(path: String): Boolean = try {
+    internal fun readable(path: String): Boolean = try {
       File(path).inputStream().use { it.read() }
       true
     } catch (e: IOException) {

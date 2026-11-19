@@ -1,7 +1,7 @@
 //! Every key the looks name has its words in `packages/ui-kit/src/words.json`, and every placeholder in them is one
 //! the screens fill: a state cannot ship without its sentence, nor a sentence with a `{…}` left in it.
 
-use looks::{notices, tray, versions, Words};
+use looks::{backup, notices, tray, versions, Words};
 use serde_json::Value;
 use shared::{Phase, Reply, Where};
 
@@ -61,8 +61,21 @@ fn every_menu_item_and_notice_has_words() {
 }
 
 #[test]
+fn every_word_of_nouride_s_files_is_there() {
+  let map = words();
+  for step in backup::Step::ALL {
+    if let Some(k) = backup::result(step) {
+      has(&map, k);
+    }
+  }
+  for k in [backup::secrets(true), backup::secrets(false), "backup_title", "backup_body", "backup_size", "backup_counting", "backup_button"] {
+    has(&map, k);
+  }
+}
+
+#[test]
 fn only_the_placeholders_the_screens_fill_are_in_the_words() {
-  let filled = ["{version}", "{percent}", "{step}", "{steps}", "{app}", "{nouride}"];
+  let filled = ["{version}", "{percent}", "{step}", "{steps}", "{app}", "{nouride}", "{name}", "{size}"];
   for (key, value) in words() {
     let Some(text) = value.as_str() else { continue };
     let mut rest = filled.iter().fold(text.to_owned(), |t, p| t.replace(p, ""));

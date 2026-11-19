@@ -53,6 +53,8 @@ pub struct Inner {
   pub nouride_card: NourideCard,
   pub app_card: AppCard,
   pub app_update: Option<String>,
+  /// Settings' "Nouride's files" (`nouride_files`).
+  pub backup: looks::backup::Backup,
   pub last_sent: String,
 }
 
@@ -89,6 +91,7 @@ impl App {
         nouride_card: NourideCard { step: NourideStep::Checking, ready: None, percent: 0 },
         app_card: AppCard { step: AppStep::Checking, ready: None, percent: 0 },
         app_update: None,
+        backup: looks::backup::Backup::default(),
         last_sent: String::new(),
       }),
     }
@@ -244,6 +247,7 @@ impl App {
       versions_dot: looks::notices::versions_dot(app_update.is_some(), nouride_update.is_some()),
       versions_row: looks::notices::versions_row(app_update.is_some(), nouride_update.is_some()),
       appearance: self.appearance(),
+      backup: looks::backup::look(&inner.backup, place, ours),
       versions: Versions {
         app: Card {
           version: Some(env!("CARGO_PKG_VERSION").to_owned()),
@@ -325,5 +329,6 @@ pub struct Snapshot {
   pub versions_dot: bool,
   pub versions_row: Option<&'static str>,
   pub appearance: Appearance,
+  pub backup: looks::backup::BackupLook,
   pub versions: Versions,
 }

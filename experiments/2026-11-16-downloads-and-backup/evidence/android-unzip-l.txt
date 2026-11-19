@@ -1,0 +1,10 @@
+Archive:  nouride-backup-2026-11-17.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+       41  2026-11-17 00:12   .nouride/config.toml
+        7  2026-11-17 00:12   .nouride/data/last-run-version
+       14  2026-11-17 00:12   .nouride/memory/.nouride-vault.json
+      164  2026-11-17 00:12   .nouride/people/admin.toml
+   778240  2026-11-17 00:12   .nouride/data/nouride.db
+---------                     -------
+   778466                     5 files

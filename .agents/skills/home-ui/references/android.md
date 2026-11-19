@@ -83,7 +83,9 @@ Under the main state, only what a person acts on:
 
 - **Open Nouride**: the dashboard inside the app, already signed in. Not a URL to copy, and never a login page on
   the phone: the app makes the dashboard account on the first start and signs in with it (`server/FirstAdmin.kt`).
-  The password is never shown; a person who wants the dashboard elsewhere sets their own in the dashboard.
+  The password is never shown; a person who wants the dashboard elsewhere sets their own in the dashboard. A file the
+  dashboard downloads goes to the phone's Downloads under its own name (`ui/DashboardDownloads.kt`,
+  `spec/downloads.md`), with a short line when it is there, did not download, or does not fit.
 - **A new version of Nouride** (`ui/NourideUpdateCard.kt`, `update/NourideNotice.kt`): while this phone's Nouride
   answers and its update route says a newer one can go in, a small card at the top, "A new Nouride is ready", the
   version and that the agents, chats and settings stay as they are, and Update, which opens Versions and updates and
@@ -146,6 +148,11 @@ is that computer's.
     work is done). The card follows Nouride back and says the new version. Off, it says to turn Nouride on; a download
     started on the dashboard is followed, then offered as "Install the update".
   The sentences and buttons are `ui/VersionLooks.kt`, pure and tested, as the status screen's are.
+- **Nouride's files**, while Nouride runs on this phone (hidden for another computer, `BackupLooks.shown`): one zip of
+  the folder Nouride keeps, in Downloads (`spec/backup.md`). Before the button, what it holds (chats, memories, agents
+  and files), how the secrets go in (locked with the backup password, or not at all), that other apps allowed to see
+  Downloads can open it, and its size; then the bar with its percent, and the line that says where the zip is, or that
+  it did not fit or did not save, with what to do. No dialog: nothing in it needs a confirmation.
 - **Turn off Nouride**: amber words, not a button, so it is never pressed by mistake. It asks once: "Turn Nouride off?
   Your assistant will not answer until you start it again."
 - **Technical Logs ›**, last.

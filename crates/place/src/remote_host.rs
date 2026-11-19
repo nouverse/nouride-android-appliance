@@ -52,6 +52,10 @@ pub fn read(typed: &str) -> Read {
   if url.query().is_some() || url.fragment().is_some() {
     return Read::NotAnAddress;
   }
+  // `url` refuses a port above 65535 itself, and takes 0, which no machine listens on.
+  if url.port() == Some(0) {
+    return Read::NotAnAddress;
+  }
   // 443 is https's own and `url` drops it: kept, the origin would not match the links the dashboard writes.
   let port = url.port().map(|p| format!(":{p}")).unwrap_or_default();
   Read::Address(format!("https://{}{port}", host.to_ascii_lowercase()))

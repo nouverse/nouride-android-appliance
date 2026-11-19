@@ -1,0 +1,23 @@
+Owner's Mac, macOS 27.0.1, 2026-11-17 06:10 to 06:20 +0700. Nouride Home Dev 0.2.1 (debug, `bun run build:dev` of release/0.2.1-downloads in a
+folder of its own), Nouride 0.8.38 installed by the Dev app on 18264. The owner's older Dev build was quit for the test with their yes, and opened again after.
+scripts/mac-guard.sh record: plist=24389671b395... pid=72300; check after: unchanged.
+
+Build: compiled the first time (the Tauri binary is never built on Linux); no warning in the new code.
+Settings: backup shown, secrets "backup_unsealed" (no secrets.sealed), counted size 16 114 404 bytes.
+
+Dashboard downloads, driven with the Dev hooks (`--e2e dashboard-js`), links built as the dashboard builds them:
+- First download: the app waited in WebKit's sandbox call for ~/Downloads (a `sample` of the main thread: download_policy -> completion handler ->
+  libsystem_sandbox), i.e. macOS asking on screen whether Nouride Home Dev may use the Downloads folder. The owner answered Allow; the waiting
+  downloads then finished. A release build will ask the same once.
+- config.toml 381 bytes, sha256 a802b547... = the install's .nouride/config.toml; again -> config (1).toml, (2), (3), (4).
+- slide.zip, a 270 222-byte zip made in the page as a blob: same sha256 as its source (b878302c...).
+- The line at the foot of the page, read back through the page's path: "config (4).toml is in Downloads."
+- app.log: "a download was kept" for each.
+
+Download Nouride's files (`--e2e backup-start`): bar seen at 27%, then "backup_saved", nouride-backup-2026-11-17.zip, 15 415 070 bytes,
+53 entries (mac-zip-summary.txt). None of data/.control-token, data/nouride.db-wal/-shm, data/backups, home, nougate, bin, credentials, all present
+in the folder, is in it; .nouride/data/nouride.db is the snapshot (1 363 968 bytes). unzip -t: no errors.
+`nouride db verify <the zipped database> --json` with the Dev install's own Nouride 0.8.38: {"ok":true,...,"detail":"ok"}, exit 0.
+
+Removed afterwards: the 7 files added to ~/Downloads (its listing back to 141 names), the build folder, temporary files, the e2e no-browser marker.
+A window picture was not taken: screencapture exits 1 over ssh with the display asleep.

@@ -11,7 +11,7 @@ use tauri_plugin_clipboard_manager::ClipboardExt;
 use crate::applog;
 use crate::poller;
 use crate::state::{App, Appearance, Snapshot};
-use crate::{setup, versions, windows};
+use crate::{nouride_files, setup, versions, windows};
 
 type AppState<'a> = State<'a, Arc<App>>;
 
@@ -175,6 +175,18 @@ pub fn set_appearance(handle: AppHandle, app: AppState, appearance: Appearance) 
   app.set_appearance(appearance);
   windows::apply_appearance(&handle, appearance);
   poller::send(&handle, &app);
+}
+
+/// Settings shown: what "Download Nouride's files" would weigh.
+#[tauri::command]
+pub fn backup_count(handle: AppHandle, app: AppState) {
+  nouride_files::count(&handle, &app);
+}
+
+/// "Download Nouride's files".
+#[tauri::command]
+pub fn backup_start(handle: AppHandle, app: AppState) {
+  nouride_files::start(&handle, &app);
 }
 
 #[tauri::command]

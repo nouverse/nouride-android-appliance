@@ -24,7 +24,9 @@ logic in `crates/`, the shared look in `packages/ui-kit`. The rules both apps sh
    `~/Library/LaunchAgents/<label>.plist`. `service::launchctl` builds the `bootstrap`, `bootout`, `kickstart -k` and
    `print` command lines and reads `print`'s answer.
 5. **Opening the dashboard**: `daemon::first_admin` signs in over HTTP, the session cookie is set on the dashboard's
-   window (`set_cookie`), and the window's `on_navigation` asks `link_policy::link` what each load is.
+   window (`set_cookie`), and the window's `on_navigation` asks `link_policy::link` what each load is. Its
+   `on_download` asks `downloads::source` whether a download is kept, names it in Downloads (`downloads::free_path`,
+   after taking back the number wry gives a taken name itself) and shows a line in the page (`downloads::line_call`).
 6. **Nouride's update**: `updates::nouride` reads the control-token routes, `updates::notice` keeps what was heard,
    `updates::stall` restarts a stuck download. The app's own: `tauri-plugin-updater` against this repository's
    Releases.
@@ -80,10 +82,14 @@ write to any of them. Test only Nouride Home Dev, which installs into
   button: the window is destroyed), `show <home|connect|versions|settings|logs>` (makes the window again when it is closed),
   `dashboard-js <script>` (runs a script in the dashboard's window, as a click there would; it returns nothing, so a
   script that reads the page writes what it found into the address with `history.replaceState` for `dump` to show),
-  `tray <item id>`, `check-nouride-update`, `shot <name>` (a capture of the app's own window only, never the screen).
+  `tray <item id>`, `check-nouride-update`, `backup-count` and `backup-start` (Settings' "Download Nouride's files"),
+  `shot <name>` (a capture of the app's own window only, never the screen).
   `dump` gives each window's size, and `null` for a window that is closed (destroyed). While `<data>/e2e/no-browser` exists, a link the dashboard sends to the browser is
   only logged ("would go to the browser"): the browser is on the person's screen, so open it for real once, at the
   end, and say how many times you did.
+- The first download from the dashboard's window makes macOS ask on screen whether the app may use the Downloads
+  folder, and WebKit waits for the answer: the app stops answering its hooks until someone clicks Allow. Ask the
+  person at the Mac before a first download test.
 - Quit what you open (`--e2e quit`), and remove only what you made: the Dev app's folder, its LaunchAgent
   (`launchctl bootout gui/$(id -u)/tech.nouverse.nouride.home.dev.nouride`, then the plist).
 

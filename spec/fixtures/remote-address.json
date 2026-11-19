@@ -167,10 +167,19 @@
       "typed": "nouride.example.com:99999",
       "expect": {
         "read": "not_an_address"
-      },
-      "android": {
+      }
+    },
+    {
+      "typed": "https://nouride.example.com:0",
+      "expect": {
+        "read": "not_an_address"
+      }
+    },
+    {
+      "typed": "nouride.example.com:65535",
+      "expect": {
         "read": "address",
-        "base": "https://nouride.example.com:99999"
+        "base": "https://nouride.example.com:65535"
       }
     }
   ],

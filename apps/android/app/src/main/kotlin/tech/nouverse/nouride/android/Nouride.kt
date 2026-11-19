@@ -37,7 +37,10 @@ object Nouride {
     curl -fsSL $INSTALL_URL | sh -s -- --variant router --host 0.0.0.0 --port $PORT
     """.trimIndent() + (if (gatewayPort == DEFAULT_GATEWAY_PORT) "" else "\n" + gatewayConfig(gatewayPort))
 
-  private const val HOME = "/srv/nouride/.nouride"
+  /** The folder Nouride keeps everything in, in Debian (`backup/NourideBackup` zips it). */
+  const val DATA_DIR = "/srv/nouride/.nouride"
+
+  private const val HOME = DATA_DIR
 
   /**
    * The account Nouride runs as, made here before the installer, which then skips its own `useradd` ("user nouride
@@ -82,6 +85,12 @@ object Nouride {
 
   /** The start command the installer prints when there is no systemd, as the account it made, saying who restarts it. */
   val START = listOf("/bin/su", "-s", "/bin/sh", "nouride", "-c", "cd /srv/nouride && $SUPERVISOR_MODE exec ./nouride start")
+
+  /**
+   * A consistent snapshot of Nouride's database, safe while it runs (`VACUUM INTO`), as the account it runs as, the
+   * answer one JSON line naming the file (`Backup.snapshot`).
+   */
+  val DB_BACKUP = listOf("/bin/su", "-s", "/bin/sh", "nouride", "-c", "cd /srv/nouride && ./nouride db backup --json")
 
   /** What the daemon logs at the end of every boot. */
   const val READY_LINE = "nouride ready"

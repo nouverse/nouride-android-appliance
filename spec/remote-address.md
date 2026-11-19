@@ -20,7 +20,7 @@ Each refusal has its own sentence on screen, so `read` says why:
 - `plain_http`: `http://`. A dashboard reached over the network is a login, and a password on the wire. Said on its
   own because a person fixes it by typing `https://`.
 - `not_an_address`: a space inside, another scheme, a path other than the dashboard's, a query, a fragment, no host,
-  more than 200 characters, or what a strict URI parser refuses.
+  a port outside 1 to 65535, more than 200 characters, or what a strict URI parser refuses.
 
 ## Shown and opened
 
@@ -29,6 +29,4 @@ path as the device's own Nouride.
 
 ## Where the apps differ
 
-| Typed | Android | Desktop |
-| --- | --- | --- |
-| `nouride.example.com:99999` | an address, `https://nouride.example.com:99999` (`java.net.URI` does not check a port's range) | `not_an_address` (the `url` crate refuses a port above 65535) |
+Nowhere today.
