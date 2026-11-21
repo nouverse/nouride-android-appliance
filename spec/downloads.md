@@ -39,6 +39,13 @@ A file is never written over. When the name is taken, the copy gets the first fr
 browsers write it: `report.pdf`, then `report (1).pdf`, `report (2).pdf`. The extension is what follows the last dot,
 `.tar.gz` (and `.tar.bz2`, `.tar.xz`, `.tar.zst`) counted as one; a name with no dot gets the number at its end.
 
+## A download that fails
+
+What it wrote is removed, and the line says it did not download: no part of a file is left in Downloads under the
+file's own name, where it would look whole. A download cancelled half way is one that failed.
+
 ## Where the apps differ
 
-Nowhere today.
+- Two downloads of one address at once (the same file pressed twice) on the desktop: WebKit says which ended only by
+  its address, so which of the two failed cannot be told, and a failed one is left in Downloads rather than remove a
+  file that may be the other's. Android writes each download itself and always knows which failed.

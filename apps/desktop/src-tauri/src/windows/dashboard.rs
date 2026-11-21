@@ -3,13 +3,12 @@
 //! what the header's Back does and that "Back to Nouride Home" asks first, in a sheet on this window;
 //! a file it downloads kept in Downloads as `downloads` says, with a line at the foot of the page.
 
-use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
 use daemon::device_sign_in::{self, Outcome};
-use downloads::{Source, LINE_SCRIPT};
+use downloads::{Part, Pending, Source, LINE_SCRIPT};
 use link_policy::{Back, Link, NewWindow, NEW_TABS_SCRIPT, USER_AGENT_MARK};
 use shared::Where;
 use tauri::webview::{Cookie, DownloadEvent, NewWindowResponse};
@@ -109,8 +108,8 @@ fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
   let download_app = app.clone();
   // A window closed under its question never hears the answer.
   ASKING.store(false, Ordering::SeqCst);
-  // Each download's name, from its request to its end: on macOS the end does not say where the file went.
-  let names: Arc<Mutex<HashMap<String, String>>> = Arc::default();
+  // Each download's file, from its request to its end: on macOS the end does not say where the file went.
+  let pending: Arc<Mutex<Pending>> = Arc::default();
   WebviewWindowBuilder::new(handle, LABEL, WebviewUrl::App("index.html#/opening".into()))
     .title(crate::words::t("dashboard_title"))
     .inner_size(1200.0, 800.0)
@@ -168,9 +167,9 @@ fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
           Source::Save => {
             let target = keep_in_downloads(destination.as_path());
             let name = target.file_name().and_then(|n| n.to_str()).unwrap_or(downloads::FALLBACK).to_owned();
-            *destination = target;
+            *destination = target.clone();
             line(&webview, "download_started", &name);
-            names.lock().unwrap_or_else(|e| e.into_inner()).insert(url.to_string(), name);
+            pending.lock().unwrap_or_else(|e| e.into_inner()).start(url.as_str(), target);
             true
           }
           Source::Outside => {
@@ -183,10 +182,19 @@ fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
           }
         }
       }
+      // A download that failed is taken back out of Downloads (`downloads::Pending`): half a file under its own name
+      // looks whole.
       DownloadEvent::Finished { url, success, .. } => {
-        let name = names.lock().unwrap_or_else(|e| e.into_inner()).remove(url.as_str()).unwrap_or_else(|| downloads::FALLBACK.to_owned());
-        line(&webview, if success { "download_saved" } else { "download_failed" }, &name);
-        applog::write(&download_app.layout.app_log(), &format!("a download {}", if success { "was kept" } else { "failed" }));
+        let ended = pending.lock().unwrap_or_else(|e| e.into_inner()).end(url.as_str(), success);
+        line(&webview, if success { "download_saved" } else { "download_failed" }, &ended.name);
+        let said = match &ended.part {
+          Part::Kept => "a download was kept".to_owned(),
+          Part::Removed => "a download failed, and what it wrote was removed".to_owned(),
+          Part::NothingWritten => "a download failed before writing anything".to_owned(),
+          Part::LeftOverlapping => "a download failed while another of its address was under way: both files left".to_owned(),
+          Part::NotRemoved(why) => format!("a download failed, and what it wrote could not be removed: {why}"),
+        };
+        applog::write(&download_app.layout.app_log(), &said);
         true
       }
       _ => true,
