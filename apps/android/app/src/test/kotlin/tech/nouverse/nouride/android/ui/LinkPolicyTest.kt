@@ -59,8 +59,29 @@ class LinkPolicyTest {
   }
 
   @Test
-  fun `the header's back is the phone's Back, never a close at once`() {
-    assertEquals(LinkPolicy.Link.BACK, LinkPolicy.link(LinkPolicy.HOME, isForMainFrame = true))
+  fun `the header's back is the phone's Back, and the mark says the app catches it`() {
+    assertEquals(LinkPolicy.Link.BACK, LinkPolicy.link(LinkPolicy.BACK, isForMainFrame = true))
+    // The dashboard sends `nouridehome://back` only to an app that says 2 or more.
+    assertEquals("NourideHome/2", LinkPolicy.USER_AGENT_MARK)
+  }
+
+  @Test
+  fun `Back to Nouride Home is never the header's back`() {
+    assertEquals(LinkPolicy.Link.LEAVE, LinkPolicy.link(LinkPolicy.HOME, isForMainFrame = true))
+    assertEquals(LinkPolicy.Link.LEAVE, LinkPolicy.link(LinkPolicy.HOME, isForMainFrame = true, origin = "https://nouride.example.com"))
+  }
+
+  @Test
+  fun `Back to Nouride Home asks on a deeper page, where Back goes a page back, and on the first page`() {
+    assertEquals(LinkPolicy.Back.PAGE, LinkPolicy.back(listOf(dashboard, page("agents")), current = 1, dashboardShown = true))
+    assertEquals(LinkPolicy.Back.ASK, LinkPolicy.leave(dashboardShown = true))
+    assertEquals(LinkPolicy.Back.ASK, LinkPolicy.back(listOf(dashboard), current = 0, dashboardShown = true))
+    assertEquals(LinkPolicy.Back.ASK, LinkPolicy.leave(dashboardShown = true))
+  }
+
+  @Test
+  fun `over the cat or while it opens, Back to Nouride Home leaves without asking`() {
+    assertEquals(LinkPolicy.Back.LEAVE, LinkPolicy.leave(dashboardShown = false))
   }
 
   @Test

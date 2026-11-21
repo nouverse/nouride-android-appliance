@@ -10,6 +10,7 @@ class LinkPolicySpecTest {
   @Test
   fun `the constants are the spec's`() {
     assertEquals(spec.getString("home"), LinkPolicy.HOME)
+    assertEquals(spec.getString("page_back"), LinkPolicy.BACK)
     assertEquals(spec.getString("user_agent_mark"), LinkPolicy.USER_AGENT_MARK)
   }
 
@@ -43,6 +44,13 @@ class LinkPolicySpecTest {
         Spec.strings(case.getJSONArray("history")), case.getInt("current"), case.getBoolean("dashboard_shown"), case.getString("origin"),
       )
       assertEquals("$case", Spec.expected(case), got.name.lowercase())
+    }
+  }
+
+  @Test
+  fun `leave as the spec says`() {
+    for (case in Spec.cases(spec, "leave")) {
+      assertEquals("$case", Spec.expected(case), LinkPolicy.leave(case.getBoolean("dashboard_shown")).name.lowercase())
     }
   }
 

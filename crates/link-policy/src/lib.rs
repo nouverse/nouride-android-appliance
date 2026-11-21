@@ -8,12 +8,16 @@
 
 use url::Url;
 
-/// The back button the dashboard draws in its header when it sees [`USER_AGENT_MARK`] (`commons/lib/home-app.ts` in
-/// Nouride). The same for every build.
+/// "Back to Nouride Home", which the dashboard draws in its menu and on its pages without a header when it sees
+/// [`USER_AGENT_MARK`] (`commons/lib/home-app.ts` in Nouride). The same for every build.
 pub const HOME: &str = "nouridehome://home";
 
-/// Added to the window's user agent, so the dashboard knows it is inside the app and shows that way back.
-pub const USER_AGENT_MARK: &str = "NourideHome/1";
+/// Back, the chevron the dashboard draws in a phone's header. Sent only to an app whose mark says 2 or more.
+pub const BACK: &str = "nouridehome://back";
+
+/// Added to the window's user agent, so the dashboard knows it is inside the app and shows those ways back. The number
+/// says which links the app catches: 2 is [`HOME`] and [`BACK`]. Raise it only with the code that catches a new link.
+pub const USER_AGENT_MARK: &str = "NourideHome/2";
 
 /// Run in the dashboard's window before its own scripts: a link that asks for a new tab is opened with `window.open`,
 /// which reaches the window's new-window handler. WebKit on macOS drops a `target="_blank"` click before either
@@ -23,28 +27,32 @@ pub const NEW_TABS_SCRIPT: &str = include_str!("new-tabs.js");
 /// Where a link the dashboard follows goes.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Link {
-  /// The header's back: close the dashboard's window and bring Nouride Home forward.
+  /// The header's Back: what [`back`] says, a page back or, at the first page, a question.
   Back,
+  /// "Back to Nouride Home": what [`leave`] says, a question before the window closes and Nouride Home comes forward.
+  Leave,
   Here,
   Outside,
 }
 
-/// What the keyboard's Back (Cmd+[) does in the dashboard's window.
+/// What one of the dashboard's two ways out of a page does in its window.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Back {
   /// A page back inside the dashboard.
   Page,
-  /// Nothing to go back to inside Nouride: on a phone this asks before closing; a window has its own close button.
+  /// The dashboard would close: "Go back to Nouride Home?" first.
   Ask,
-  /// Over the cat, or while the dashboard opens: nothing to lose.
+  /// Over the cat, or while the dashboard opens: nothing to lose, so it closes with no question.
   Leave,
 }
 
-/// The header's back closes the window; Nouride's own pages open here, and a frame inside a page is the page's
-/// business; anything else leaves for the browser.
+/// The header's Back and "Back to Nouride Home" are caught, never loaded, and never the same thing; Nouride's own
+/// pages open here, and a frame inside a page is the page's business; anything else leaves for the browser.
 pub fn link(url: &str, is_for_main_frame: bool, origin: &str) -> Link {
-  if url == HOME {
+  if url == BACK {
     Link::Back
+  } else if url == HOME {
+    Link::Leave
   } else if !is_for_main_frame || in_app(url, origin) {
     Link::Here
   } else {
@@ -84,6 +92,8 @@ pub fn back_inside(history: &[&str], current: usize, origin: &str) -> bool {
   !passed_once(on_screen) && *previous != "about:blank" && in_app(previous, origin) && !passed_once(previous)
 }
 
+/// The header's Back: a page back when there is one ([`back_inside`]); otherwise it would close the dashboard, so it
+/// asks first. Over the cat, or while the dashboard opens, it leaves with no question.
 pub fn back(history: &[&str], current: usize, dashboard_shown: bool, origin: &str) -> Back {
   if !dashboard_shown {
     Back::Leave
@@ -92,6 +102,12 @@ pub fn back(history: &[&str], current: usize, dashboard_shown: bool, origin: &st
   } else {
     Back::Ask
   }
+}
+
+/// "Back to Nouride Home": it asks first whatever the page, the first one included, since leaving loses the page a
+/// person is on. Over the cat, or while the dashboard opens, it leaves with no question. Never a page back.
+pub fn leave(dashboard_shown: bool) -> Back {
+  if dashboard_shown { Back::Ask } else { Back::Leave }
 }
 
 const ONCE: &[&str] = &["/login", "/welcome", "/setup", "/oauth"];
@@ -188,8 +204,30 @@ mod tests {
   }
 
   #[test]
-  fn the_headers_back_is_caught_never_loaded() {
-    assert_eq!(link(HOME, true, ORIGIN), Link::Back);
+  fn the_headers_back_is_the_systems_back_and_the_mark_says_the_app_catches_it() {
+    assert_eq!(link(BACK, true, ORIGIN), Link::Back);
+    // The dashboard sends `nouridehome://back` only to an app that says 2 or more.
+    assert_eq!(USER_AGENT_MARK, "NourideHome/2");
+  }
+
+  #[test]
+  fn back_to_nouride_home_is_never_the_headers_back() {
+    assert_eq!(link(HOME, true, ORIGIN), Link::Leave);
+    assert_eq!(link(HOME, true, "https://nouride.example.com"), Link::Leave);
+  }
+
+  #[test]
+  fn back_to_nouride_home_asks_on_a_deeper_page_where_back_goes_a_page_back_and_on_the_first_page() {
+    let agents = page("agents");
+    assert_eq!(back(&[DASHBOARD, &agents], 1, true, ORIGIN), Back::Page);
+    assert_eq!(leave(true), Back::Ask);
+    assert_eq!(back(&[DASHBOARD], 0, true, ORIGIN), Back::Ask);
+    assert_eq!(leave(true), Back::Ask);
+  }
+
+  #[test]
+  fn over_the_cat_or_while_it_opens_back_to_nouride_home_leaves_without_asking() {
+    assert_eq!(leave(false), Back::Leave);
   }
 
   #[test]

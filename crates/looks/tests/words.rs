@@ -1,7 +1,7 @@
 //! Every key the looks name has its words in `packages/ui-kit/src/words.json`, and every placeholder in them is one
 //! the screens fill: a state cannot ship without its sentence, nor a sentence with a `{…}` left in it.
 
-use looks::{backup, notices, tray, versions, Words};
+use looks::{backup, leave, notices, tray, versions, Words};
 use serde_json::Value;
 use shared::{Phase, Reply, Where};
 
@@ -71,6 +71,16 @@ fn every_word_of_nouride_s_files_is_there() {
   for k in [backup::secrets(true), backup::secrets(false), "backup_title", "backup_body", "backup_size", "backup_counting", "backup_button"] {
     has(&map, k);
   }
+}
+
+#[test]
+fn the_question_before_the_dashboard_closes_has_its_words_and_its_two_answers() {
+  let map = words();
+  for k in [leave::TITLE, leave::BODY, leave::GO_BACK, leave::STAY] {
+    has(&map, k);
+  }
+  assert_ne!(map[leave::GO_BACK], map[leave::STAY]);
+  assert!(map[leave::TITLE].as_str().unwrap().ends_with('?'));
 }
 
 #[test]

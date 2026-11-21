@@ -43,6 +43,7 @@ fn main() {
     .plugin(tauri_plugin_clipboard_manager::init())
     .plugin(tauri_plugin_updater::Builder::new().build())
     .plugin(tauri_plugin_deep_link::init())
+    .plugin(tauri_plugin_dialog::init())
     .setup(move |tauri_app| {
       let handle = tauri_app.handle().clone();
       // The bundle id the config gave this app must be the build's: a release config with the Dev feature (or the

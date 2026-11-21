@@ -1,7 +1,8 @@
 {
-  "about": "Which links the dashboard's window keeps, and what Back does there. See spec/link-policy.md. `origin` is the Nouride the window shows: this device's own (http on the loopback) or another machine's (https). A case's `expect` is both apps' answer; `android` or `desktop`, when present, is that app's own answer where the two differ today.",
+  "about": "Which links the dashboard's window keeps, what Back does there, and what \"Back to Nouride Home\" does. See spec/link-policy.md. `origin` is the Nouride the window shows: this device's own (http on the loopback) or another machine's (https). A case's `expect` is both apps' answer; `android` or `desktop`, when present, is that app's own answer where the two differ today.",
   "home": "nouridehome://home",
-  "user_agent_mark": "NourideHome/1",
+  "page_back": "nouridehome://back",
+  "user_agent_mark": "NourideHome/2",
   "in_app": [
     {
       "url": "https://nouride.example.com/dashboard/",
@@ -39,6 +40,24 @@
       "url": "nouridehome://home",
       "main_frame": true,
       "origin": "http://127.0.0.1:18264",
+      "expect": "leave"
+    },
+    {
+      "url": "nouridehome://back",
+      "main_frame": true,
+      "origin": "http://127.0.0.1:18264",
+      "expect": "back"
+    },
+    {
+      "url": "nouridehome://home",
+      "main_frame": true,
+      "origin": "https://nouride.example.com",
+      "expect": "leave"
+    },
+    {
+      "url": "nouridehome://back",
+      "main_frame": true,
+      "origin": "https://nouride.example.com",
       "expect": "back"
     },
     {
@@ -297,6 +316,16 @@
       "dashboard_shown": true,
       "origin": "https://nouride.example.com",
       "expect": "ask"
+    }
+  ],
+  "leave": [
+    {
+      "dashboard_shown": true,
+      "expect": "ask"
+    },
+    {
+      "dashboard_shown": false,
+      "expect": "leave"
     }
   ],
   "unreachable": [

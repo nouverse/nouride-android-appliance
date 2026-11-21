@@ -1,5 +1,6 @@
 //! The dashboard in a window of the app: always signed in on this computer's own Nouride, with the app's device token
-//! (`daemon::device_sign_in`), on opening and whenever the dashboard reaches its sign-in page; its own login elsewhere; its user agent marked so the dashboard draws its back button; `link_policy` deciding what stays;
+//! (`daemon::device_sign_in`), on opening and whenever the dashboard reaches its sign-in page; its own login elsewhere; its user agent marked so the dashboard draws its two ways out of a page; `link_policy` deciding what stays,
+//! what the header's Back does and that "Back to Nouride Home" asks first, in a sheet on this window;
 //! a file it downloads kept in Downloads as `downloads` says, with a line at the foot of the page.
 
 use std::collections::HashMap;
@@ -9,18 +10,22 @@ use std::sync::{Arc, Mutex};
 
 use daemon::device_sign_in::{self, Outcome};
 use downloads::{Source, LINE_SCRIPT};
-use link_policy::{Link, NewWindow, NEW_TABS_SCRIPT, USER_AGENT_MARK};
+use link_policy::{Back, Link, NewWindow, NEW_TABS_SCRIPT, USER_AGENT_MARK};
 use shared::Where;
 use tauri::webview::{Cookie, DownloadEvent, NewWindowResponse};
 use tauri::{AppHandle, Manager, Webview, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons};
 use tauri_plugin_opener::OpenerExt;
 use url::Url;
 
 use crate::applog;
 use crate::state::App;
-use crate::windows;
+use crate::windows::{self, history};
 
 pub const LABEL: &str = "dashboard";
+
+/// The question is on the window: a second one is never put over it.
+static ASKING: AtomicBool = AtomicBool::new(false);
 
 /// When the last round from the sign-in page, or the last on opening that gave up, started (`device_sign_in::again`).
 static LAST_ROUND: Mutex<Option<u64>> = Mutex::new(None);
@@ -102,6 +107,8 @@ fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
   let new_app = app.clone();
   let download_handle = handle.clone();
   let download_app = app.clone();
+  // A window closed under its question never hears the answer.
+  ASKING.store(false, Ordering::SeqCst);
   // Each download's name, from its request to its end: on macOS the end does not say where the file went.
   let names: Arc<Mutex<HashMap<String, String>>> = Arc::default();
   WebviewWindowBuilder::new(handle, LABEL, WebviewUrl::App("index.html#/opening".into()))
@@ -125,13 +132,11 @@ fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
       match link_policy::link(url.as_str(), true, &nav_app.dashboard().1) {
         Link::Here => true,
         Link::Back => {
-          let h = nav_handle.clone();
-          std::thread::spawn(move || {
-            if let Some(w) = h.get_webview_window(LABEL) {
-              let _ = w.close();
-            }
-            windows::main::show(&h);
-          });
+          way_out(&nav_handle, &nav_app, link_policy::back);
+          false
+        }
+        Link::Leave => {
+          way_out(&nav_handle, &nav_app, |_, _, shown, _| link_policy::leave(shown));
           false
         }
         Link::Outside => {
@@ -187,6 +192,61 @@ fn build(handle: &AppHandle, app: &Arc<App>) -> tauri::Result<WebviewWindow> {
       _ => true,
     })
     .build()
+}
+
+/// One of the dashboard's two ways out of a page, the header's Back or "Back to Nouride Home": `rule` is
+/// `link_policy`'s for it, asked with the window's own history, and what it answers is done here. Never inside the
+/// navigation's own call, which is still deciding the link.
+fn way_out(handle: &AppHandle, app: &Arc<App>, rule: fn(&[&str], usize, bool, &str) -> Back) {
+  let (h, app) = (handle.clone(), app.clone());
+  std::thread::spawn(move || {
+    let Some(window) = h.get_webview_window(LABEL) else { return };
+    // The cat, or still opening, is the app's own page in this window: nothing of the dashboard is on screen.
+    let shown = window.url().is_ok_and(|url| !own_page(&url) && url.as_str() != "about:blank");
+    let w = window.clone();
+    let _ = window.with_webview(move |webview| {
+      let (pages, current) = history::read(&webview);
+      let pages: Vec<&str> = pages.iter().map(String::as_str).collect();
+      match rule(&pages, current, shown, &app.dashboard().1) {
+        Back::Page => history::go_back(&webview),
+        Back::Ask => ask_to_leave(&h, &app, &w),
+        Back::Leave => leave(&h),
+      }
+    });
+  });
+}
+
+/// "Go back to Nouride Home?", as a sheet on the dashboard's window: Go back leaves, Stay changes nothing.
+fn ask_to_leave(handle: &AppHandle, app: &Arc<App>, window: &WebviewWindow) {
+  if ASKING.swap(true, Ordering::SeqCst) {
+    return;
+  }
+  let (h, app) = (handle.clone(), app.clone());
+  applog::write(&app.layout.app_log(), "the dashboard's way back to Nouride Home: asked first");
+  handle
+    .dialog()
+    .message(crate::words::t(looks::leave::BODY))
+    .title(crate::words::t(looks::leave::TITLE))
+    .buttons(MessageDialogButtons::OkCancelCustom(crate::words::t(looks::leave::GO_BACK), crate::words::t(looks::leave::STAY)))
+    .parent(window)
+    .show(move |go_back| {
+      ASKING.store(false, Ordering::SeqCst);
+      applog::write(&app.layout.app_log(), if go_back { "the dashboard's way back to Nouride Home: go back" } else { "the dashboard's way back to Nouride Home: stay" });
+      if go_back {
+        leave(&h);
+      }
+    });
+}
+
+/// The dashboard's window closes, which destroys it, and Nouride Home comes forward, made again if it was closed.
+fn leave(handle: &AppHandle) {
+  let h = handle.clone();
+  std::thread::spawn(move || {
+    if let Some(w) = h.get_webview_window(LABEL) {
+      let _ = w.close();
+    }
+    windows::main::show(&h);
+  });
 }
 
 /// Where a download goes: the folder WebKit chose (the person's Downloads), under the name the page or the server gave

@@ -26,7 +26,9 @@ logic in `crates/`, the shared look in `packages/ui-kit`. The rules both apps sh
 5. **Opening the dashboard**: `daemon::device_sign_in` trades the app's device token for a session over HTTP (making
    one with the control token first when there is none or it was refused, `spec/device-sign-in.md`), the session
    cookie is set on the dashboard's window (`set_cookie`), and the window's `on_navigation` asks `link_policy::link`
-   what each load is. A script in the window (`device_sign_in::watch_script`) turns the dashboard's in-page move to its
+   what each load is. The dashboard's two ways out of a page are links it catches there: the header's Back is
+   decided by `link_policy::back` from WebKit's own history of the window (`windows/history.rs`), "Back to Nouride
+   Home" by `link_policy::leave`, and the question either may ask is a sheet on the window (`tauri-plugin-dialog`). A script in the window (`device_sign_in::watch_script`) turns the dashboard's in-page move to its
    sign-in page into a load, which `on_navigation` cancels to sign in again. Its
    `on_download` asks `downloads::source` whether a download is kept, names it in Downloads (`downloads::free_path`,
    after taking back the number wry gives a taken name itself) and shows a line in the page (`downloads::line_call`).
@@ -85,6 +87,8 @@ write to any of them. Test only Nouride Home Dev, which installs into
   button: the window is destroyed), `show <home|connect|versions|settings|logs>` (makes the window again when it is closed),
   `dashboard-js <script>` (runs a script in the dashboard's window, as a click there would; it returns nothing, so a
   script that reads the page writes what it found into the address with `history.replaceState` for `dump` to show),
+  `sheet [button's words]` (the question on the dashboard's window, "Go back to Nouride Home?": its words and
+  buttons, and with a button's words a click on it; `dump` shows it as `question`, `null` when none is up),
   `tray <item id>`, `check-nouride-update`, `backup-count` and `backup-start` (Settings' "Download Nouride's files"),
   `shot <name>` (a capture of the app's own window only, never the screen).
   `dump` gives each window's size, and `null` for a window that is closed (destroyed). While `<data>/e2e/no-browser` exists, a link the dashboard sends to the browser is
