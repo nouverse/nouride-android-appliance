@@ -1,0 +1,13 @@
+# 7. Home Dev's own Nouride turned off, Open Nouride: the cat
+  dashboard: {'visible': True, 'url': 'tauri://localhost/index.html#/unreachable'} | main: {'visible': True} | question: None | phase: stopped
+# the app's window closed, then a click on the cat page's "Back to Nouride Home" (nouridehome://home)
+  dashboard: {'visible': True, 'url': 'tauri://localhost/index.html#/unreachable'} | main: None | question: None | phase: stopped
+  dashboard: None | main: {'visible': True} | question: None | phase: stopped
+# 8. Nouride started again
+  dashboard: None | main: {'visible': True} | question: None | phase: running
+       8
+# the app's window closed again, as it was before this run; the app stays in the menu bar
+  dashboard: None | main: None | question: None | phase: running
+83619 ~/nix-work/nouride-home/target/debug/bundle/macos/Nouride Home Dev.app/Contents/MacOS/nouride-home
+unchanged: plist=<sha256> pid=<pid>
+the owner's own Nouride, read only: "version":"0.8.40"

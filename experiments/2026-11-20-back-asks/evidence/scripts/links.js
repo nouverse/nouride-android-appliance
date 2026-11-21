@@ -1,0 +1,1 @@
+JSON.stringify({href: location.href, mark: navigator.userAgent.match(/NourideHome\/\d+/)?.[0], historyLength: history.length, links: [...document.querySelectorAll('a[href^="nouridehome:"]')].map(a => ({href: a.getAttribute("href"), label: a.getAttribute("aria-label") || a.textContent.trim(), visible: !!(a.offsetWidth || a.offsetHeight)}))})

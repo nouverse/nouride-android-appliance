@@ -1,0 +1,6 @@
+=== sabotage: leave never asks
+tests::back_to_nouride_home_asks_on_a_deeper_page_where_back_goes_a_page_back_and_on_the_first_page --- FAILED
+thread 'tests::back_to_nouride_home_asks_on_a_deeper_page_where_back_goes_a_page_back_and_on_the_first_page' (482461) panicked at crates/link-policy/src/lib.rs:223:5:
+assertion `left == right` failed
+    tests::back_to_nouride_home_asks_on_a_deeper_page_where_back_goes_a_page_back_and_on_the_first_page
+test result: FAILED. 17 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

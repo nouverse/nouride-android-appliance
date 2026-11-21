@@ -1,0 +1,26 @@
+# the app opened
+  dashboard: None | main: {'visible': True} | question: None
+# Open Nouride
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/'} | main: {'visible': True} | question: None
+# what the page says of itself (written into its address)
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/?e2e=%7B%22mark%22%3A%22NourideHome%2F2%22%2C%22width%22%3A1200%2C%22links%22%3A%5B%5B%22nouridehome%3A%2F%2Fhome%22%2C%22Back%20to%20Nouride%20Home%22%2Ctrue%5D%2C%5B%22nouridehome%3A%2F%2Fback%22%2C%22Back%22%2Cfalse%5D%5D%7D'} | main: {'visible': True} | question: None
+# 1. a click on the sidebar's "Back to Nouride Home" (nouridehome://home), first page
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/'} | main: {'visible': True} | question: {'buttons': ['Stay', 'Go back'], 'words': ['Go back to Nouride Home?', 'Nouride keeps running and your agents keep answering. Press Open Nouride on Home to come back.']}
+# Stay
+{
+  "action": "sheet",
+  "answer": {
+    "buttons": [
+      "Stay",
+      "Go back"
+    ],
+    "words": [
+      "Go back to Nouride Home?",
+      "Nouride keeps running and your agents keep answering. Press Open Nouride on Home to come back."
+    ]
+  },
+  "ok": true
+}
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/'} | main: {'visible': True} | question: None
+~/Library/Application Support/tech.nouverse.nouride.home.dev/logs/app.log:1795264241 the dashboard's way back to Nouride Home: asked first
+~/Library/Application Support/tech.nouverse.nouride.home.dev/logs/app.log:1795264246 the dashboard's way back to Nouride Home: stay

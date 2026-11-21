@@ -1,0 +1,26 @@
+# 2. deeper: clicks on the sidebar's Agents, then Chats, then Work
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/work'} | main: {'visible': True} | question: None
+# 3. a click on the header's Back (nouridehome://back; in the page but not drawn at this width)
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/chat'} | main: {'visible': True} | question: None
+# again
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/agents'} | main: {'visible': True} | question: None
+# 4. "Back to Nouride Home" here, on a deeper page
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/agents'} | main: {'visible': True} | question: {'buttons': ['Stay', 'Go back'], 'words': ['Go back to Nouride Home?', 'Nouride keeps running and your agents keep answering. Press Open Nouride on Home to come back.']}
+# Stay
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/agents'} | main: {'visible': True} | question: None
+# 5. the header's Back twice more: to the first page, then at the first page
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/'} | main: {'visible': True} | question: None
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/'} | main: {'visible': True} | question: {'buttons': ['Stay', 'Go back'], 'words': ['Go back to Nouride Home?', 'Nouride keeps running and your agents keep answering. Press Open Nouride on Home to come back.']}
+# Stay
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/'} | main: {'visible': True} | question: None
+# 6. "Back to Nouride Home", then Go back
+  dashboard: {'visible': True, 'url': 'http://127.0.0.1:18264/dashboard/'} | main: {'visible': True} | question: {'buttons': ['Stay', 'Go back'], 'words': ['Go back to Nouride Home?', 'Nouride keeps running and your agents keep answering. Press Open Nouride on Home to come back.']}
+  dashboard: None | main: {'visible': True} | question: None
+1795264241 the dashboard's way back to Nouride Home: asked first
+1795264246 the dashboard's way back to Nouride Home: stay
+1795264285 the dashboard's way back to Nouride Home: asked first
+1795264290 the dashboard's way back to Nouride Home: stay
+1795264300 the dashboard's way back to Nouride Home: asked first
+1795264305 the dashboard's way back to Nouride Home: stay
+1795264309 the dashboard's way back to Nouride Home: asked first
+1795264315 the dashboard's way back to Nouride Home: go back

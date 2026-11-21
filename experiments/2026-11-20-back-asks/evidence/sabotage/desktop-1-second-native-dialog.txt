@@ -1,0 +1,9 @@
+37 |       const before = [...text.slice(0, found.index).matchAll(/\bfn\s+(\w+)\s*[(<]/g)];
+38 |       return `${relative(rust, path)}: ${before.at(-1)?.[1] ?? "?"}`;
+@@ -2,2 +2,3 @@
++   "tray.rs: sabotage",
+- Expected  - 0
++ Received  + 1
+(fail) the only native dialog is the question before the dashboard's window closes [69.06ms]
+ 3 pass
+ 1 fail
