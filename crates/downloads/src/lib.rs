@@ -6,6 +6,10 @@ use std::path::{Path, PathBuf};
 
 use url::Url;
 
+mod pending;
+
+pub use pending::{Ended, Part, Pending};
+
 /// What happens to a download the dashboard asks for.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Source {
