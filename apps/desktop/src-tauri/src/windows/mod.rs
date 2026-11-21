@@ -1,4 +1,5 @@
 pub mod dashboard;
+mod history;
 pub mod main;
 
 use tauri::{AppHandle, Manager, Theme};

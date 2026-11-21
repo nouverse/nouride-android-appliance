@@ -1,0 +1,40 @@
+# Home Dev (this build, NourideHome/2) on a Nouride 0.8.41 on another computer, signed in
+"{\"href\":\"https://<tunnel>.trycloudflare.com/dashboard/\",\"mark\":\"NourideHome/2\",\"historyLength\":4,\"links\":[{\"href\":\"nouridehome://back\",\"label\":\"Back\",\"visible\":true},{\"href\":\"nouridehome://home\",\"label\":\"Back to Nouride Home\",\"visible\":true}]}"
+# 1. after the sign-in the history was [/dashboard/, /dashboard/login, /dashboard/, /dashboard/] at 3: the chevron (nouridehome://back) went a page back to 2, no question; tapped again, with the sign-in page before it:
+"{\"at\":2,\"pages\":[\"/dashboard/\",\"/dashboard/login\",\"/dashboard/\",\"/dashboard/\"]}"
+ui.DashboardActivity "/dashboard/" question=1
+TextView | Go back to Nouride Home? | [137,1035][943,1109]
+TextView | Nouride keeps running and your agents keep answering. Tap Open Nouride on Home to come back. | [71,1131][1009,1294]
+Button | STAY | [569,1305][745,1454]
+Button | GO BACK | [745,1305][976,1454]
+# Stay:
+ui.DashboardActivity "/dashboard/" question=0
+# 2. deeper: Agents (bottom bar), then the agent Tester
+ui.DashboardActivity "/dashboard/agents" question=0
+#    then Chats and Work (bottom bar):
+ui.DashboardActivity "/dashboard/work" question=0
+"{\"at\":5,\"pages\":[\"/dashboard/\",\"/dashboard/login\",\"/dashboard/\",\"/dashboard/agents\",\"/dashboard/chat\",\"/dashboard/work\"]}"
+# 3. the header's chevron on /dashboard/work:
+"nouridehome://back"
+ui.DashboardActivity "/dashboard/chat" question=0
+"{\"at\":4,\"pages\":[\"/dashboard/\",\"/dashboard/login\",\"/dashboard/\",\"/dashboard/agents\",\"/dashboard/chat\",\"/dashboard/work\"]}"
+# 4. the phone's Back:
+ui.DashboardActivity "/dashboard/agents" question=0
+"{\"at\":3,\"pages\":[\"/dashboard/\",\"/dashboard/login\",\"/dashboard/\",\"/dashboard/agents\",\"/dashboard/chat\",\"/dashboard/work\"]}"
+# 5. More (bottom bar):
+{\"href\":\"nouridehome://home\",\"label\":\"Back to Nouride Home\",\"x\":540,\"y\":1965,\"w\":369,\"h\":40}
+# 6. "Back to Nouride Home" in the More sheet (nouridehome://home), on /dashboard/agents, a deeper page:
+ui.DashboardActivity "/dashboard/agents" question=1
+TextView | Go back to Nouride Home? | [137,1035][943,1109]
+TextView | Nouride keeps running and your agents keep answering. Tap Open Nouride on Home to come back. | [71,1131][1009,1294]
+Button | STAY | [569,1305][745,1454]
+Button | GO BACK | [745,1305][976,1454]
+# Stay:
+ui.DashboardActivity "/dashboard/agents" question=0
+"{\"at\":3,\"pages\":[\"/dashboard/\",\"/dashboard/login\",\"/dashboard/\",\"/dashboard/agents\",\"/dashboard/chat\",\"/dashboard/work\"]}"
+# 7. "Back to Nouride Home" again, then Go back:
+ui.DashboardActivity "/dashboard/agents" question=1
+ui.StatusActivity  question=0
+TextView | Nouride is running
+TextView | It runs on another computer. This phone opens it.
+Button | Open Nouride

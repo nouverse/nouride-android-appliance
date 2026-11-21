@@ -38,9 +38,11 @@ each time it is needed, never kept (`windows::main::show`, `windows::dashboard::
 its config at the screen asked for (`looks::window::main_page`, read by `startSection`), the dashboard's signed in
 again as it opens. Closing the last window does not quit the app (`looks::window::exits`); Quit does.
 
-**A modal only for a confirmation.** Nothing stands over the window but a question that confirms something the person
-pressed: Settings' Turn off is the one (`commons/components/Dialog.tsx`). A form, a choice, a message or an address
-opens in the page, where the person already is (`apps/desktop/tests/modals.test.ts` holds this). No native dialog either.
+**A modal only for a confirmation.** Nothing stands over a window but a question that confirms something the person
+pressed. The app's window has one, Settings' Turn off (`commons/components/Dialog.tsx`); the dashboard's has one, "Go
+back to Nouride Home?", a sheet of the system's own since the page there is Nouride's (`windows/dashboard.rs`). A
+form, a choice, a message or an address opens in the page, where the person already is, and no other native dialog is
+ever shown (`apps/desktop/tests/modals.test.ts` holds both).
 
 **The sidebar** (`commons/components/Sidebar.tsx`, the logic in `commons/lib/sections.ts`), on a slightly tinted
 surface down the left: the cat on its disc and "Nouride Home" at the top (with a yellow Dev badge on the Dev build), then
@@ -157,7 +159,7 @@ rows that open other screens:
   with the backup password, or not at all), its size and "Download Nouride's files"; then the bar with its percent,
   and the line that says where the zip is, or that it did not fit or did not save. In the page, never a dialog.
 - **Nouride on this computer** (installed by the app, while it may be turned off): one sentence and **Turn off
-  Nouride** in amber words, not a button. It asks once, the app's one modal: "Turn Nouride off? Your assistant will not
+  Nouride** in amber words, not a button. It asks once, the one modal on the app's window: "Turn Nouride off? Your assistant will not
   answer until you start it again."
 
 ## The menu bar
@@ -183,8 +185,12 @@ tab (`target="_blank"`) goes the same way: WebKit drops such a click, so the win
 to turn it into `window.open`, and `link_policy::new_window` decides; a Nouride path that redirects out (the gateway's
 `/oauth/start`, to Google) leaves for the browser as it redirects, and the page on screen stays. When Nouride does not answer, the leaning cat and "Nouride isn't answering", "It may still be starting, or it
 is turned off. Check Home, then try again." with Try again stand in for the WebView's own error page. The dashboard's
-own back button closes the window (destroying it, as its close button does) and brings Nouride Home forward, made
-again if it was closed. A file the dashboard downloads goes to the person's Downloads under its own name, a second
+"Back to Nouride Home" asks first, on any page, in a sheet on the window: "Go back to Nouride Home?", "Nouride keeps
+running and your agents keep answering. Press Open Nouride on Home to come back.", with Go back and Stay
+(`looks::leave`, the phone's words). Go back closes the window (destroying it, as its close button does, which asks
+nothing) and brings Nouride Home forward, made again if it was closed; Stay changes nothing. Over the cat it closes
+with no question. The Back in the dashboard's header, drawn when the window is narrow, goes back a page, and asks the
+same question at the first page (`spec/link-policy.md`). A file the dashboard downloads goes to the person's Downloads under its own name, a second
 copy numbered (`spec/downloads.md`), and a short line at the foot of the page says "Downloading report.pdf.", then
 "report.pdf is in Downloads." or that it did not download (`downloads::LINE_SCRIPT`): the window has no list of
 downloads as a browser does.

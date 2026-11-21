@@ -45,11 +45,12 @@ import kotlin.concurrent.thread
  * a provider's sign-in page included (`LoopbackSignIn`). `nouridehome://dashboard`, where a finished sign-in sends the
  * browser, brings this screen back where it was, and the dashboard asks the gateway again for its accounts.
  *
- * Back, the phone's button or swipe and the back button in the dashboard's header alike (`LinkPolicy.HOME`), goes back
+ * Back, the phone's button or swipe and the back button in the dashboard's header alike (`LinkPolicy.BACK`), goes back
  * a page inside the dashboard as a browser does (`LinkPolicy.back`); from the first page it asks before it closes the
  * dashboard. Never back onto the sign-in, the first password or the setup wizard: walking the history onto those once
- * took a person from the dashboard back to the wizard. There is one bar on screen, the dashboard's; the user agent says
- * it is the app, which is what draws that back button.
+ * took a person from the dashboard back to the wizard. "Back to Nouride Home" in the dashboard's menu
+ * (`LinkPolicy.HOME`) is not Back: it leaves from any page, and asks first (`LinkPolicy.leave`). There is one bar on
+ * screen, the dashboard's; the user agent says it is the app, which is what draws both.
  */
 class DashboardActivity : Activity() {
   private lateinit var web: WebView
@@ -251,6 +252,10 @@ class DashboardActivity : Activity() {
           back()
           true
         }
+        LinkPolicy.Link.LEAVE -> {
+          leave()
+          true
+        }
         LinkPolicy.Link.HERE -> false
         LinkPolicy.Link.OUTSIDE -> {
           openOutside(url)
@@ -321,19 +326,29 @@ class DashboardActivity : Activity() {
   @Deprecated("Activity.onBackPressed")
   override fun onBackPressed() = back()
 
+  /** Whether the dashboard itself is on screen, not the cat over it. */
+  private val dashboardShown get() = unreachable.visibility != View.VISIBLE && opening.visibility != View.VISIBLE
+
   /** The phone's Back, or the header's: a page back, or leaving, asked first when there is something to lose. */
   private fun back() {
     val list = web.copyBackForwardList()
     val history = (0 until list.size).map { list.getItemAtIndex(it).url }
-    val shown = unreachable.visibility != View.VISIBLE && opening.visibility != View.VISIBLE
-    when (LinkPolicy.back(history, list.currentIndex, dashboardShown = shown, origin = origin)) {
-      LinkPolicy.Back.PAGE -> web.goBack()
-      LinkPolicy.Back.LEAVE -> goHome()
-      LinkPolicy.Back.ASK -> askToLeave()
-    }
+    act(LinkPolicy.back(history, list.currentIndex, dashboardShown = dashboardShown, origin = origin))
   }
 
-  /** Before the dashboard closes: a swipe from the edge, or a tap on the header's back, closed it by accident. */
+  /** "Back to Nouride Home" in the dashboard's menu: leaving from any page, asked first. */
+  private fun leave() = act(LinkPolicy.leave(dashboardShown))
+
+  private fun act(what: LinkPolicy.Back) = when (what) {
+    LinkPolicy.Back.PAGE -> web.goBack()
+    LinkPolicy.Back.LEAVE -> goHome()
+    LinkPolicy.Back.ASK -> askToLeave()
+  }
+
+  /**
+   * Before the dashboard closes: a swipe from the edge, or a tap on the header's back, closed it by accident, and
+   * "Back to Nouride Home" loses the page a person is on.
+   */
   private fun askToLeave() {
     AlertDialog.Builder(this)
       .setTitle(R.string.leave_dashboard_title)

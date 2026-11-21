@@ -1,7 +1,7 @@
 //! spec/fixtures/link-policy.json, which the Android app's tests read too: which links the dashboard's window keeps,
-//! and what Back does there. A case's `desktop` answer, when there is one, is where this app differs from Android.
+//! what Back does there, and what "Back to Nouride Home" does. A case's `desktop` answer, when there is one, is where this app differs from Android.
 
-use link_policy::{back, back_inside, in_app, link, unreachable, Back, Link, HOME, USER_AGENT_MARK};
+use link_policy::{back, back_inside, in_app, leave, link, unreachable, Back, Link, BACK, HOME, USER_AGENT_MARK};
 use serde_json::Value;
 
 fn fixture() -> Value {
@@ -23,6 +23,14 @@ fn s<'a>(case: &'a Value, key: &str) -> &'a str {
   case[key].as_str().unwrap()
 }
 
+fn named(back: Back) -> &'static str {
+  match back {
+    Back::Page => "page",
+    Back::Ask => "ask",
+    Back::Leave => "leave",
+  }
+}
+
 fn history(case: &Value) -> Vec<&str> {
   case["history"].as_array().unwrap().iter().map(|h| h.as_str().unwrap()).collect()
 }
@@ -31,6 +39,7 @@ fn history(case: &Value) -> Vec<&str> {
 fn the_constants_are_the_specs() {
   let spec = fixture();
   assert_eq!(HOME, spec["home"]);
+  assert_eq!(BACK, spec["page_back"]);
   assert_eq!(USER_AGENT_MARK, spec["user_agent_mark"]);
 }
 
@@ -46,6 +55,7 @@ fn link_as_the_spec_says() {
   for case in cases("link") {
     let got = match link(s(&case, "url"), case["main_frame"].as_bool().unwrap(), s(&case, "origin")) {
       Link::Back => "back",
+      Link::Leave => "leave",
       Link::Here => "here",
       Link::Outside => "outside",
     };
@@ -65,12 +75,16 @@ fn back_inside_as_the_spec_says() {
 fn back_as_the_spec_says() {
   for case in cases("back") {
     let current = case["current"].as_u64().unwrap() as usize;
-    let got = match back(&history(&case), current, case["dashboard_shown"].as_bool().unwrap(), s(&case, "origin")) {
-      Back::Page => "page",
-      Back::Ask => "ask",
-      Back::Leave => "leave",
-    };
-    assert_eq!(got, expected(&case).as_str().unwrap(), "{case}");
+    let got = back(&history(&case), current, case["dashboard_shown"].as_bool().unwrap(), s(&case, "origin"));
+    assert_eq!(named(got), expected(&case).as_str().unwrap(), "{case}");
+  }
+}
+
+#[test]
+fn leave_as_the_spec_says() {
+  for case in cases("leave") {
+    let got = leave(case["dashboard_shown"].as_bool().unwrap());
+    assert_eq!(named(got), expected(&case).as_str().unwrap(), "{case}");
   }
 }
 

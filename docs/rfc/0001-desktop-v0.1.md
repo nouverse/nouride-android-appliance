@@ -51,13 +51,16 @@ The dashboard in a window of the app (a WebView: WKWebView on macOS), never a br
   session cookie to the window (`set_cookie`); a 401 means the person chose their own password, and the app forgets
   its own. Another computer, or a Nouride the app did not install, opens on its own login page.
 - The window's user agent carries `NourideHome/1`, so the dashboard draws its back button; that button's link
-  (`nouridehome://home`) closes the window and brings Nouride Home forward.
+  (`nouridehome://home`) closes the window and brings Nouride Home forward. (Changed in 0.2.1: the mark is
+  `NourideHome/2`, and that link asks first; see `spec/link-policy.md`.)
 - `LinkPolicy`, ported as it is: Nouride's own pages at the Nouride shown stay in the window, every other link goes to
   the browser, and a main-frame load that fails at Nouride's origin shows the cat and Try again instead of the
   WebView's own error page.
 - Back: on a computer the window's close button and the dashboard's own back button are explicit, so there is no
   "Go back to Nouride Home?" question as on a phone's swipe. The `back` rules are ported and tested for the keyboard's
   Back (Cmd+[), which walks the dashboard's history but never onto a sign-in, welcome, setup or OAuth page.
+  (Changed in 0.2.1: "Back to Nouride Home" asks the question on a computer too, as a sheet on the window, and the
+  `back` rules decide the header's Back, `nouridehome://back`. No keyboard Back was ever wired.)
 
 ### Updates
 

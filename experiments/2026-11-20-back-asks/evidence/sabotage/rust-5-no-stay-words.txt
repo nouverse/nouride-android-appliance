@@ -1,0 +1,5 @@
+test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+the_question_before_the_dashboard_closes_has_its_words_and_its_two_answers --- FAILED
+thread 'the_question_before_the_dashboard_closes_has_its_words_and_its_two_answers' (489163) panicked at crates/looks/tests/words.rs:17:3:
+no words for stay
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

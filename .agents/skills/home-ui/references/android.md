@@ -25,7 +25,9 @@ two scrolls in one another catch the wrong finger.
 ## Nothing over the screen
 
 A dialog over the screen is only for a confirmation, before something the person may not have meant: **Turn off
-Nouride** on More, and leaving the dashboard (`DashboardActivity`). Everything else is said on the page (the owner,
+Nouride** on More, and leaving the dashboard (`DashboardActivity`): "Go back to Nouride Home?", with Go back and Stay,
+asked by Back at the dashboard's first page and by the dashboard's "Back to Nouride Home" on any page
+(`spec/link-policy.md`). Everything else is said on the page (the owner,
 2026-11-16): a new version is a card on Home, a permission Android needs is a sentence and a button on the card that
 needs it, and a question with something to type is a screen of its own, with its back at the top as Versions and
 Technical Logs have. `ModalsTest` lists every dialog the app builds, by the function that builds it: a new one changes

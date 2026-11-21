@@ -33,5 +33,14 @@ tauri-plugin-opener = "2.7.3"
 tauri-plugin-clipboard-manager = "2.5.0"
 tauri-plugin-updater = "2.14.1"
 tauri-plugin-deep-link = "2.6.3"
+tauri-plugin-dialog = "2.8.4"
 qrcode = { version = "0.14.1", default-features = false, features = ["svg"] }
 libc = "0.2"
+
+# WebKit's own bindings, for the dashboard window's history (`windows/history.rs`), and AppKit's for the Dev build's
+# hooks that read and answer the question on that window (`e2e.rs`). Tauri builds on the same crates.
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6.5"
+objc2-foundation = { version = "0.3.2", default-features = false, features = ["std", "NSArray", "NSString", "NSURL"] }
+objc2-web-kit = { version = "0.3.2", default-features = false, features = ["std", "objc2-app-kit", "WKWebView", "WKBackForwardList", "WKBackForwardListItem", "WKNavigation"] }
+objc2-app-kit = { version = "0.3.2", default-features = false, features = ["std", "NSResponder", "NSView", "NSWindow", "NSControl", "NSButton", "NSTextField"] }

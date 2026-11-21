@@ -1,0 +1,19 @@
+# Lines are: the texts of the dialog on screen (uiautomator), the top activity, the page's address; a bare 0 or 1 is whether the question is on screen.
+# /dashboard/welcome on the phone's own Nouride 0.8.41: tap on the page's "Nouride Home" button (nouridehome://home)
+TextView | Go back to Nouride Home? | [137,1035][943,1109]
+TextView | Nouride keeps running and your agents keep answering. Tap Open Nouride on Home to come back. | [71,1131][1009,1294]
+Button | STAY | [569,1305][745,1454]
+Button | GO BACK | [745,1305][976,1454]
+# after Stay:
+ui.DashboardActivity
+"http://127.0.0.1:18264/dashboard/welcome"
+0
+# the button again, then Go back:
+1
+ui.StatusActivity
+# dashboard opened again, the phone's Back on /welcome (first page):
+ui.DashboardActivity
+TextView | Go back to Nouride Home? | [137,1035][943,1109]
+Button | STAY | [569,1305][745,1454]
+Button | GO BACK | [745,1305][976,1454]
+ui.DashboardActivity

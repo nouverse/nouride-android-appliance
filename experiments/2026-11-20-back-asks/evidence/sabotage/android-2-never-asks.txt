@@ -1,0 +1,4 @@
+=== sabotage: 2-never-asks
+gradle exit 1
+  RED LinkPolicySpecTest :: leave as the spec says
+  RED LinkPolicyTest :: Back to Nouride Home asks on a deeper page, where Back goes a page back, and on the first page

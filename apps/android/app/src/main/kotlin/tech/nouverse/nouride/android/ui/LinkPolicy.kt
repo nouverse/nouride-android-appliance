@@ -16,25 +16,38 @@ import java.net.URI
 object LinkPolicy {
   private val local = URI(Nouride.ORIGIN)
 
-  /** The back button in the dashboard's header, drawn only inside this app (`commons/lib/home-app.ts` in Nouride). */
+  /**
+   * "Back to Nouride Home", which the dashboard draws in its menu and on its pages without a header, only inside this
+   * app (`commons/lib/home-app.ts` in Nouride).
+   */
   const val HOME = "nouridehome://home"
 
-  /** Where a link the dashboard follows goes. */
-  enum class Link { BACK, HERE, OUTSIDE }
+  /** Back, the chevron the dashboard draws in a phone's header. Sent only to an app whose mark says 2 or more. */
+  const val BACK = "nouridehome://back"
+
+  /** Where a link the dashboard follows goes. [BACK] is the system's Back ([back]); [LEAVE] is [leave]. */
+  enum class Link { BACK, LEAVE, HERE, OUTSIDE }
 
   /**
-   * The header's back is the system's Back ([back]): a page back inside the dashboard, and from the first page it asks
-   * before it closes (the owner, 2026-11-09: one tap there closed Nouride from any page). Nouride's own pages open here,
-   * and a frame inside a page is the page's business; anything else leaves for the browser or the app that owns it.
+   * The header's Back is the system's Back ([back]): a page back inside the dashboard, and from the first page it asks
+   * before it closes (the owner, 2026-11-09: one tap there closed Nouride from any page). "Back to Nouride Home" is
+   * never that ([leave]): it leaves from any page, and asks first (the owner, 2026-11-20: the two are different
+   * buttons). Nouride's own pages open here, and a frame inside a page is the page's business; anything else leaves
+   * for the browser or the app that owns it.
    */
   fun link(url: String, isForMainFrame: Boolean, origin: String = Nouride.ORIGIN): Link = when {
-    url == HOME -> Link.BACK
+    url == BACK -> Link.BACK
+    url == HOME -> Link.LEAVE
     !isForMainFrame || inApp(url, origin) -> Link.HERE
     else -> Link.OUTSIDE
   }
 
-  /** Added to the WebView's user agent, so the dashboard knows it is inside the app and shows that way back. */
-  const val USER_AGENT_MARK = "NourideHome/1"
+  /**
+   * Added to the WebView's user agent, so the dashboard knows it is inside the app and shows those ways back. The
+   * number says which links the app catches: 2 is [HOME] and [BACK]. Raise it only with the code that catches a new
+   * link.
+   */
+  const val USER_AGENT_MARK = "NourideHome/2"
 
   /**
    * Whether a failed load is Nouride itself not answering (turned off, not up yet, or the other machine unreachable),
@@ -59,7 +72,7 @@ object LinkPolicy {
     return !passedOnce(onScreen) && previous != "about:blank" && inApp(previous, origin) && !passedOnce(previous)
   }
 
-  /** What the system's Back does on the dashboard's screen. */
+  /** What the system's Back, or "Back to Nouride Home", does on the dashboard's screen. */
   enum class Back { PAGE, ASK, LEAVE }
 
   /**
@@ -72,6 +85,12 @@ object LinkPolicy {
     backInside(history, current, origin) -> Back.PAGE
     else -> Back.ASK
   }
+
+  /**
+   * "Back to Nouride Home": it asks first whatever the page, the first one included, since leaving loses the page a
+   * person is on. Over the cat, or while the dashboard opens, it leaves without asking. Never a page back.
+   */
+  fun leave(dashboardShown: Boolean): Back = if (dashboardShown) Back.ASK else Back.LEAVE
 
   /** A dashboard page a person goes through once (`redirectFor` in the dashboard's `session.ts` sends them there). */
   fun passedOnce(url: String): Boolean {
