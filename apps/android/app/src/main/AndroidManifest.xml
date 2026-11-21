@@ -11,7 +11,7 @@
   <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
   <!-- Its own updates, from GitHub Releases (update/Updates.kt): the person allows it once, Android asks each time. -->
   <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-  <!-- A file from the dashboard, or Nouride's backup, into Downloads before Android 10 (download/DownloadsFolder.kt).
+  <!-- A file from the dashboard into Downloads before Android 10 (download/DownloadsFolder.kt).
        From 10 on MediaStore takes it with no permission. -->
   <uses-permission
     android:name="android.permission.WRITE_EXTERNAL_STORAGE"

@@ -6,7 +6,6 @@ mod applog;
 mod commands;
 #[cfg(feature = "dev")]
 mod e2e;
-mod nouride_files;
 mod poller;
 mod setup;
 mod state;
@@ -81,8 +80,6 @@ fn main() {
       commands::open_dashboard,
       commands::set_access,
       commands::set_appearance,
-      commands::backup_count,
-      commands::backup_start,
       commands::check_app,
       commands::update_app,
       commands::check_nouride,

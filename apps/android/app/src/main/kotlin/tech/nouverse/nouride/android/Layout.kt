@@ -18,7 +18,6 @@ class Layout(context: Context) {
   val installLog = File(logs, "install.log")
   val daemonLog = File(logs, "daemon.log")
   val healthLog = File(logs, "health.log")
-  val backupLog = File(logs, "backup.log")
   private val nativeLibs = File(context.applicationInfo.nativeLibraryDir)
 
   /** The install's own `.env`, which the daemon reads at every start. */

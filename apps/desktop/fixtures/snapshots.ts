@@ -30,7 +30,6 @@ const running: Snapshot = {
   versionsDot: true,
   versionsRow: "versions_row_nouride_update",
   appearance: "system",
-  backup: { shown: true, secrets: "backup_unsealed", sizeWords: "backup_size", size: 158_064_866, button: true, bar: false, percent: null, result: null, name: null },
   versions: {
     app: { ...card },
     nouride: { version: "0.8.39", ready: "0.8.40", percent: 0, words: "versions_nouride_ready", button: "update", label: "versions_update_to", progress: false },
@@ -54,14 +53,6 @@ export const SNAPSHOTS: Record<string, Snapshot> = {
     versionsRow: null,
   },
   "home-here": running,
-  "backup-saving": {
-    ...running,
-    backup: { ...running.backup, button: false, bar: true, percent: 37, result: "backup_saving" },
-  },
-  "backup-saved": {
-    ...running,
-    backup: { ...running.backup, result: "backup_saved", name: "nouride-backup-2026-11-17.zip" },
-  },
   "home-remote": {
     ...running,
     place: "remote",

@@ -154,10 +154,9 @@ rows that open other screens:
   (`modules/settings/placeChoice.ts`).
 - **Appearance**: "Nouride Home and Nouride's window look this way.", Same as computer, Light, Dark; applies at once
   to the app and to the dashboard's window.
-- **Nouride's files** (the Nouride the app installed here only; hidden for another computer, `looks::backup::shown`):
-  one zip of the folder Nouride keeps, in Downloads (`spec/backup.md`). What it holds, how the secrets go in (locked
-  with the backup password, or not at all), its size and "Download Nouride's files"; then the bar with its percent,
-  and the line that says where the zip is, or that it did not fit or did not save. In the page, never a dialog.
+- **No button for Nouride's files.** Taking Nouride's chats, memories, agents and files out, or to another computer,
+  is Nouride's own Export and import, in the dashboard's Settings: one file Nouride can read back. The app makes no
+  copy of its own (it had a zip here, taken out before 0.2.1 was released).
 - **Nouride on this computer** (installed by the app, while it may be turned off): one sentence and **Turn off
   Nouride** in amber words, not a button. It asks once, the one modal on the app's window: "Turn Nouride off? Your assistant will not
   answer until you start it again."

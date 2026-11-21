@@ -211,9 +211,9 @@
       "expect": "v1.2 notes (1).txt"
     },
     {
-      "name": "nouride-backup-2026-11-16.zip",
+      "name": "photos-2026-11-16.zip",
       "n": 2,
-      "expect": "nouride-backup-2026-11-16 (2).zip"
+      "expect": "photos-2026-11-16 (2).zip"
     },
     {
       "name": "logs.tar.gz",

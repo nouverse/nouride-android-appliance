@@ -152,11 +152,9 @@ is that computer's.
     work is done). The card follows Nouride back and says the new version. Off, it says to turn Nouride on; a download
     started on the dashboard is followed, then offered as "Install the update".
   The sentences and buttons are `ui/VersionLooks.kt`, pure and tested, as the status screen's are.
-- **Nouride's files**, while Nouride runs on this phone (hidden for another computer, `BackupLooks.shown`): one zip of
-  the folder Nouride keeps, in Downloads (`spec/backup.md`). Before the button, what it holds (chats, memories, agents
-  and files), how the secrets go in (locked with the backup password, or not at all), that other apps allowed to see
-  Downloads can open it, and its size; then the bar with its percent, and the line that says where the zip is, or that
-  it did not fit or did not save, with what to do. No dialog: nothing in it needs a confirmation.
+- **No button for Nouride's files.** Taking Nouride's chats, memories, agents and files out, or to another device, is
+  Nouride's own Export and import, in the dashboard's Settings: one file Nouride can read back. The app makes no copy
+  of its own (it had a zip on this tab, taken out before 0.2.1 was released).
 - **Turn off Nouride**: amber words, not a button, so it is never pressed by mistake. It asks once: "Turn Nouride off?
   Your assistant will not answer until you start it again."
 - **Technical Logs ›**, last.

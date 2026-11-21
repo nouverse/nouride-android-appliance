@@ -89,8 +89,7 @@ write to any of them. Test only Nouride Home Dev, which installs into
   script that reads the page writes what it found into the address with `history.replaceState` for `dump` to show),
   `sheet [button's words]` (the question on the dashboard's window, "Go back to Nouride Home?": its words and
   buttons, and with a button's words a click on it; `dump` shows it as `question`, `null` when none is up),
-  `tray <item id>`, `check-nouride-update`, `backup-count` and `backup-start` (Settings' "Download Nouride's files"),
-  `shot <name>` (a capture of the app's own window only, never the screen).
+  `tray <item id>`, `check-nouride-update`, `shot <name>` (a capture of the app's own window only, never the screen).
   `dump` gives each window's size, and `null` for a window that is closed (destroyed). While `<data>/e2e/no-browser` exists, a link the dashboard sends to the browser is
   only logged ("would go to the browser"): the browser is on the person's screen, so open it for real once, at the
   end, and say how many times you did.

@@ -1,5 +1,8 @@
 # Nouride Home 0.2.1 before its release, on a Redmi Note 12 and a Mac
 
+> **2026-11-21:** case 4, "Download Nouride's files", is of a button taken out of both apps before 0.2.1 was
+> released (Nouride 0.8.41 has Export and import). The other cases stand.
+
 ## The question
 
 `main` at `2edf4a8` (VERSION 0.2.1) carries downloads from the dashboard and "Download Nouride's files" (PR #11), the

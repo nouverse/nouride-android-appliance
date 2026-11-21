@@ -1,5 +1,10 @@
 # Downloads from the dashboard, and Nouride's files as one zip (0.2.1)
 
+> **2026-11-21:** "Download Nouride's files" was taken out of both apps before 0.2.1 was released: Nouride 0.8.41
+> has Export and import, one file it can read back, and the apps keep no copy of their own. What this record says
+> of the zip is what was built and measured then; `spec/backup.md` and its fixture are gone with it. The downloads
+> half stands.
+
 ## The question
 
 Inside both apps, does a file the dashboard downloads end up in the person's Downloads folder, under its own name,
