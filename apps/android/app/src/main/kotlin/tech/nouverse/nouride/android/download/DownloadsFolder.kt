@@ -15,7 +15,7 @@ import java.io.IOException
 import java.io.OutputStream
 
 /**
- * The phone's Downloads folder, where a file from the dashboard and Nouride's backup are kept: the folder every Files
+ * The phone's Downloads folder, where a file from the dashboard is kept: the folder every Files
  * app opens, and the one a person finds a download in.
  *
  * The app writes there itself, never through `DownloadManager`: that runs in another process, which may not speak plain

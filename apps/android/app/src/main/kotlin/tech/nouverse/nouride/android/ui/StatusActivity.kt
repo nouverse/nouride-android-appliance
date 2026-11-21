@@ -102,7 +102,6 @@ class StatusActivity : Activity() {
   }
 
   override fun onPause() {
-    more.pause()
     ServerState.unlisten(listener)
     handler.removeCallbacks(refresh)
     super.onPause()

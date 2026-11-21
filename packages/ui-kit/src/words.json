@@ -1,5 +1,5 @@
 {
-  "_note": "Every word a person reads in Nouride Home, written for someone who has never opened a terminal (the home-ui skill). {version}, {percent}, {name} and {size} are filled in; nothing else is.",
+  "_note": "Every word a person reads in Nouride Home, written for someone who has never opened a terminal (the home-ui skill). {version}, {percent} and {name} are filled in; nothing else is.",
   "app_name": "Nouride Home",
   "app_name_dev": "Nouride Home Dev",
   "off_title": "Nouride is off",
@@ -164,18 +164,5 @@
   "appearance_body": "Nouride Home and Nouride's window look this way.",
   "download_started": "Downloading {name}.",
   "download_saved": "{name} is in Downloads.",
-  "download_failed": "{name} didn't download. Try again.",
-  "backup_title": "Nouride's files",
-  "backup_body": "One zip of everything Nouride keeps on this computer: your chats, memories, agents and files.",
-  "backup_sealed": "Keys and passwords go in locked: only your backup password opens them.",
-  "backup_unsealed": "Keys and passwords stay out, as Nouride has no backup password.",
-  "backup_counting": "Working out its size…",
-  "backup_size": "About {size}.",
-  "backup_button": "Download Nouride's files",
-  "backup_snapshot": "Getting your chats ready…",
-  "backup_saving": "Saving Nouride's files… {percent}%",
-  "backup_saved": "{name} is in Downloads.",
-  "backup_no_room": "There isn't enough room on this computer. Free about {size}, then try again.",
-  "backup_no_snapshot": "Nouride couldn't get your chats ready. Try again in a moment.",
-  "backup_failed": "Nouride's files didn't save. Try again."
+  "download_failed": "{name} didn't download. Try again."
 }

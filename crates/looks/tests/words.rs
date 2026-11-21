@@ -1,7 +1,7 @@
 //! Every key the looks name has its words in `packages/ui-kit/src/words.json`, and every placeholder in them is one
 //! the screens fill: a state cannot ship without its sentence, nor a sentence with a `{…}` left in it.
 
-use looks::{backup, leave, notices, tray, versions, Words};
+use looks::{leave, notices, tray, versions, Words};
 use serde_json::Value;
 use shared::{Phase, Reply, Where};
 
@@ -61,19 +61,6 @@ fn every_menu_item_and_notice_has_words() {
 }
 
 #[test]
-fn every_word_of_nouride_s_files_is_there() {
-  let map = words();
-  for step in backup::Step::ALL {
-    if let Some(k) = backup::result(step) {
-      has(&map, k);
-    }
-  }
-  for k in [backup::secrets(true), backup::secrets(false), "backup_title", "backup_body", "backup_size", "backup_counting", "backup_button"] {
-    has(&map, k);
-  }
-}
-
-#[test]
 fn the_question_before_the_dashboard_closes_has_its_words_and_its_two_answers() {
   let map = words();
   for k in [leave::TITLE, leave::BODY, leave::GO_BACK, leave::STAY] {
@@ -85,7 +72,7 @@ fn the_question_before_the_dashboard_closes_has_its_words_and_its_two_answers() 
 
 #[test]
 fn only_the_placeholders_the_screens_fill_are_in_the_words() {
-  let filled = ["{version}", "{percent}", "{step}", "{steps}", "{app}", "{nouride}", "{name}", "{size}"];
+  let filled = ["{version}", "{percent}", "{step}", "{steps}", "{app}", "{nouride}", "{name}"];
   for (key, value) in words() {
     let Some(text) = value.as_str() else { continue };
     let mut rest = filled.iter().fold(text.to_owned(), |t, p| t.replace(p, ""));

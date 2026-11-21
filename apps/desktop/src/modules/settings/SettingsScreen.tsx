@@ -1,6 +1,5 @@
 import { Card, TextButton } from "@nouride-home/ui-kit/components";
-import { type ReactNode, useEffect, useState } from "react";
-import { backupWords } from "../../commons/lib/backup";
+import { type ReactNode, useState } from "react";
 import { Dialog } from "../../commons/components/Dialog";
 import { ipc, type Appearance, type Snapshot } from "../../commons/lib/ipc";
 import { t } from "../../commons/lib/words";
@@ -40,11 +39,6 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
 export function SettingsScreen({ s }: { s: Snapshot }) {
   const [asking, setAsking] = useState(false);
   const [confirmOff, setConfirmOff] = useState(false);
-  // What "Download Nouride's files" would weigh, counted each time Settings is shown.
-  useEffect(() => {
-    if (s.backup.shown) ipc.backupCount();
-  }, [s.backup.shown]);
-  const backup = backupWords(s.backup);
   return (
     <div className="@container mx-auto flex w-full max-w-[720px] flex-col gap-6">
       <header className="flex min-h-10 items-center">
@@ -88,28 +82,6 @@ export function SettingsScreen({ s }: { s: Snapshot }) {
           />
         </div>
       </Group>
-      {s.backup.shown && (
-        <Group title={t("backup_title")}>
-          <div className="flex flex-col gap-3">
-            <p className="text-base-content/80">{t("backup_body")}</p>
-            <p className="text-base-content/80">{t(s.backup.secrets)}</p>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="min-w-0 flex-1 basis-56 text-base-content/65">{backup.size}</p>
-              <button type="button" className="btn btn-primary btn-sm" disabled={!s.backup.button} onClick={() => ipc.backupStart()}>
-                {t("backup_button")}
-              </button>
-            </div>
-            {s.backup.bar && (
-              <progress className="progress progress-success w-full" value={s.backup.percent ?? undefined} max={100} aria-label={backup.result ?? undefined} />
-            )}
-            {backup.result && (
-              <p role="status" className="text-base-content">
-                {backup.result}
-              </p>
-            )}
-          </div>
-        </Group>
-      )}
       {s.place === "here" && s.ours && s.canTurnOff && (
         <Group title={t("settings_nouride_title")}>
           <div className="flex flex-wrap items-center justify-between gap-3">

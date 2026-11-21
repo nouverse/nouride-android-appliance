@@ -58,8 +58,6 @@ pub fn handle(handle: &AppHandle, app: &Arc<App>, argv: &[String]) {
         let _ = a.notices().remember(&updates::client::Client { origin: a.build.origin(), token_path: a.layout.control_token() }.status(true).map_err(|e| e.to_string())?, crate::applog::now_ms());
       }
       "update-nouride" => crate::versions::update_nouride(h.clone(), a.clone()),
-      "backup-count" => crate::nouride_files::count(&h, &a),
-      "backup-start" => crate::nouride_files::start(&h, &a),
       // The question on the dashboard's window ("Go back to Nouride Home?"): its words and buttons, and with a
       // button's words, a press on it, as a click there would.
       #[cfg(target_os = "macos")]
